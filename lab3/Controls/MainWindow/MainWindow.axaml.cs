@@ -1,0 +1,1 @@
+using Avalonia.ReactiveUI;using lab3.ViewModels;namespace lab3.Controls.MainWindow{    public partial class MainWindow : ReactiveWindow<MainWindowViewModel>    {        public MainWindow()        {            InitializeComponent();        }    }}
