@@ -1,1 +1,1 @@
-using Avalonia.Controls;namespace lab3.Views{    public partial class MainWindow : Window    {        public MainWindow()        {            InitializeComponent();        }    }}
+using Avalonia.Controls;using Avalonia.ReactiveUI;using lab3.ViewModels;namespace lab3.Views{    public partial class MainWindow : ReactiveWindow<MainWindowViewModel>    {        public MainWindow()        {            InitializeComponent();        }    }}

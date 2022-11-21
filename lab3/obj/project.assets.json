@@ -350,6 +350,18 @@
           }
         }
       },
+      "Citrus.Avalonia/1.6.1": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "0.10.12"
+        },
+        "compile": {
+          "lib/netstandard2.0/Citrus.Avalonia.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Citrus.Avalonia.dll": {}
+        }
+      },
       "DynamicData/7.9.5": {
         "type": "package",
         "dependencies": {
@@ -1872,6 +1884,18 @@
         "lib/net6.0/Avalonia.X11.xml",
         "lib/netstandard2.0/Avalonia.X11.dll",
         "lib/netstandard2.0/Avalonia.X11.xml"
+      ]
+    },
+    "Citrus.Avalonia/1.6.1": {
+      "sha512": "A95Hl6FyftGM1HCS/xHbARunegyZQbz8L5h20ktFKd5wEy8JSWZPsQFMMaQUpp25Y5vcxWK7WbA17BBngICtbw==",
+      "type": "package",
+      "path": "citrus.avalonia/1.6.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "citrus.avalonia.1.6.1.nupkg.sha512",
+        "citrus.avalonia.nuspec",
+        "lib/netstandard2.0/Citrus.Avalonia.dll"
       ]
     },
     "DynamicData/7.9.5": {
@@ -4862,28 +4886,32 @@
       "Avalonia.ReactiveUI >= 11.0.0-preview4",
       "Avalonia.Svg >= 11.0.0-preview4",
       "Avalonia.Themes.Fluent >= 11.0.0-preview4",
+      "Avalonia.Themes.Simple >= 11.0.0-preview4",
+      "Citrus.Avalonia >= 1.6.1",
       "XamlNameReferenceGenerator >= 1.3.4"
     ]
   },
   "packageFolders": {
-    "/home/darling/.nuget/packages/": {}
+    "C:\\Users\\s-hro\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/darling/RiderProjects/lab3/lab3/lab3.csproj",
+      "projectUniqueName": "C:\\Users\\s-hro\\source\\repos\\lab3\\lab3\\lab3.csproj",
       "projectName": "lab3",
-      "projectPath": "/home/darling/RiderProjects/lab3/lab3/lab3.csproj",
-      "packagesPath": "/home/darling/.nuget/packages/",
-      "outputPath": "/home/darling/RiderProjects/lab3/lab3/obj/",
+      "projectPath": "C:\\Users\\s-hro\\source\\repos\\lab3\\lab3\\lab3.csproj",
+      "packagesPath": "C:\\Users\\s-hro\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\s-hro\\source\\repos\\lab3\\lab3\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/darling/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\s-hro\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -4926,6 +4954,14 @@
             "target": "Package",
             "version": "[11.0.0-preview4, )"
           },
+          "Avalonia.Themes.Simple": {
+            "target": "Package",
+            "version": "[11.0.0-preview4, )"
+          },
+          "Citrus.Avalonia": {
+            "target": "Package",
+            "version": "[1.6.1, )"
+          },
           "XamlNameReferenceGenerator": {
             "target": "Package",
             "version": "[1.3.4, )"
@@ -4937,7 +4973,8 @@
           "net47",
           "net471",
           "net472",
-          "net48"
+          "net48",
+          "net481"
         ],
         "assetTargetFallback": true,
         "warn": true,
@@ -4946,7 +4983,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/6.0.110/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
       }
     }
   }

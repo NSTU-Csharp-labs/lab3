@@ -1,1 +1,1 @@
-﻿namespace lab3.ViewModels{    public class MainWindowViewModel : ViewModelBase    {        public string Greeting => "Welcome to Avalonia!";    }}
+﻿using System;using System.Reactive;using ExCSS;using ReactiveUI;using Avalonia.Reactive;using Tmds.DBus;namespace lab3.ViewModels{    public class MainWindowViewModel : ViewModelBase    {        public MainWindowViewModel()        {            Test = ReactiveCommand.Create(() => Console.WriteLine("good"));        }        public ReactiveCommand<Unit, Unit> Test { get;  }    }}
