@@ -10,6 +10,7 @@ namespace lab3.Controls.ImageRenderer;
 
 public class ImageRenderer : OpenGlControlBase
 {
+    const int CUSTOM_GL_STREAM_DRAW = 0x88E0;
     private int _vertexShader;
     private int _fragmentShader;
     private int _shaderProgram;
@@ -76,7 +77,7 @@ public class ImageRenderer : OpenGlControlBase
         fixed (void* pdata = _vertices)
             GL.BufferData(
                 GL_ARRAY_BUFFER, new IntPtr(_vertices.Length * sizeof(float)),
-                new IntPtr(pdata), GL_STATIC_DRAW
+                new IntPtr(pdata), CUSTOM_GL_STREAM_DRAW
                 );
 
         _vertexArrayObject = GL.GenVertexArray();
@@ -106,13 +107,12 @@ public class ImageRenderer : OpenGlControlBase
 
     protected override unsafe void OnOpenGlRender(GlInterface GL, int fb)
     {
-        GL.ClearColor(0, 0, 0, 1);
+        GL.ClearColor(0.23f,0.23f, 0.23f, 1);
         GL.Clear(GL_COLOR_BUFFER_BIT);
 
         GL.Viewport(0, 0, (int)Bounds.Width, (int)Bounds.Height);
         
 
-        Console.WriteLine($"Height: {Bounds.Height} Widht: {Bounds.Width}");
         GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
         GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
         
