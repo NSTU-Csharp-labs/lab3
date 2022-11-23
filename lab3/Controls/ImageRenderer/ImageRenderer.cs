@@ -15,11 +15,18 @@ public class ImageRenderer : OpenGlControlBase
     private int _shaderProgram;
     private int _vertexBufferObject;
     private int _vertexArrayObject;
+    private int _indicesBufferObject;
 
     private float[] _vertices = {
-        0f, 0f,
-        0f, 0f,
         0f, 0f, 
+        0f, 0f,
+        0f, 0f,
+        0f, 0f,
+    };
+
+    private ushort[] _indices = {
+        0, 1, 2,
+        1, 3, 2,
     };
 
     private void UpdateVertexes()
@@ -32,6 +39,9 @@ public class ImageRenderer : OpenGlControlBase
         
         _vertices[4] = (float)Bounds.Width / 2;
         _vertices[5] = -(float)Bounds.Height / 2;
+
+        _vertices[6] = (float)Bounds.Width / 2;
+        _vertices[7] = (float)Bounds.Height / 2;
     }
     
     private void OnSizeChange(object? sender, SizeChangedEventArgs e) => UpdateVertexes();
@@ -72,10 +82,20 @@ public class ImageRenderer : OpenGlControlBase
         _vertexArrayObject = GL.GenVertexArray();
         GL.BindVertexArray(_vertexArrayObject);
         CheckError(GL, 60);
-
+        
         GL.VertexAttribPointer(positionLocation, 2, GL_FLOAT, 0, 0, IntPtr.Zero);
         GL.EnableVertexAttribArray(positionLocation);
-        CheckError(GL, 64);
+        
+        CheckError(GL, 89);
+        _indicesBufferObject = GL.GenBuffer();
+        GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
+        CheckError(GL, 92);
+        
+        fixed (void* pdata = _indices)
+            GL.BufferData(
+                GL_ELEMENT_ARRAY_BUFFER, new IntPtr(_indices.Length * sizeof(ushort)),
+                new IntPtr(pdata), GL_STATIC_DRAW
+            );
         
         base.SizeChanged += OnSizeChange;
 
@@ -94,15 +114,14 @@ public class ImageRenderer : OpenGlControlBase
 
         Console.WriteLine($"Height: {Bounds.Height} Widht: {Bounds.Width}");
         GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
-        
+        GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
         
         fixed (void* pdata = _vertices)
             GL.BufferData(
                 GL_ARRAY_BUFFER, new IntPtr(_vertices.Length * sizeof(float)),
                 new IntPtr(pdata), GL_STATIC_DRAW
             );
-        GL.BindBuffer(GL_ARRAY_BUFFER,0);
-        
+
         GL.BindVertexArray(_vertexArrayObject);
         GL.UseProgram(_shaderProgram);
 
@@ -123,16 +142,14 @@ public class ImageRenderer : OpenGlControlBase
 
         CheckError(GL, 85);
 
-        GL.DrawArrays(GL_TRIANGLES, 0, new IntPtr(3));
+        // GL.DrawArrays(GL_TRIANGLES, 0, new IntPtr(3));
+        GL.DrawElements(GL_TRIANGLES, _indices.Length, GL_UNSIGNED_SHORT, IntPtr.Zero);
         
         CheckError(GL, 89);
 
         GL.BindVertexArray(0);
 
         CheckError(GL, 93);
-        
-        
-        
     }
 
     protected override void OnOpenGlDeinit(GlInterface GL, int fb)
