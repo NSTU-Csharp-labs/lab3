@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Avalonia.Controls;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using static Avalonia.OpenGL.GlConsts;
@@ -15,15 +16,29 @@ public class ImageRenderer : OpenGlControlBase
     private int _vertexBufferObject;
     private int _vertexArrayObject;
 
-    private float[] _vertices = new[]
-    {
-        100, 200, 0, // Top   
-        -200f, -100, 0, // Left  
-        300, -100, 0, // Right 
+    private float[] _vertices = {
+        0f, 0f,
+        0f, 0f,
+        0f, 0f, 
     };
 
+    private void UpdateVertexes()
+    {
+        _vertices[0] = -(float)Bounds.Width / 2;
+        _vertices[1] = -(float)Bounds.Height / 2;
+        
+        _vertices[2] = -(float)Bounds.Width / 2;
+        _vertices[3] = (float)Bounds.Height / 2;
+        
+        _vertices[4] = (float)Bounds.Width / 2;
+        _vertices[5] = -(float)Bounds.Height / 2;
+    }
+    
+    private void OnSizeChange(object? sender, SizeChangedEventArgs e) => UpdateVertexes();
+    
     protected override unsafe void OnOpenGlInit(GlInterface GL, int fb)
     {
+        UpdateVertexes();
         CheckError(GL, 32);
 
         _vertexShader = GL.CreateShader(GL_VERTEX_SHADER);
@@ -58,10 +73,15 @@ public class ImageRenderer : OpenGlControlBase
         GL.BindVertexArray(_vertexArrayObject);
         CheckError(GL, 60);
 
-        GL.VertexAttribPointer(positionLocation, 3, GL_FLOAT, 0, 0, IntPtr.Zero);
+        GL.VertexAttribPointer(positionLocation, 2, GL_FLOAT, 0, 0, IntPtr.Zero);
         GL.EnableVertexAttribArray(positionLocation);
         CheckError(GL, 64);
+        
+        base.SizeChanged += OnSizeChange;
+
     }
+
+    
 
 
     protected override unsafe void OnOpenGlRender(GlInterface GL, int fb)
@@ -70,14 +90,25 @@ public class ImageRenderer : OpenGlControlBase
         GL.Clear(GL_COLOR_BUFFER_BIT);
 
         GL.Viewport(0, 0, (int)Bounds.Width, (int)Bounds.Height);
+        
 
         Console.WriteLine($"Height: {Bounds.Height} Widht: {Bounds.Width}");
         GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
+        
+        
+        fixed (void* pdata = _vertices)
+            GL.BufferData(
+                GL_ARRAY_BUFFER, new IntPtr(_vertices.Length * sizeof(float)),
+                new IntPtr(pdata), GL_STATIC_DRAW
+            );
+        GL.BindBuffer(GL_ARRAY_BUFFER,0);
+        
         GL.BindVertexArray(_vertexArrayObject);
         GL.UseProgram(_shaderProgram);
 
-        var projection = Matrix4x4
-            .CreateOrthographic((float)Bounds.Width, (float)Bounds.Height, 0, 10);
+        var projection = Matrix4x4.CreateOrthographicOffCenter(-(float)Bounds.Width / 2, (float)Bounds.Width / 2,
+            -(float)Bounds.Height / 2, (float)Bounds.Height / 2, 0, 10);
+        
         var view = Matrix4x4
             .CreateLookAt(new Vector3(0, 0, 5), new Vector3(), new Vector3(0, 1, 0));
         var model = Matrix4x4.CreateScale(1);
@@ -99,6 +130,9 @@ public class ImageRenderer : OpenGlControlBase
         GL.BindVertexArray(0);
 
         CheckError(GL, 93);
+        
+        
+        
     }
 
     protected override void OnOpenGlDeinit(GlInterface GL, int fb)
@@ -127,23 +161,23 @@ public class ImageRenderer : OpenGlControlBase
     }
 
     private string FragmentShaderSource => GetShader(true, @"
-void main()
-{
-    gl_FragColor = vec4(1.0, 0.5, 0.2, 1.0);
-}
-");
+    void main()
+    {
+        gl_FragColor = vec4(1.0, 0.5, 0.2, 1.0);
+    }
+    ");
 
     private string VertexShaderSource => GetShader(false, @"
-attribute vec3 aPosition;
-uniform mat4 uProjection;
-uniform mat4 uView;
-uniform mat4 uModel;
+    attribute vec2 aPosition;
+    uniform mat4 uProjection;
+    uniform mat4 uView;
+    uniform mat4 uModel;
 
-void main()
-{
-    gl_Position = uProjection * uView * uModel * vec4(aPosition.x, aPosition.y, aPosition.z, 1.0);
-}
-");
+    void main()
+    {
+        gl_Position = uProjection * uView * uModel * vec4(aPosition.x, aPosition.y, 0, 1.0);
+    }
+    ");
 
 
     private string GetShader(bool fragment, string shader)
