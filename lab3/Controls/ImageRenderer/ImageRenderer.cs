@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
@@ -16,9 +17,8 @@ public class ImageRenderer : OpenGlControlBase
 
     private float[] _vertices = new[]
     {
-        -0.5f, -0.5f, 0.0f, // Left  
-        0.5f, -0.5f, 0.0f, // Right 
-        0.0f, 0.5f, 0.0f // Top   
+        100, 200, 0, // Top   
+        -200f, -100, 0, // Left  
     };
 
     protected override unsafe void OnOpenGlInit(GlInterface GL, int fb)
@@ -27,69 +27,88 @@ public class ImageRenderer : OpenGlControlBase
 
         _vertexShader = GL.CreateShader(GL_VERTEX_SHADER);
         _fragmentShader = GL.CreateShader(GL_FRAGMENT_SHADER);
-        
+
         Console.WriteLine(GL.CompileShaderAndGetError(_vertexShader, VertexShaderSource));
         Console.WriteLine(GL.CompileShaderAndGetError(_fragmentShader, FragmentShaderSource));
-        
+
         _shaderProgram = GL.CreateProgram();
         GL.AttachShader(_shaderProgram, _vertexShader);
         GL.AttachShader(_shaderProgram, _fragmentShader);
         
         var positionLocation = 0;
         GL.BindAttribLocationString(_shaderProgram, positionLocation, "aPosition");
+        
         Console.WriteLine(GL.LinkProgramAndGetError(_shaderProgram));
+
         CheckError(GL, 47);
-        
+
         _vertexBufferObject = GL.GenBuffer();
-        
+
         GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
         CheckError(GL, 52);
-        
+
         fixed (void* pdata = _vertices)
-            GL.BufferData(GL_ARRAY_BUFFER, new IntPtr(_vertices.Length * sizeof(float)),
-                new IntPtr(pdata), GL_STATIC_DRAW);
-        
+            GL.BufferData(
+                GL_ARRAY_BUFFER, new IntPtr(_vertices.Length * sizeof(float)),
+                new IntPtr(pdata), GL_STATIC_DRAW
+                );
+
         _vertexArrayObject = GL.GenVertexArray();
         GL.BindVertexArray(_vertexArrayObject);
         CheckError(GL, 60);
-        
+
         GL.VertexAttribPointer(positionLocation, 3, GL_FLOAT, 0, 3, IntPtr.Zero);
         GL.EnableVertexAttribArray(positionLocation);
         CheckError(GL, 64);
     }
 
 
-    protected override void OnOpenGlRender(GlInterface GL, int fb)
+    protected override unsafe void OnOpenGlRender(GlInterface GL, int fb)
     {
         GL.ClearColor(0, 0, 0, 1);
         GL.Clear(GL_COLOR_BUFFER_BIT);
-        
+
         GL.Viewport(0, 0, (int)Bounds.Width, (int)Bounds.Height);
-        
+
+        Console.WriteLine($"Height: {Bounds.Height} Widht: {Bounds.Width}");
         GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
         GL.BindVertexArray(_vertexArrayObject);
         GL.UseProgram(_shaderProgram);
+
+        var projection = Matrix4x4
+            .CreateOrthographic((float)Bounds.Width, (float)Bounds.Height, 0, 10);
+        var view = Matrix4x4
+            .CreateLookAt(new Vector3(0, 0, 5), new Vector3(), new Vector3(0, 1, 0));
+        var model = Matrix4x4.CreateScale(1);
+
+        var projectionLoc = GL.GetUniformLocationString(_shaderProgram, "uProjection");
+        var viewLoc = GL.GetUniformLocationString(_shaderProgram, "uView");
+        var modelLoc = GL.GetUniformLocationString(_shaderProgram, "uModel");
         
-        CheckError(GL, 73);
-        
+        GL.UniformMatrix4fv(projectionLoc, 1, false, &projection);
+        GL.UniformMatrix4fv(viewLoc, 1, false, &view);
+        GL.UniformMatrix4fv(modelLoc, 1, false, &model);
+
+        CheckError(GL, 85);
+
         GL.DrawArrays(GL_TRIANGLES, 0, new IntPtr(3));
         
-        GL.BindVertexArray(0);
-        
-        CheckError(GL, 85);
-    }
+        CheckError(GL, 89);
 
+        GL.BindVertexArray(0);
+
+        CheckError(GL, 93);
+    }
 
     protected override void OnOpenGlDeinit(GlInterface GL, int fb)
     {
-        
         Console.WriteLine(VertexShaderSource);
         Console.WriteLine(FragmentShaderSource);
         GL.BindBuffer(GL_ARRAY_BUFFER, 0);
         GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         GL.BindVertexArray(0);
         GL.UseProgram(0);
-        
+
         GL.DeleteBuffer(_vertexBufferObject);
         GL.DeleteVertexArray(_vertexArrayObject);
         GL.DeleteProgram(_shaderProgram);
@@ -97,13 +116,12 @@ public class ImageRenderer : OpenGlControlBase
         GL.DeleteShader(_vertexShader);
     }
 
-
     private void CheckError(GlInterface gl, int num)
     {
         int err;
         while ((err = gl.GetError()) != GL_NO_ERROR)
         {
-            Console.WriteLine($"[{num}] {err}"); 
+            Console.WriteLine($"[{num}] {err}");
         }
     }
 
@@ -116,10 +134,13 @@ void main()
 
     private string VertexShaderSource => GetShader(false, @"
 attribute vec3 aPosition;
+uniform mat4 uProjection;
+uniform mat4 uView;
+uniform mat4 uModel;
 
 void main()
 {
-    gl_Position = vec4(aPosition.x, aPosition.y, aPosition.z, 1.0);
+    gl_Position = uProjection * uView * uModel * vec4(aPosition.x, aPosition.y, aPosition.z, 1.0);
 }
 ");
 
