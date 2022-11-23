@@ -1,20 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Numerics;
 using System.Runtime.InteropServices;
-using Avalonia;
-using Avalonia.Controls;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
-using Avalonia.Platform.Interop;
-using Avalonia.Threading;
 using static Avalonia.OpenGL.GlConsts;
-using Avalonia.OpenGL;
-using Avalonia.OpenGL.Controls;
-
 
 namespace lab3.Controls.ImageRenderer;
 
@@ -25,26 +13,12 @@ public class ImageRenderer : OpenGlControlBase
     private int _fragmentShader;
     private int _shaderProgram;
     private int _vertexBufferObject;
-    private int _indexBufferObject;
     private int _vertexArrayObject;
     
-    
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    private struct Vertex
-    {
-        public Vector3 Position;
-        public Vector3 Normal;
-    }
-    
-    private readonly Vertex[] _points;
-    private readonly float _minY;
-    private readonly float _maxY;
-    
-    
-    private float[] vertices = new [] {
-        -0.5f, -0.5f, 0.0f, // Left  
-        0.5f, -0.5f, 0.0f, // Right 
-        0.0f,  0.5f, 0.0f  // Top   
+    private float[] _vertices = new [] {
+        -0.5f, -0.5f, 0.0f,     // Left  
+        0.5f, -0.5f, 0.0f,      // Right 
+        0.0f,  0.5f, 0.0f       // Top   
     };
     
     
@@ -56,7 +30,6 @@ public class ImageRenderer : OpenGlControlBase
     protected override unsafe void OnOpenGlInit(GlInterface GL, int fb)
     {
             CheckError(GL);
-            var Info = $"Renderer: {GL.GetString(GL_RENDERER)} Version: {GL.GetString(GL_VERSION)}";
         
             _vertexShader = GL.CreateShader(GL_VERTEX_SHADER);
             _fragmentShader = GL.CreateShader(GL_FRAGMENT_SHADER);
@@ -68,17 +41,13 @@ public class ImageRenderer : OpenGlControlBase
             GL.AttachShader(_shaderProgram, _vertexShader);
             GL.AttachShader(_shaderProgram, _fragmentShader);
         
-            const int positionLocation = 0;
-            const int normalLocation = 1;
-
             _vertexBufferObject = GL.GenBuffer();
             
             GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
             CheckError(GL);
             
-            var vertexSize = Marshal.SizeOf<Vertex>();
-            fixed (void* pdata = vertices)
-                GL.BufferData(GL_ARRAY_BUFFER, new IntPtr(vertices.Length),
+            fixed (void* pdata = _vertices)
+                GL.BufferData(GL_ARRAY_BUFFER, new IntPtr(_vertices.Length * sizeof(float)),
                     new IntPtr(pdata), GL_STATIC_DRAW);
 
             _vertexArrayObject = GL.GenVertexArray();
@@ -95,7 +64,7 @@ public class ImageRenderer : OpenGlControlBase
     
     protected override unsafe void OnOpenGlRender(GlInterface GL, int fb)
     {
-        GL.ClearColor(0, 0, 0, 0);
+        GL.ClearColor(0, 0, 0, 1);
         GL.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         GL.Enable(GL_DEPTH_TEST);
         
@@ -108,6 +77,8 @@ public class ImageRenderer : OpenGlControlBase
         CheckError(GL);
         
         GL.DrawArrays(GL_TRIANGLES, 0, new IntPtr(3));
+        
+        GL.BindVertexArray(0);
 
         CheckError(GL);
         
@@ -122,7 +93,6 @@ public class ImageRenderer : OpenGlControlBase
         GL.UseProgram(0);
 
         GL.DeleteBuffer(_vertexBufferObject);
-        GL.DeleteBuffer(_indexBufferObject);
         GL.DeleteVertexArray(_vertexArrayObject);
         GL.DeleteProgram(_shaderProgram);
         GL.DeleteShader(_fragmentShader);
