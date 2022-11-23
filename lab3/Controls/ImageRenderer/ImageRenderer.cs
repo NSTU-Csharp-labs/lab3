@@ -70,12 +70,7 @@ public class ImageRenderer : OpenGlControlBase
         
             const int positionLocation = 0;
             const int normalLocation = 1;
-            
-            // GL.BindAttribLocationString(_shaderProgram, positionLocation, "?fromShandeNAme");
-            // GL.BindAttribLocationString(_shaderProgram, normalLocation, "?fromShaderName");
-            // Console.WriteLine(GL.LinkProgramAndGetError(_shaderProgram));
-            // CheckError(GL);
-        
+
             _vertexBufferObject = GL.GenBuffer();
             
             GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
@@ -93,15 +88,6 @@ public class ImageRenderer : OpenGlControlBase
             GL.VertexAttribPointer(0, 3, GL_FLOAT, 0, 3, IntPtr.Zero);
             GL.EnableVertexAttribArray(0);
             CheckError(GL);
-
-            
-            // GL.VertexAttribPointer(positionLocation, 3, GL_FLOAT,
-            //     0, vertexSize, IntPtr.Zero);
-            // GL.VertexAttribPointer(normalLocation, 3, GL_FLOAT,
-            //     0, vertexSize, new IntPtr(12));
-            // GL.EnableVertexAttribArray(positionLocation);
-            // GL.EnableVertexAttribArray(normalLocation);
-            // CheckError(GL);
     }
 
     
