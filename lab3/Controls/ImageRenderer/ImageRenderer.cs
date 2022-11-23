@@ -41,7 +41,7 @@ public class ImageRenderer : OpenGlControlBase
     private readonly float _maxY;
     
     
-    private List<float> vertices = new List<float>(){
+    private float[] vertices = new [] {
         -0.5f, -0.5f, 0.0f, // Left  
         0.5f, -0.5f, 0.0f, // Right 
         0.0f,  0.5f, 0.0f  // Top   
@@ -77,8 +77,8 @@ public class ImageRenderer : OpenGlControlBase
             CheckError(GL);
             
             var vertexSize = Marshal.SizeOf<Vertex>();
-            fixed (void* pdata = _points)
-                GL.BufferData(GL_ARRAY_BUFFER, new IntPtr(_points.Length * vertexSize),
+            fixed (void* pdata = vertices)
+                GL.BufferData(GL_ARRAY_BUFFER, new IntPtr(vertices.Length),
                     new IntPtr(pdata), GL_STATIC_DRAW);
 
             _vertexArrayObject = GL.GenVertexArray();
@@ -93,9 +93,23 @@ public class ImageRenderer : OpenGlControlBase
     
  
     
-    protected override void OnOpenGlRender(GlInterface GL, int fb)
+    protected override unsafe void OnOpenGlRender(GlInterface GL, int fb)
     {
-     
+        GL.ClearColor(0, 0, 0, 0);
+        GL.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GL.Enable(GL_DEPTH_TEST);
+        
+        GL.Viewport(0, 0, (int)Bounds.Width, (int)Bounds.Height);
+        
+        GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
+        GL.BindVertexArray(_vertexArrayObject);
+        GL.UseProgram(_shaderProgram);
+
+        CheckError(GL);
+        
+        GL.DrawArrays(GL_TRIANGLES, 0, new IntPtr(3));
+
+        CheckError(GL);
         
     }
    
