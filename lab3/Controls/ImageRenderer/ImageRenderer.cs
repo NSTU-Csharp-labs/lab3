@@ -19,6 +19,7 @@ public class ImageRenderer : OpenGlControlBase
     {
         100, 200, 0, // Top   
         -200f, -100, 0, // Left  
+        300, -100, 0, // Right 
     };
 
     protected override unsafe void OnOpenGlInit(GlInterface GL, int fb)
@@ -57,7 +58,7 @@ public class ImageRenderer : OpenGlControlBase
         GL.BindVertexArray(_vertexArrayObject);
         CheckError(GL, 60);
 
-        GL.VertexAttribPointer(positionLocation, 3, GL_FLOAT, 0, 3, IntPtr.Zero);
+        GL.VertexAttribPointer(positionLocation, 3, GL_FLOAT, 0, 0, IntPtr.Zero);
         GL.EnableVertexAttribArray(positionLocation);
         CheckError(GL, 64);
     }
