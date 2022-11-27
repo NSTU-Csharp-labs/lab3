@@ -6,14 +6,16 @@ using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using static Avalonia.OpenGL.GlConsts;
 
-namespace lab3.Controls.ImageRenderer;
+namespace lab3.Controls.GL;
 
 public class ImageRenderer : OpenGlControlBase
 {
     const int CUSTOM_GL_STREAM_DRAW = 0x88E0;
     private int _vertexShader;
     private int _fragmentShader;
-    private int _shaderProgram;
+
+    private ShaderProgram _shaderProgram;
+    
     private int _vertexBufferObject;
     private int _vertexArrayObject;
     private int _indicesBufferObject;
@@ -50,47 +52,46 @@ public class ImageRenderer : OpenGlControlBase
     protected override unsafe void OnOpenGlInit(GlInterface GL, int fb)
     {
         UpdateVertexes();
-        CheckError(GL, 32);
-
-        _vertexShader = GL.CreateShader(GL_VERTEX_SHADER);
-        _fragmentShader = GL.CreateShader(GL_FRAGMENT_SHADER);
-
-        Console.WriteLine(GL.CompileShaderAndGetError(_vertexShader, VertexShaderSource));
-        Console.WriteLine(GL.CompileShaderAndGetError(_fragmentShader, FragmentShaderSource));
-
-        _shaderProgram = GL.CreateProgram();
-        GL.AttachShader(_shaderProgram, _vertexShader);
-        GL.AttachShader(_shaderProgram, _fragmentShader);
-        
+        CheckError(GL);
         var positionLocation = 0;
-        GL.BindAttribLocationString(_shaderProgram, positionLocation, "aPosition");
+
+        try
+        {
+            _shaderProgram = new ShaderProgram(GL, GlVersion.Type);
+            _shaderProgram.AddShader(GL_VERTEX_SHADER, false, VertexShaderSource);
+            _shaderProgram.AddShader(GL_FRAGMENT_SHADER, true, FragmentShaderSource);
+            _shaderProgram.CreateShaderProgram();
+
+            _shaderProgram.BindAttribLocationString(positionLocation, "aPosition");
+            _shaderProgram.LinkShaderProgram();
+        }
+        catch (ShaderProgramException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
         
-        Console.WriteLine(GL.LinkProgramAndGetError(_shaderProgram));
-
-        CheckError(GL, 47);
-
         _vertexBufferObject = GL.GenBuffer();
 
         GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
-        CheckError(GL, 52);
+        CheckError(GL);
 
         fixed (void* pdata = _vertices)
             GL.BufferData(
                 GL_ARRAY_BUFFER, new IntPtr(_vertices.Length * sizeof(float)),
                 new IntPtr(pdata), CUSTOM_GL_STREAM_DRAW
-                );
+            );
 
         _vertexArrayObject = GL.GenVertexArray();
         GL.BindVertexArray(_vertexArrayObject);
-        CheckError(GL, 60);
+        CheckError(GL);
         
         GL.VertexAttribPointer(positionLocation, 2, GL_FLOAT, 0, 0, IntPtr.Zero);
         GL.EnableVertexAttribArray(positionLocation);
         
-        CheckError(GL, 89);
+        CheckError(GL);
         _indicesBufferObject = GL.GenBuffer();
         GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
-        CheckError(GL, 92);
+        CheckError(GL);
         
         fixed (void* pdata = _indices)
             GL.BufferData(
@@ -123,7 +124,7 @@ public class ImageRenderer : OpenGlControlBase
             );
 
         GL.BindVertexArray(_vertexArrayObject);
-        GL.UseProgram(_shaderProgram);
+        GL.UseProgram(_shaderProgram.Link);
 
         var projection = Matrix4x4.CreateOrthographicOffCenter(-(float)Bounds.Width / 2, (float)Bounds.Width / 2,
             -(float)Bounds.Height / 2, (float)Bounds.Height / 2, 0, 10);
@@ -132,24 +133,24 @@ public class ImageRenderer : OpenGlControlBase
             .CreateLookAt(new Vector3(0, 0, 5), new Vector3(), new Vector3(0, 1, 0));
         var model = Matrix4x4.CreateScale(1);
 
-        var projectionLoc = GL.GetUniformLocationString(_shaderProgram, "uProjection");
-        var viewLoc = GL.GetUniformLocationString(_shaderProgram, "uView");
-        var modelLoc = GL.GetUniformLocationString(_shaderProgram, "uModel");
+        var projectionLoc = GL.GetUniformLocationString(_shaderProgram.Link, "uProjection");
+        var viewLoc = GL.GetUniformLocationString(_shaderProgram.Link, "uView");
+        var modelLoc = GL.GetUniformLocationString(_shaderProgram.Link, "uModel");
         
         GL.UniformMatrix4fv(projectionLoc, 1, false, &projection);
         GL.UniformMatrix4fv(viewLoc, 1, false, &view);
         GL.UniformMatrix4fv(modelLoc, 1, false, &model);
 
-        CheckError(GL, 85);
+        CheckError(GL);
 
         // GL.DrawArrays(GL_TRIANGLES, 0, new IntPtr(3));
         GL.DrawElements(GL_TRIANGLES, _indices.Length, GL_UNSIGNED_SHORT, IntPtr.Zero);
         
-        CheckError(GL, 89);
+        CheckError(GL);
 
         GL.BindVertexArray(0);
 
-        CheckError(GL, 93);
+        CheckError(GL);
     }
 
     protected override void OnOpenGlDeinit(GlInterface GL, int fb)
@@ -163,28 +164,28 @@ public class ImageRenderer : OpenGlControlBase
 
         GL.DeleteBuffer(_vertexBufferObject);
         GL.DeleteVertexArray(_vertexArrayObject);
-        GL.DeleteProgram(_shaderProgram);
+        GL.DeleteProgram(_shaderProgram.Link);
         GL.DeleteShader(_fragmentShader);
         GL.DeleteShader(_vertexShader);
     }
 
-    private void CheckError(GlInterface gl, int num)
+    private void CheckError(GlInterface gl)
     {
         int err;
         while ((err = gl.GetError()) != GL_NO_ERROR)
         {
-            Console.WriteLine($"[{num}] {err}");
+            Console.WriteLine($"{err}");
         }
     }
 
-    private string FragmentShaderSource => GetShader(true, @"
+    private string FragmentShaderSource =>  @"
     void main()
     {
         gl_FragColor = vec4(1.0, 0.5, 0.2, 1.0);
     }
-    ");
+    ";
 
-    private string VertexShaderSource => GetShader(false, @"
+    private string VertexShaderSource =>  @"
     attribute vec2 aPosition;
     uniform mat4 uProjection;
     uniform mat4 uView;
@@ -194,32 +195,7 @@ public class ImageRenderer : OpenGlControlBase
     {
         gl_Position = uProjection * uView * uModel * vec4(aPosition.x, aPosition.y, 0, 1.0);
     }
-    ");
+    ";
 
-
-    private string GetShader(bool fragment, string shader)
-    {
-        var version = GlVersion.Type == GlProfileType.OpenGL
-            ? RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 150 : 120
-            : 100;
-        var data = "#version " + version + "\n";
-
-        if (GlVersion.Type == GlProfileType.OpenGLES)
-            data += "precision mediump float;\n";
-        if (version >= 150)
-        {
-            shader = shader.Replace("attribute", "in");
-            if (fragment)
-                shader = shader
-                    .Replace("varying", "in")
-                    .Replace("//DECLAREGLFRAG", "out vec4 outFragColor;")
-                    .Replace("gl_FragColor", "outFragColor");
-            else
-                shader = shader.Replace("varying", "out");
-        }
-
-        data += shader;
-
-        return data;
-    }
+  
 }
