@@ -31,32 +31,62 @@ public class ImageRenderer : OpenGlControlBase
 
     private float[] _vertices =
     {
-        0f, 0f, 0, 0,
-        0f, 0f, 0, 0,
-        0f, 0f, 0, 0,
-        0f, 0f, 0, 0,
+        1f, 1f, 1, 1,
+        1f, -1f, 1, -1,
+        -1f, -1f, -1, -1,
+        -1f, 1f, -1, 1,
     };
 
     private ushort[] _indices =
     {
-        0, 1, 2,
-        1, 3, 2,
+        0, 1, 3,
+        1, 2, 3,
     };
 
     private void UpdateVertexes()
     {
-        _vertices[2] = _vertices[0] = -(float)Bounds.Width / 2;
-        _vertices[3] = _vertices[1] = -(float)Bounds.Height / 2;
+        // _vertices[2] = _vertices[0] = -(float)Bounds.Width / 2;
+        // _vertices[3] = _vertices[1] = -(float)Bounds.Height / 2;
+        //
+        // _vertices[6] = _vertices[4] = -(float)Bounds.Width / 2;
+        // _vertices[7] = _vertices[5] = (float)Bounds.Height / 2;
+        //
+        // _vertices[10] = _vertices[8] = (float)Bounds.Width / 2;
+        // _vertices[11] = _vertices[9] = -(float)Bounds.Height / 2;
+        //
+        // _vertices[14] = _vertices[12] = (float)Bounds.Width / 2;
+        // _vertices[15] = _vertices[13] = (float)Bounds.Height / 2;
 
-        _vertices[6] = _vertices[4] = -(float)Bounds.Width / 2;
-        _vertices[7] = _vertices[5] = (float)Bounds.Height / 2;
 
-        _vertices[10] = _vertices[8] = (float)Bounds.Width / 2;
-        _vertices[11] = _vertices[9] = -(float)Bounds.Height / 2;
-
-        _vertices[14] = _vertices[12] = (float)Bounds.Width / 2;
-        _vertices[15] = _vertices[13] = (float)Bounds.Height / 2;
+        // _vertices[2] = -1;
+        // _vertices[3] =  -1;
+        //
+        // _vertices[6] = -1;
+        // _vertices[7] = 1;
+        //
+        // _vertices[10] = 1;
+        // _vertices[11] = -1;
+        //
+        // _vertices[14] = 1;
+        // _vertices[15] = 1;
+        //
+        //
+        //
+        // _vertices[2] = _vertices[0] = 1;
+        // _vertices[3] = _vertices[1] = 1;
+        //
+        // _vertices[6] = _vertices[4] = 1;
+        // _vertices[7] = _vertices[5] = 0;
+        //
+        // _vertices[10] = _vertices[8] = 0;
+        // _vertices[11] = _vertices[9] = 0;
+        //
+        // _vertices[14] = _vertices[12] = 0;
+        // _vertices[15] = _vertices[13] = 1;
     }
+
+    private float _imageWidth;
+    private float _imageHeight;
 
     private void OnSizeChange(object? sender, SizeChangedEventArgs e) => UpdateVertexes();
 
@@ -125,12 +155,14 @@ public class ImageRenderer : OpenGlControlBase
 
         var image = Image.Load<Rgba32>("/home/danilka108/RiderProjects/lab3/lab3/Assets/texture.jpg");
 
+        _imageHeight = image.Height;
+        _imageWidth = image.Width;
+
         var pixels = new byte[image.Width * 4 * image.Height];
         image.CopyPixelDataTo(pixels);
         image.Dispose();
 
         CheckError(GL);
-
 
         fixed (byte* p = pixels)
         {
@@ -176,12 +208,17 @@ public class ImageRenderer : OpenGlControlBase
         GL.BindVertexArray(_vertexArrayObject);
         GL.UseProgram(_shaderProgram.Link);
 
-        var projection = Matrix4x4.CreateOrthographicOffCenter(-(float)Bounds.Width / 2, (float)Bounds.Width / 2,
-            -(float)Bounds.Height / 2, (float)Bounds.Height / 2, 0, 10);
+        var projection = Matrix4x4.CreateOrthographicOffCenter(0, (float)Bounds.Width,
+            0, (float)Bounds.Height, 0, 10);
 
         var view = Matrix4x4
-            .CreateLookAt(new Vector3(0, 0, 5), new Vector3(), new Vector3(0, 1, 0));
-        var model = Matrix4x4.CreateScale(1);
+            .CreateLookAt(
+                new Vector3(0, 0, 1),
+                new Vector3(),
+                new Vector3(0, 1, 0)
+            );
+        
+        var model = Matrix4x4.CreateScale(_imageWidth, _imageHeight, 1);
 
         var projectionLoc = GL.GetUniformLocationString(_shaderProgram.Link, "uProjection");
         var viewLoc = GL.GetUniformLocationString(_shaderProgram.Link, "uView");
