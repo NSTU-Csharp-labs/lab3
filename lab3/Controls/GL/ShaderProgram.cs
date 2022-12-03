@@ -33,7 +33,7 @@ public class ShaderProgram
         var returned = _gl.CompileShaderAndGetError(shader, GetShader(fragment, shaderCode));
         if (!CheckOpenGlExeption(returned))
         {
-            throw new ShaderProgramException($"OpenGl: add shader error");
+            throw new ShaderProgramException($"OpenGl: add shader error. {returned}");
         }
 
         _shaders.Add(shader);
@@ -77,7 +77,7 @@ public class ShaderProgram
         var version = _type == GlProfileType.OpenGL
             ? RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 150 : 120
             : 100;
-        var data = "#version " + version + "\n";
+        var data = "#version " + 330 + "\n";
 
         if (_type == GlProfileType.OpenGLES)
             data += "precision mediump float;\n";
