@@ -23,9 +23,9 @@ public class ImageRenderer : OpenGlControlBase
 
     private float[] _vertices =
     {
-        1f, 1f, -1, -1,
-        1f, -1f, -1, 1,
-        -1f, -1f, 1, 1,
+        1f, 1f, 0, -1,
+        1f, -1f, 0, 0,
+        -1f, -1f, 1, 0,
         -1f, 1f, 1, -1,
 
         // 1f,  1f,   1,  1,
@@ -177,6 +177,10 @@ public class ImageRenderer : OpenGlControlBase
 
         _shaderProgram.Use();
 
+        var proportion = (_imageWidth > _imageHeight)
+            ? _imageWidth / (float)Bounds.Width
+            : _imageHeight / (float)Bounds.Height; 
+        
         var projection = Matrix4x4.CreateOrthographicOffCenter(
             -(float)Bounds.Width / 2,
             (float)Bounds.Width / 2,
@@ -187,18 +191,18 @@ public class ImageRenderer : OpenGlControlBase
 
         var view = Matrix4x4
             .CreateLookAt(
-                new Vector3(_imageWidth / 2, _imageHeight / 2, 1),
-                new Vector3(_imageWidth / 2, _imageHeight / 2, 0),
+                new Vector3(_imageWidth / (2 * proportion), _imageHeight / (2 * proportion), 1),
+                new Vector3(_imageWidth / (2 * proportion), _imageHeight / (2 * proportion), 0),
                 new Vector3(0, 1, 0)
             );
 
         var model = Matrix4x4.Multiply(
             Matrix4x4.CreateScale(
-                _imageWidth,
-                _imageHeight,
+                _imageWidth / proportion,
+                _imageHeight / proportion,
                 1),
             Matrix4x4.CreateReflection(
-                new Plane(0, -1, 0, 0))
+                new Plane(0, 1, 0, 0))
         );
 
         _shaderProgram.SetUniformMatrix4x4("uProjection", projection);
