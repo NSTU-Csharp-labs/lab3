@@ -107,8 +107,17 @@ public class ShaderProgram
             Console.WriteLine($"{err}");
         }
     }
-    
-    
+
+    public void Destroy()
+    {
+        _gl.DeleteProgram(Link);
+
+        foreach (var shader in _shaders)
+        {
+            _gl.DeleteShader(shader);
+
+        }
+    }
     
     
 }
