@@ -16,8 +16,6 @@ public class Texture : OpenGLHelper
             _gl.GenTextures(1, (int*)(_texture));
             _texture = _gl.GenTexture();
             _gl.BindTexture(GL_TEXTURE_2D, _texture);
-            // _gl.TexParameteri(GL_TEXTURE_2D, CUSTOM_GL_TEXTURE_WRAP_S, CUSTOM_GL_CLAMP_TO_EDGE);
-            // _gl.TexParameteri(GL_TEXTURE_2D, CUSTOM_GL_TEXTURE_WRAP_T, CUSTOM_GL_CLAMP_TO_EDGE);
             _gl.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             _gl.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             _gl.BindTexture(GL_TEXTURE_2D, 0);

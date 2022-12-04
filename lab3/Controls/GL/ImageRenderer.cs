@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Avalonia.Controls;
@@ -13,16 +14,9 @@ namespace lab3.Controls.GL;
 
 public class ImageRenderer : OpenGlControlBase
 {
-    const int CUSTOM_GL_STREAM_DRAW = 0x88E0;
-
-    public const int CUSTOM_GL_TEXTURE_WRAP_S = 0x2802;
-    public const int CUSTOM_GL_TEXTURE_WRAP_T = 0x2803;
-    public const int CUSTOM_GL_CLAMP_TO_EDGE = 0x812F;
-
-
     private ShaderProgram _shaderProgram;
     private Texture _texture;
-    
+
     private int _vertexBufferObject;
     private int _vertexArrayObject;
     private int _indicesBufferObject;
@@ -112,7 +106,7 @@ public class ImageRenderer : OpenGlControlBase
         fixed (void* pdata = _vertices)
             GL.BufferData(
                 GL_ARRAY_BUFFER, new IntPtr(_vertices.Length * sizeof(float)),
-                new IntPtr(pdata), CUSTOM_GL_STREAM_DRAW
+                new IntPtr(pdata), GL_STATIC_DRAW
             );
 
         _vertexArrayObject = GL.GenVertexArray();
@@ -137,16 +131,19 @@ public class ImageRenderer : OpenGlControlBase
             );
         _texture = new Texture(GL);
 
-        
+
         var image = Image.Load<Rgba32>("../../../Assets/texture.jpg");
-        
+
         _imageHeight = image.Height;
         _imageWidth = image.Width;
+
+        // Width = image.Width;
+        // Height = image.Height;
         
         var pixels = new byte[image.Width * 4 * image.Height];
         image.CopyPixelDataTo(pixels);
         image.Dispose();
-        
+
         _texture.SetPixels(pixels, _imageWidth, _imageHeight);
         SizeChanged += OnSizeChange;
     }
@@ -165,11 +162,6 @@ public class ImageRenderer : OpenGlControlBase
 
     private unsafe void TryToRender(GlInterface GL)
     {
-        GL.ClearColor(0.23f, 0.23f, 0.23f, 1);
-        GL.Clear(GL_COLOR_BUFFER_BIT);
-
-        GL.Viewport(0, 0, (int)Bounds.Width, (int)Bounds.Height);
-
         GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
         GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
 
@@ -180,24 +172,33 @@ public class ImageRenderer : OpenGlControlBase
             );
 
         _texture.Use();
-        
+
         GL.BindVertexArray(_vertexArrayObject);
-        
+
         _shaderProgram.Use();
 
-        var projection = Matrix4x4.CreateOrthographicOffCenter(0, (float)Bounds.Width,
-            0, (float)Bounds.Height, 0, 10);
+        var projection = Matrix4x4.CreateOrthographicOffCenter(
+            -(float)Bounds.Width / 2,
+            (float)Bounds.Width / 2,
+            -(float)Bounds.Height / 2,
+            (float)Bounds.Height / 2,
+            0,
+            10);
 
         var view = Matrix4x4
             .CreateLookAt(
-                new Vector3(0, 0, 1),
-                new Vector3(),
+                new Vector3(_imageWidth / 2, _imageHeight / 2, 1),
+                new Vector3(_imageWidth / 2, _imageHeight / 2, 0),
                 new Vector3(0, 1, 0)
             );
 
         var model = Matrix4x4.Multiply(
-            Matrix4x4.CreateScale(_imageWidth, _imageHeight, 1),
-            Matrix4x4.CreateReflection(new Plane(0, -1, 0, 0))
+            Matrix4x4.CreateScale(
+                _imageWidth,
+                _imageHeight,
+                1),
+            Matrix4x4.CreateReflection(
+                new Plane(0, -1, 0, 0))
         );
 
         _shaderProgram.SetUniformMatrix4x4("uProjection", projection);
@@ -213,6 +214,11 @@ public class ImageRenderer : OpenGlControlBase
 
     protected override void OnOpenGlRender(GlInterface GL, int fb)
     {
+        GL.ClearColor(0.9f, 0.23f, 0.23f, 1);
+        GL.Clear(GL_COLOR_BUFFER_BIT);
+
+        GL.Viewport(0, 0, (int)Bounds.Width, (int)Bounds.Height);
+        
         try
         {
             TryToRender(GL);
