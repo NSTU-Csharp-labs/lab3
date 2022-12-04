@@ -19,8 +19,6 @@ public class ImageRenderer : OpenGlControlBase
     public const int CUSTOM_GL_TEXTURE_WRAP_T = 0x2803;
     public const int CUSTOM_GL_CLAMP_TO_EDGE = 0x812F;
 
-    private int _vertexShader;
-    private int _fragmentShader;
     private int _texture;
 
     private ShaderProgram _shaderProgram;
@@ -31,10 +29,16 @@ public class ImageRenderer : OpenGlControlBase
 
     private float[] _vertices =
     {
-        1f, 1f, 1, 1,
-        1f, -1f, 1, -1,
-        -1f, -1f, -1, -1,
-        -1f, 1f, -1, 1,
+         1f,  1f,   -1, -1,
+         1f, -1f,   -1,  1, 
+        -1f, -1f,    1,  1,
+        -1f,  1f,    1, -1,
+        
+        // 1f,  1f,   1,  1,
+        // 1f, -1f,   1, -1, 
+        // -1f, -1f,  -1, -1,
+        // -1f,  1f,  -1,  1,
+        
     };
 
     private ushort[] _indices =
@@ -148,12 +152,12 @@ public class ImageRenderer : OpenGlControlBase
         GL.GenTextures(1, (int*)(_texture));
         _texture = GL.GenTexture();
         GL.BindTexture(GL_TEXTURE_2D, _texture);
-        GL.TexParameteri(GL_TEXTURE_2D, CUSTOM_GL_TEXTURE_WRAP_S, CUSTOM_GL_CLAMP_TO_EDGE);
-        GL.TexParameteri(GL_TEXTURE_2D, CUSTOM_GL_TEXTURE_WRAP_T, CUSTOM_GL_CLAMP_TO_EDGE);
+        // GL.TexParameteri(GL_TEXTURE_2D, CUSTOM_GL_TEXTURE_WRAP_S, CUSTOM_GL_CLAMP_TO_EDGE);
+        // GL.TexParameteri(GL_TEXTURE_2D, CUSTOM_GL_TEXTURE_WRAP_T, CUSTOM_GL_CLAMP_TO_EDGE);
         GL.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         GL.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        var image = Image.Load<Rgba32>("/home/danilka108/RiderProjects/lab3/lab3/Assets/texture.jpg");
+        var image = Image.Load<Rgba32>("../../../Assets/texture.jpg");
 
         _imageHeight = image.Height;
         _imageWidth = image.Width;
@@ -182,8 +186,6 @@ public class ImageRenderer : OpenGlControlBase
 
         GL.BindTexture(GL_TEXTURE_2D, 0);
 
-        // GL.TexParameteri(GL_TEXTURE_2D, );
-        // GL.TexParameteri(GL_TEXTURE_2D, GL_ACTIVE_TEXTURE, );
 
         SizeChanged += OnSizeChange;
     }
@@ -218,8 +220,14 @@ public class ImageRenderer : OpenGlControlBase
                 new Vector3(0, 1, 0)
             );
         
-        var model = Matrix4x4.CreateScale(_imageWidth, _imageHeight, 1);
-
+        var model =Matrix4x4.Multiply(
+            Matrix4x4.CreateScale(_imageWidth, _imageHeight,1),
+            Matrix4x4.CreateReflection(new Plane(0, -1, 0, 0))
+            );
+        // model =Matrix4x4.Multiply(model, Matrix4x4.CreateReflection(new Plane(0, -1, 0, 0)));
+        // var finalMatrix = model * Matrix4x4.Reflection(new Plane(0,-1,0, 0));
+        // var mirror = Matrix4x4.Transform(model., )
+        
         var projectionLoc = GL.GetUniformLocationString(_shaderProgram.Link, "uProjection");
         var viewLoc = GL.GetUniformLocationString(_shaderProgram.Link, "uView");
         var modelLoc = GL.GetUniformLocationString(_shaderProgram.Link, "uModel");
@@ -248,9 +256,7 @@ public class ImageRenderer : OpenGlControlBase
 
         GL.DeleteBuffer(_vertexBufferObject);
         GL.DeleteVertexArray(_vertexArrayObject);
-        GL.DeleteProgram(_shaderProgram.Link);
-        GL.DeleteShader(_fragmentShader);
-        GL.DeleteShader(_vertexShader);
+        _shaderProgram.Destroy();
     }
 
     private void CheckError(GlInterface gl)
