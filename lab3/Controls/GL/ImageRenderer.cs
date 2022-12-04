@@ -29,16 +29,15 @@ public class ImageRenderer : OpenGlControlBase
 
     private float[] _vertices =
     {
-         1f,  1f,   -1, -1,
-         1f, -1f,   -1,  1, 
-        -1f, -1f,    1,  1,
-        -1f,  1f,    1, -1,
-        
+        1f, 1f, -1, -1,
+        1f, -1f, -1, 1,
+        -1f, -1f, 1, 1,
+        -1f, 1f, 1, -1,
+
         // 1f,  1f,   1,  1,
         // 1f, -1f,   1, -1, 
         // -1f, -1f,  -1, -1,
         // -1f,  1f,  -1,  1,
-        
     };
 
     private ushort[] _indices =
@@ -94,28 +93,17 @@ public class ImageRenderer : OpenGlControlBase
 
     private void OnSizeChange(object? sender, SizeChangedEventArgs e) => UpdateVertexes();
 
-    protected override unsafe void OnOpenGlInit(GlInterface GL, int fb)
+    private unsafe void TryInitOpenGl(GlInterface GL)
     {
         UpdateVertexes();
         CheckError(GL);
-        var positionLocation = 0;
-        var texCoordLocation = 0;
 
-        try
-        {
-            _shaderProgram = new ShaderProgram(GL, GlVersion.Type);
-            _shaderProgram.AddShader(GL_VERTEX_SHADER, false, VertexShaderSource);
-            _shaderProgram.AddShader(GL_FRAGMENT_SHADER, true, FragmentShaderSource);
-            _shaderProgram.CreateShaderProgram();
 
-            _shaderProgram.BindAttribLocationString(positionLocation, "aPosition");
-            _shaderProgram.BindAttribLocationString(texCoordLocation, "aTexCoord");
-            _shaderProgram.LinkShaderProgram();
-        }
-        catch (ShaderProgramException ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
+        _shaderProgram = new ShaderProgram(GL, GlVersion.Type, VertexShaderSource, FragmentShaderSource);
+        int positionLocation = _shaderProgram.GetAttribLocation("aPosition");
+        int texCoordLocation = _shaderProgram.GetAttribLocation("aTexCoord");
+        _shaderProgram.Compile();
+
 
         _vertexBufferObject = GL.GenBuffer();
 
@@ -190,6 +178,18 @@ public class ImageRenderer : OpenGlControlBase
         SizeChanged += OnSizeChange;
     }
 
+    protected override unsafe void OnOpenGlInit(GlInterface GL, int fb)
+    {
+        try
+        {
+            TryInitOpenGl(GL);
+        }
+        catch (ShaderProgramException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
     protected override unsafe void OnOpenGlRender(GlInterface GL, int fb)
     {
         GL.ClearColor(0.23f, 0.23f, 0.23f, 1);
@@ -208,7 +208,7 @@ public class ImageRenderer : OpenGlControlBase
 
         GL.BindTexture(GL_TEXTURE_2D, _texture);
         GL.BindVertexArray(_vertexArrayObject);
-        GL.UseProgram(_shaderProgram.Link);
+        _shaderProgram.Use();
 
         var projection = Matrix4x4.CreateOrthographicOffCenter(0, (float)Bounds.Width,
             0, (float)Bounds.Height, 0, 10);
@@ -219,23 +219,15 @@ public class ImageRenderer : OpenGlControlBase
                 new Vector3(),
                 new Vector3(0, 1, 0)
             );
-        
-        var model =Matrix4x4.Multiply(
-            Matrix4x4.CreateScale(_imageWidth, _imageHeight,1),
+
+        var model = Matrix4x4.Multiply(
+            Matrix4x4.CreateScale(_imageWidth, _imageHeight, 1),
             Matrix4x4.CreateReflection(new Plane(0, -1, 0, 0))
-            );
-        // model =Matrix4x4.Multiply(model, Matrix4x4.CreateReflection(new Plane(0, -1, 0, 0)));
-        // var finalMatrix = model * Matrix4x4.Reflection(new Plane(0,-1,0, 0));
-        // var mirror = Matrix4x4.Transform(model., )
-        
-        var projectionLoc = GL.GetUniformLocationString(_shaderProgram.Link, "uProjection");
-        var viewLoc = GL.GetUniformLocationString(_shaderProgram.Link, "uView");
-        var modelLoc = GL.GetUniformLocationString(_shaderProgram.Link, "uModel");
+        );
 
-        GL.UniformMatrix4fv(projectionLoc, 1, false, &projection);
-        GL.UniformMatrix4fv(viewLoc, 1, false, &view);
-        GL.UniformMatrix4fv(modelLoc, 1, false, &model);
-
+        _shaderProgram.SetUniformMatrix4x4("uProjection", projection);
+        _shaderProgram.SetUniformMatrix4x4("uView", view);
+        _shaderProgram.SetUniformMatrix4x4("uModel", model);
         CheckError(GL);
 
         GL.DrawElements(GL_TRIANGLES, _indices.Length, GL_UNSIGNED_SHORT, IntPtr.Zero);
@@ -246,6 +238,7 @@ public class ImageRenderer : OpenGlControlBase
 
         CheckError(GL);
     }
+
 
     protected override void OnOpenGlDeinit(GlInterface GL, int fb)
     {

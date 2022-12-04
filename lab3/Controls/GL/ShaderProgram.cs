@@ -15,49 +15,74 @@ public class ShaderProgram
     private GlInterface _gl;
     private GlProfileType _type;
 
-    private List<int> _shaders;
+    private int _vertexShader;
+    private int _fragmentShader;
 
     public int Link { get; private set; }
 
-    public ShaderProgram(GlInterface gl, GlProfileType type)
+    public ShaderProgram(GlInterface gl, GlProfileType type,string vertexShaderSource, string fragmentShaderSource)
     {
         _gl = gl;
         _type = type;
-        _shaders = new List<int>();
-        Link =  _gl.CreateProgram();
+        _vertexShader = AddShader(GL_VERTEX_SHADER, false, vertexShaderSource);
+        _fragmentShader = AddShader(GL_FRAGMENT_SHADER, true, fragmentShaderSource);
+        Link = _gl.CreateProgram();
+        // CreateShaderProgram();
+        // LinkShaderProgram();
     }
 
-    public void AddShader(int shaderType, bool fragment,string shaderCode)
+    private int AddShader(int shaderType, bool fragment, string shaderCode)
     {
         var shader = _gl.CreateShader(shaderType);
         var returned = _gl.CompileShaderAndGetError(shader, GetShader(fragment, shaderCode));
         if (!CheckOpenGlExeption(returned))
         {
-            throw new ShaderProgramException($"OpenGl: add shader error. {returned}");
+            throw new ShaderProgramException(
+                $"OpenGl: add shader error. {returned} is fragment: {fragment.ToString()} ");
         }
+        CheckError();
 
-        _shaders.Add(shader);
+        return shader;
+    }
 
+    public void Compile()
+    {
+        CreateShaderProgram();
+        LinkShaderProgram();
+    }
+    
+
+    private void CreateShaderProgram()
+    {
+        _gl.AttachShader(Link, _vertexShader);
+        _gl.AttachShader(Link, _fragmentShader);
         CheckError();
     }
 
-    public void CreateShaderProgram()
+    public void Use()
     {
-        foreach (var shader in _shaders)
-        {
-            _gl.AttachShader(Link, shader);            
-        }
-        CheckError();
+        _gl.UseProgram(Link);
     }
 
-    public void BindAttribLocationString(int index, string name)
+
+    public unsafe void SetUniformMatrix4x4( string name, Matrix4x4 matrix)
     {
+        _gl.UniformMatrix4fv(_gl.GetUniformLocationString(Link, name), 1, false, &matrix);
+
+    }
+    
+    
+    public int GetAttribLocation( string name)
+    {
+        int index = 0;
         _gl.BindAttribLocationString(Link, index, name);
+        CheckError();
+        return index;
     }
 
-    public void LinkShaderProgram()
+    private void LinkShaderProgram()
     {
-        var returned = _gl.LinkProgramAndGetError(Link); 
+        var returned = _gl.LinkProgramAndGetError(Link);
         if (!CheckOpenGlExeption(returned))
         {
             throw new ShaderProgramException($"OpenGl: link shader program error");
@@ -70,13 +95,14 @@ public class ShaderProgram
     {
         return (returned == null || returned.Length.Equals(0));
     }
-    
-    
+
+
     private string GetShader(bool fragment, string shader)
     {
         var version = _type == GlProfileType.OpenGL
             ? RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 150 : 120
             : 100;
+        // var version = 330;
         var data = "#version " + 330 + "\n";
 
         if (_type == GlProfileType.OpenGLES)
@@ -97,14 +123,13 @@ public class ShaderProgram
 
         return data;
     }
-    
+
     private void CheckError()
     {
         int err;
         while ((err = _gl.GetError()) != GL_NO_ERROR)
         {
             throw new ShaderProgramException(Convert.ToString(err));
-            Console.WriteLine($"{err}");
         }
     }
 
@@ -112,20 +137,14 @@ public class ShaderProgram
     {
         _gl.DeleteProgram(Link);
 
-        foreach (var shader in _shaders)
-        {
-            _gl.DeleteShader(shader);
-
-        }
+        _gl.DeleteShader(_vertexShader);
+        _gl.DeleteShader(_fragmentShader);
     }
-    
-    
 }
-
 
 public class ShaderProgramException : Exception
-{ 
-    public ShaderProgramException(string message) : base(message){ }
+{
+    public ShaderProgramException(string message) : base(message)
+    {
+    }
 }
-
-
