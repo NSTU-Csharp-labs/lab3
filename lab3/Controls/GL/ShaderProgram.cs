@@ -14,9 +14,9 @@ public class ShaderProgram : OpenGLHelper
 
     private readonly int _link;
 
-    public ShaderProgram(GlInterface gl, GlProfileType type,string vertexShaderSource, string fragmentShaderSource)
+    public ShaderProgram(GlInterface GL, GlProfileType type,string vertexShaderSource, string fragmentShaderSource)
+    : base(GL)
     {
-        _gl = gl;
         _type = type;
         _vertexShader = AddShader(GL_VERTEX_SHADER, false, vertexShaderSource);
         _fragmentShader = AddShader(GL_FRAGMENT_SHADER, true, fragmentShaderSource);

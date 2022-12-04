@@ -8,6 +8,11 @@ namespace lab3.Controls.GL;
 public abstract class OpenGLHelper
 {
     protected GlInterface _gl;
+
+    protected OpenGLHelper(GlInterface GL)
+    {
+        _gl = GL;
+    }
     protected void CheckError()
     {
         int err;

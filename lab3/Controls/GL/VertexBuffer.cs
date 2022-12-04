@@ -11,9 +11,8 @@ public class VertexBuffer : OpenGLHelper
     private int _stride;
     private readonly float[] _vertices;
     
-    public VertexBuffer(GlInterface GL, float[] vertices, int stride)
+    public VertexBuffer(GlInterface GL, float[] vertices, int stride) : base(GL)
     {
-        _gl = GL;
         _vertexBufferObject = _gl.GenBuffer();
         _gl.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
         _vertexArrayObject = _gl.GenVertexArray();
@@ -34,34 +33,24 @@ public class VertexBuffer : OpenGLHelper
                 GL_ARRAY_BUFFER, new IntPtr(_vertices.Length * sizeof(float)),
                 new IntPtr(pdata), GL_STATIC_DRAW
             );
-        
-        _gl.BindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     public void BindAttribute(int location, int size, int startPosition)
     {
-        Bind();
+        Use();
         _gl.VertexAttribPointer(location, size, GL_FLOAT, 0, _stride * sizeof(float), new IntPtr(startPosition * sizeof(float)));
         _gl.EnableVertexAttribArray(location);
     }
 
-    public void Bind()
+    public void Use()
     {
         _gl.BindVertexArray(_vertexArrayObject);
         _gl.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
         CheckError();
     }
 
-    public void Unbind()
-    {
-        _gl.BindBuffer(GL_ARRAY_BUFFER, 0);
-        _gl.BindVertexArray(0);
-        CheckError();
-    }
-
     public void Destroy()
     {
-        Unbind();
         _gl.DeleteBuffer(_vertexBufferObject);
         _gl.DeleteVertexArray(_vertexArrayObject);
     }

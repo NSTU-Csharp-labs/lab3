@@ -18,8 +18,7 @@ public class ImageRenderer : OpenGlControlBase
     private ShaderProgram _shaderProgram;
     private Texture _texture;
     private VertexBuffer _vertexBuffer;
-
-    private int _indicesBufferObject;
+    private IndicesBuffer _indicesBuffer;
 
     private float[] _vertices =
     {
@@ -58,15 +57,9 @@ public class ImageRenderer : OpenGlControlBase
         _vertexBuffer.BindAttribute(positionLocation, 2, 0);
         _vertexBuffer.BindAttribute(texCoordLocation, 2, 2);
 
-        _indicesBufferObject = GL.GenBuffer();
-        GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
-        CheckError(GL);
 
-        fixed (void* pdata = _indices)
-            GL.BufferData(
-                GL_ELEMENT_ARRAY_BUFFER, new IntPtr(_indices.Length * sizeof(ushort)),
-                new IntPtr(pdata), GL_STATIC_DRAW
-            );
+        _indicesBuffer = new IndicesBuffer(GL, _indices);
+        
         _texture = new Texture(GL);
         
         var image = Image.Load<Rgba32>("../../../Assets/texture.jpg");
@@ -98,10 +91,9 @@ public class ImageRenderer : OpenGlControlBase
     private unsafe void TryToRender(GlInterface GL)
     {
         RecalculateImageSize();
-
-        GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
-
-        _vertexBuffer.Bind();
+        
+        _indicesBuffer.Use();
+        _vertexBuffer.Use();
         _texture.Use();
         _shaderProgram.Use();
 
@@ -135,8 +127,6 @@ public class ImageRenderer : OpenGlControlBase
 
         GL.DrawElements(GL_TRIANGLES, _indices.Length, GL_UNSIGNED_SHORT, IntPtr.Zero);
         CheckError(GL);
-
-        _vertexBuffer.Unbind();
     }
 
     private void RecalculateImageSize()
@@ -190,12 +180,8 @@ public class ImageRenderer : OpenGlControlBase
 
     protected override void OnOpenGlDeinit(GlInterface GL, int fb)
     {
-        GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        GL.UseProgram(0);
-
+        _indicesBuffer.Destroy();
         _vertexBuffer.Destroy();
-        //GL.DeleteBuffer(_vertexBufferObject);
-        //GL.DeleteVertexArray(_vertexArrayObject);
         _shaderProgram.Destroy();
     }
 
