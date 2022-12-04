@@ -7,6 +7,7 @@ using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using static Avalonia.OpenGL.GlConsts;
 using Image = SixLabors.ImageSharp.Image;
 
@@ -85,6 +86,8 @@ public class ImageRenderer : OpenGlControlBase
     private float _imageWidth;
     private float _imageHeight;
 
+    private float _widthToHeight;
+
     private void OnSizeChange(object? sender, SizeChangedEventArgs e) => UpdateVertexes();
 
     private unsafe void TryInitOpenGl(GlInterface GL)
@@ -130,20 +133,19 @@ public class ImageRenderer : OpenGlControlBase
                 new IntPtr(pdata), GL_STATIC_DRAW
             );
         _texture = new Texture(GL);
-
-
-        var image = Image.Load<Rgba32>("../../../Assets/texture.jpg");
-
-        _imageHeight = image.Height;
-        _imageWidth = image.Width;
-
-        // Width = image.Width;
-        // Height = image.Height;
         
+        var image = Image.Load<Rgba32>("../../../Assets/texture.jpg");
+        image.Mutate(i => i.Rotate(RotateMode.Rotate90));
+
+        _imageWidth = image.Width;
+        _imageHeight = image.Height;
+        _widthToHeight = _imageWidth / _imageHeight;
+
+
         var pixels = new byte[image.Width * 4 * image.Height];
         image.CopyPixelDataTo(pixels);
         image.Dispose();
-
+        
         _texture.SetPixels(pixels, _imageWidth, _imageHeight);
         SizeChanged += OnSizeChange;
     }
@@ -162,6 +164,8 @@ public class ImageRenderer : OpenGlControlBase
 
     private unsafe void TryToRender(GlInterface GL)
     {
+        RecalculateImageSize();
+
         GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
         GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
 
@@ -177,10 +181,6 @@ public class ImageRenderer : OpenGlControlBase
 
         _shaderProgram.Use();
 
-        var proportion = (_imageWidth > _imageHeight)
-            ? _imageWidth / (float)Bounds.Width
-            : _imageHeight / (float)Bounds.Height; 
-        
         var projection = Matrix4x4.CreateOrthographicOffCenter(
             -(float)Bounds.Width / 2,
             (float)Bounds.Width / 2,
@@ -191,15 +191,15 @@ public class ImageRenderer : OpenGlControlBase
 
         var view = Matrix4x4
             .CreateLookAt(
-                new Vector3(_imageWidth / (2 * proportion), _imageHeight / (2 * proportion), 1),
-                new Vector3(_imageWidth / (2 * proportion), _imageHeight / (2 * proportion), 0),
+                new Vector3(_imageWidth / 2, _imageHeight / 2, 1),
+                new Vector3(_imageWidth / 2, _imageHeight / 2, 0),
                 new Vector3(0, 1, 0)
             );
 
         var model = Matrix4x4.Multiply(
             Matrix4x4.CreateScale(
-                _imageWidth / proportion,
-                _imageHeight / proportion,
+                _imageWidth,
+                _imageHeight,
                 1),
             Matrix4x4.CreateReflection(
                 new Plane(0, 1, 0, 0))
@@ -216,13 +216,45 @@ public class ImageRenderer : OpenGlControlBase
         CheckError(GL);
     }
 
+    private void RecalculateImageSize()
+    {
+        if (_imageWidth > _imageHeight)
+        {
+            RecalculateImageWidth();
+
+            if (_imageHeight <= (float)Bounds.Height) return;
+
+            RecalculateImageHeight();
+
+            return;
+        }
+
+        RecalculateImageHeight();
+
+        if (_imageWidth <= (float)Bounds.Width) return;
+
+        RecalculateImageWidth();
+    }
+
+    private void RecalculateImageWidth()
+    {
+        _imageWidth = (float)Bounds.Width;
+        _imageHeight = _imageWidth / _widthToHeight;
+    }
+
+    private void RecalculateImageHeight()
+    {
+        _imageHeight = (float)Bounds.Height;
+        _imageWidth = _imageHeight * _widthToHeight;
+    }
+
     protected override void OnOpenGlRender(GlInterface GL, int fb)
     {
         GL.ClearColor(0.9f, 0.23f, 0.23f, 1);
         GL.Clear(GL_COLOR_BUFFER_BIT);
 
         GL.Viewport(0, 0, (int)Bounds.Width, (int)Bounds.Height);
-        
+
         try
         {
             TryToRender(GL);
@@ -232,7 +264,6 @@ public class ImageRenderer : OpenGlControlBase
             Console.WriteLine(ex.Message);
         }
     }
-
 
     protected override void OnOpenGlDeinit(GlInterface GL, int fb)
     {
