@@ -4,7 +4,6 @@ using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
 
-
 public abstract class OpenGLHelper
 {
     protected GlInterface _gl;
@@ -13,13 +12,10 @@ public abstract class OpenGLHelper
     {
         _gl = GL;
     }
+
     protected void CheckError()
     {
         int err;
-        while ((err = _gl.GetError()) != GL_NO_ERROR)
-        {
-            throw new OpenGlException(Convert.ToString(err));
-        }
+        while ((err = _gl.GetError()) != GL_NO_ERROR) throw new OpenGlException(Convert.ToString(err));
     }
 }
-

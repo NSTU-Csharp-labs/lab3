@@ -10,7 +10,7 @@ public class Texture : OpenGLHelper
 
     public unsafe Texture(GlInterface GL) : base(GL)
     {
-        _gl.GenTextures(1, (int*)(_texture));
+        _gl.GenTextures(1, (int*)_texture);
         _texture = _gl.GenTexture();
         _gl.BindTexture(GL_TEXTURE_2D, _texture);
         _gl.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

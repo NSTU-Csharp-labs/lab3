@@ -7,15 +7,14 @@ namespace lab3.Controls.GL;
 
 public class ShaderProgram : OpenGLHelper
 {
-    private GlProfileType _type;
-
-    private int _vertexShader;
-    private int _fragmentShader;
-
     private readonly int _link;
+    private readonly int _fragmentShader;
+    private readonly GlProfileType _type;
 
-    public ShaderProgram(GlInterface GL, GlProfileType type,string vertexShaderSource, string fragmentShaderSource)
-    : base(GL)
+    private readonly int _vertexShader;
+
+    public ShaderProgram(GlInterface GL, GlProfileType type, string vertexShaderSource, string fragmentShaderSource)
+        : base(GL)
     {
         _type = type;
         _vertexShader = AddShader(GL_VERTEX_SHADER, false, vertexShaderSource);
@@ -28,10 +27,8 @@ public class ShaderProgram : OpenGLHelper
         var shader = _gl.CreateShader(shaderType);
         var returned = _gl.CompileShaderAndGetError(shader, GetShader(fragment, shaderCode));
         if (!CheckOpenGlExeption(returned))
-        {
             throw new OpenGlException(
                 $"OpenGl: add shader error. {returned} is fragment: {fragment.ToString()} ");
-        }
         CheckError();
 
         return shader;
@@ -42,7 +39,7 @@ public class ShaderProgram : OpenGLHelper
         CreateShaderProgram();
         LinkShaderProgram();
     }
-    
+
 
     private void CreateShaderProgram()
     {
@@ -57,16 +54,16 @@ public class ShaderProgram : OpenGLHelper
     }
 
 
-    public unsafe void SetUniformMatrix4x4( string name, Matrix4x4 matrix)
+    public unsafe void SetUniformMatrix4x4(string name, Matrix4x4 matrix)
     {
         _gl.UniformMatrix4fv(_gl.GetUniformLocationString(_link, name), 1, false, &matrix);
         CheckError();
     }
-    
-    
-    public int GetAttribLocation( string name)
+
+
+    public int GetAttribLocation(string name)
     {
-        int index = 0;
+        var index = 0;
         _gl.BindAttribLocationString(_link, index, name);
         CheckError();
         return index;
@@ -75,17 +72,14 @@ public class ShaderProgram : OpenGLHelper
     private void LinkShaderProgram()
     {
         var returned = _gl.LinkProgramAndGetError(_link);
-        if (!CheckOpenGlExeption(returned))
-        {
-            throw new OpenGlException($"OpenGl: link shader program error");
-        }
+        if (!CheckOpenGlExeption(returned)) throw new OpenGlException("OpenGl: link shader program error");
 
         CheckError();
     }
 
     private bool CheckOpenGlExeption(string? returned)
     {
-        return (returned == null || returned.Length.Equals(0));
+        return returned == null || returned.Length.Equals(0);
     }
 
 
