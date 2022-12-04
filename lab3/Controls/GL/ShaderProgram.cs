@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.InteropServices;
-using Avalonia.Controls;
 using Avalonia.OpenGL;
-using Avalonia.OpenGL.Controls;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
 
-public class ShaderProgram
+public class ShaderProgram : OpenGLHelper
 {
-    private GlInterface _gl;
     private GlProfileType _type;
 
     private int _vertexShader;
     private int _fragmentShader;
 
-    public int Link { get; private set; }
+    private readonly int _link;
 
     public ShaderProgram(GlInterface gl, GlProfileType type,string vertexShaderSource, string fragmentShaderSource)
     {
@@ -26,9 +20,7 @@ public class ShaderProgram
         _type = type;
         _vertexShader = AddShader(GL_VERTEX_SHADER, false, vertexShaderSource);
         _fragmentShader = AddShader(GL_FRAGMENT_SHADER, true, fragmentShaderSource);
-        Link = _gl.CreateProgram();
-        // CreateShaderProgram();
-        // LinkShaderProgram();
+        _link = _gl.CreateProgram();
     }
 
     private int AddShader(int shaderType, bool fragment, string shaderCode)
@@ -37,7 +29,7 @@ public class ShaderProgram
         var returned = _gl.CompileShaderAndGetError(shader, GetShader(fragment, shaderCode));
         if (!CheckOpenGlExeption(returned))
         {
-            throw new ShaderProgramException(
+            throw new OpenGlException(
                 $"OpenGl: add shader error. {returned} is fragment: {fragment.ToString()} ");
         }
         CheckError();
@@ -54,38 +46,38 @@ public class ShaderProgram
 
     private void CreateShaderProgram()
     {
-        _gl.AttachShader(Link, _vertexShader);
-        _gl.AttachShader(Link, _fragmentShader);
+        _gl.AttachShader(_link, _vertexShader);
+        _gl.AttachShader(_link, _fragmentShader);
         CheckError();
     }
 
     public void Use()
     {
-        _gl.UseProgram(Link);
+        _gl.UseProgram(_link);
     }
 
 
     public unsafe void SetUniformMatrix4x4( string name, Matrix4x4 matrix)
     {
-        _gl.UniformMatrix4fv(_gl.GetUniformLocationString(Link, name), 1, false, &matrix);
-
+        _gl.UniformMatrix4fv(_gl.GetUniformLocationString(_link, name), 1, false, &matrix);
+        CheckError();
     }
     
     
     public int GetAttribLocation( string name)
     {
         int index = 0;
-        _gl.BindAttribLocationString(Link, index, name);
+        _gl.BindAttribLocationString(_link, index, name);
         CheckError();
         return index;
     }
 
     private void LinkShaderProgram()
     {
-        var returned = _gl.LinkProgramAndGetError(Link);
+        var returned = _gl.LinkProgramAndGetError(_link);
         if (!CheckOpenGlExeption(returned))
         {
-            throw new ShaderProgramException($"OpenGl: link shader program error");
+            throw new OpenGlException($"OpenGl: link shader program error");
         }
 
         CheckError();
@@ -124,27 +116,11 @@ public class ShaderProgram
         return data;
     }
 
-    private void CheckError()
-    {
-        int err;
-        while ((err = _gl.GetError()) != GL_NO_ERROR)
-        {
-            throw new ShaderProgramException(Convert.ToString(err));
-        }
-    }
-
     public void Destroy()
     {
-        _gl.DeleteProgram(Link);
+        _gl.DeleteProgram(_link);
 
         _gl.DeleteShader(_vertexShader);
         _gl.DeleteShader(_fragmentShader);
-    }
-}
-
-public class ShaderProgramException : Exception
-{
-    public ShaderProgramException(string message) : base(message)
-    {
     }
 }

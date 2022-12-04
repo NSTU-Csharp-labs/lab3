@@ -19,10 +19,10 @@ public class ImageRenderer : OpenGlControlBase
     public const int CUSTOM_GL_TEXTURE_WRAP_T = 0x2803;
     public const int CUSTOM_GL_CLAMP_TO_EDGE = 0x812F;
 
-    private int _texture;
 
     private ShaderProgram _shaderProgram;
-
+    private Texture _texture;
+    
     private int _vertexBufferObject;
     private int _vertexArrayObject;
     private int _indicesBufferObject;
@@ -104,7 +104,6 @@ public class ImageRenderer : OpenGlControlBase
         int texCoordLocation = _shaderProgram.GetAttribLocation("aTexCoord");
         _shaderProgram.Compile();
 
-
         _vertexBufferObject = GL.GenBuffer();
 
         GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
@@ -136,45 +135,19 @@ public class ImageRenderer : OpenGlControlBase
                 GL_ELEMENT_ARRAY_BUFFER, new IntPtr(_indices.Length * sizeof(ushort)),
                 new IntPtr(pdata), GL_STATIC_DRAW
             );
+        _texture = new Texture(GL);
 
-        GL.GenTextures(1, (int*)(_texture));
-        _texture = GL.GenTexture();
-        GL.BindTexture(GL_TEXTURE_2D, _texture);
-        // GL.TexParameteri(GL_TEXTURE_2D, CUSTOM_GL_TEXTURE_WRAP_S, CUSTOM_GL_CLAMP_TO_EDGE);
-        // GL.TexParameteri(GL_TEXTURE_2D, CUSTOM_GL_TEXTURE_WRAP_T, CUSTOM_GL_CLAMP_TO_EDGE);
-        GL.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        GL.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+        
         var image = Image.Load<Rgba32>("../../../Assets/texture.jpg");
-
+        
         _imageHeight = image.Height;
         _imageWidth = image.Width;
-
+        
         var pixels = new byte[image.Width * 4 * image.Height];
         image.CopyPixelDataTo(pixels);
         image.Dispose();
-
-        CheckError(GL);
-
-        fixed (byte* p = pixels)
-        {
-            GL.TexImage2D(
-                GL_TEXTURE_2D,
-                0,
-                GL_RGBA,
-                image.Width,
-                image.Height,
-                0,
-                GL_RGBA,
-                GL_UNSIGNED_BYTE,
-                new IntPtr(p));
-        }
-
-        CheckError(GL);
-
-        GL.BindTexture(GL_TEXTURE_2D, 0);
-
-
+        
+        _texture.SetPixels(pixels, _imageWidth, _imageHeight);
         SizeChanged += OnSizeChange;
     }
 
@@ -184,13 +157,13 @@ public class ImageRenderer : OpenGlControlBase
         {
             TryInitOpenGl(GL);
         }
-        catch (ShaderProgramException ex)
+        catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
         }
     }
 
-    protected override unsafe void OnOpenGlRender(GlInterface GL, int fb)
+    private unsafe void TryToRender(GlInterface GL)
     {
         GL.ClearColor(0.23f, 0.23f, 0.23f, 1);
         GL.Clear(GL_COLOR_BUFFER_BIT);
@@ -206,8 +179,10 @@ public class ImageRenderer : OpenGlControlBase
                 new IntPtr(pdata), GL_STATIC_DRAW
             );
 
-        GL.BindTexture(GL_TEXTURE_2D, _texture);
+        _texture.Use();
+        
         GL.BindVertexArray(_vertexArrayObject);
+        
         _shaderProgram.Use();
 
         var projection = Matrix4x4.CreateOrthographicOffCenter(0, (float)Bounds.Width,
@@ -228,15 +203,24 @@ public class ImageRenderer : OpenGlControlBase
         _shaderProgram.SetUniformMatrix4x4("uProjection", projection);
         _shaderProgram.SetUniformMatrix4x4("uView", view);
         _shaderProgram.SetUniformMatrix4x4("uModel", model);
-        CheckError(GL);
 
         GL.DrawElements(GL_TRIANGLES, _indices.Length, GL_UNSIGNED_SHORT, IntPtr.Zero);
-
         CheckError(GL);
 
         GL.BindVertexArray(0);
-
         CheckError(GL);
+    }
+
+    protected override void OnOpenGlRender(GlInterface GL, int fb)
+    {
+        try
+        {
+            TryToRender(GL);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
 
