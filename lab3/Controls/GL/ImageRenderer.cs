@@ -17,9 +17,8 @@ public class ImageRenderer : OpenGlControlBase
 {
     private ShaderProgram _shaderProgram;
     private Texture _texture;
+    private VertexBuffer _vertexBuffer;
 
-    private int _vertexBufferObject;
-    private int _vertexArrayObject;
     private int _indicesBufferObject;
 
     private float[] _vertices =
@@ -40,89 +39,25 @@ public class ImageRenderer : OpenGlControlBase
         0, 1, 3,
         1, 2, 3,
     };
-
-    private void UpdateVertexes()
-    {
-        // _vertices[2] = _vertices[0] = -(float)Bounds.Width / 2;
-        // _vertices[3] = _vertices[1] = -(float)Bounds.Height / 2;
-        //
-        // _vertices[6] = _vertices[4] = -(float)Bounds.Width / 2;
-        // _vertices[7] = _vertices[5] = (float)Bounds.Height / 2;
-        //
-        // _vertices[10] = _vertices[8] = (float)Bounds.Width / 2;
-        // _vertices[11] = _vertices[9] = -(float)Bounds.Height / 2;
-        //
-        // _vertices[14] = _vertices[12] = (float)Bounds.Width / 2;
-        // _vertices[15] = _vertices[13] = (float)Bounds.Height / 2;
-
-
-        // _vertices[2] = -1;
-        // _vertices[3] =  -1;
-        //
-        // _vertices[6] = -1;
-        // _vertices[7] = 1;
-        //
-        // _vertices[10] = 1;
-        // _vertices[11] = -1;
-        //
-        // _vertices[14] = 1;
-        // _vertices[15] = 1;
-        //
-        //
-        //
-        // _vertices[2] = _vertices[0] = 1;
-        // _vertices[3] = _vertices[1] = 1;
-        //
-        // _vertices[6] = _vertices[4] = 1;
-        // _vertices[7] = _vertices[5] = 0;
-        //
-        // _vertices[10] = _vertices[8] = 0;
-        // _vertices[11] = _vertices[9] = 0;
-        //
-        // _vertices[14] = _vertices[12] = 0;
-        // _vertices[15] = _vertices[13] = 1;
-    }
-
+    
     private float _imageWidth;
     private float _imageHeight;
 
     private float _widthToHeight;
 
-    private void OnSizeChange(object? sender, SizeChangedEventArgs e) => UpdateVertexes();
-
     private unsafe void TryInitOpenGl(GlInterface GL)
     {
-        UpdateVertexes();
         CheckError(GL);
-
 
         _shaderProgram = new ShaderProgram(GL, GlVersion.Type, VertexShaderSource, FragmentShaderSource);
         int positionLocation = _shaderProgram.GetAttribLocation("aPosition");
         int texCoordLocation = _shaderProgram.GetAttribLocation("aTexCoord");
         _shaderProgram.Compile();
+        
+        _vertexBuffer = new VertexBuffer(GL, _vertices, 4);
+        _vertexBuffer.BindAttribute(positionLocation, 2, 0);
+        _vertexBuffer.BindAttribute(texCoordLocation, 2, 2);
 
-        _vertexBufferObject = GL.GenBuffer();
-
-        GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
-        CheckError(GL);
-
-        fixed (void* pdata = _vertices)
-            GL.BufferData(
-                GL_ARRAY_BUFFER, new IntPtr(_vertices.Length * sizeof(float)),
-                new IntPtr(pdata), GL_STATIC_DRAW
-            );
-
-        _vertexArrayObject = GL.GenVertexArray();
-        GL.BindVertexArray(_vertexArrayObject);
-        CheckError(GL);
-
-        GL.VertexAttribPointer(positionLocation, 2, GL_FLOAT, 0, 4 * sizeof(float), IntPtr.Zero);
-        GL.EnableVertexAttribArray(positionLocation);
-
-        GL.VertexAttribPointer(texCoordLocation, 2, GL_FLOAT, 0, 4 * sizeof(float), new IntPtr(2 * sizeof(float)));
-        GL.EnableVertexAttribArray(texCoordLocation);
-
-        CheckError(GL);
         _indicesBufferObject = GL.GenBuffer();
         GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
         CheckError(GL);
@@ -135,7 +70,6 @@ public class ImageRenderer : OpenGlControlBase
         _texture = new Texture(GL);
         
         var image = Image.Load<Rgba32>("../../../Assets/texture.jpg");
-        image.Mutate(i => i.Rotate(RotateMode.Rotate90));
 
         _imageWidth = image.Width;
         _imageHeight = image.Height;
@@ -147,7 +81,6 @@ public class ImageRenderer : OpenGlControlBase
         image.Dispose();
         
         _texture.SetPixels(pixels, _imageWidth, _imageHeight);
-        SizeChanged += OnSizeChange;
     }
 
     protected override unsafe void OnOpenGlInit(GlInterface GL, int fb)
@@ -166,19 +99,10 @@ public class ImageRenderer : OpenGlControlBase
     {
         RecalculateImageSize();
 
-        GL.BindBuffer(GL_ARRAY_BUFFER, _vertexBufferObject);
         GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
 
-        fixed (void* pdata = _vertices)
-            GL.BufferData(
-                GL_ARRAY_BUFFER, new IntPtr(_vertices.Length * sizeof(float)),
-                new IntPtr(pdata), GL_STATIC_DRAW
-            );
-
+        _vertexBuffer.Bind();
         _texture.Use();
-
-        GL.BindVertexArray(_vertexArrayObject);
-
         _shaderProgram.Use();
 
         var projection = Matrix4x4.CreateOrthographicOffCenter(
@@ -212,8 +136,7 @@ public class ImageRenderer : OpenGlControlBase
         GL.DrawElements(GL_TRIANGLES, _indices.Length, GL_UNSIGNED_SHORT, IntPtr.Zero);
         CheckError(GL);
 
-        GL.BindVertexArray(0);
-        CheckError(GL);
+        _vertexBuffer.Unbind();
     }
 
     private void RecalculateImageSize()
@@ -250,7 +173,7 @@ public class ImageRenderer : OpenGlControlBase
 
     protected override void OnOpenGlRender(GlInterface GL, int fb)
     {
-        GL.ClearColor(0.9f, 0.23f, 0.23f, 1);
+        GL.ClearColor(0, 0, 0, 0);
         GL.Clear(GL_COLOR_BUFFER_BIT);
 
         GL.Viewport(0, 0, (int)Bounds.Width, (int)Bounds.Height);
@@ -267,13 +190,12 @@ public class ImageRenderer : OpenGlControlBase
 
     protected override void OnOpenGlDeinit(GlInterface GL, int fb)
     {
-        GL.BindBuffer(GL_ARRAY_BUFFER, 0);
         GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        GL.BindVertexArray(0);
         GL.UseProgram(0);
 
-        GL.DeleteBuffer(_vertexBufferObject);
-        GL.DeleteVertexArray(_vertexArrayObject);
+        _vertexBuffer.Destroy();
+        //GL.DeleteBuffer(_vertexBufferObject);
+        //GL.DeleteVertexArray(_vertexArrayObject);
         _shaderProgram.Destroy();
     }
 
