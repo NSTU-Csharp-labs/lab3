@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using Avalonia;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using SixLabors.ImageSharp;
@@ -11,6 +12,20 @@ namespace lab3.Controls.GL;
 public class ImageRenderer : OpenGlControlBase
 {
     private readonly Vector3 _cameraUp = new(0, 1, 0);
+    // public Image<Rgba32> Image;
+
+    public ImageRenderer()
+    {
+        AffectsRender<ImageRenderer>(PathProperty);
+    }
+    
+    public string Path
+    {
+        get => GetValue(PathProperty);
+        set => SetValue(PathProperty, value);
+    }
+
+    public static readonly StyledProperty<string> PathProperty = AvaloniaProperty.Register<ImageRenderer, string>(nameof(Path));
 
     private readonly ushort[] _indices =
     {
@@ -99,7 +114,6 @@ public class ImageRenderer : OpenGlControlBase
     private void TryInitOpenGl(GlInterface GL)
     {
         CheckError(GL);
-
         _shaderProgram = new ShaderProgram(GL, GlVersion.Type, VertexShaderSource, FragmentShaderSource);
         var positionLocation = _shaderProgram.GetAttribLocation("aPosition");
         var texCoordLocation = _shaderProgram.GetAttribLocation("aTexCoord");
@@ -116,7 +130,7 @@ public class ImageRenderer : OpenGlControlBase
 
         _texture = new Texture(GL);
 
-        var image = Image.Load<Rgba32>("../../../Assets/texture.jpg");
+        var image = Image.Load<Rgba32>(Path);
 
         _imageWidth = image.Width;
         _imageHeight = image.Height;
