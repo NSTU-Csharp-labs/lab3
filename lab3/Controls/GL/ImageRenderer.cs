@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Avalonia;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using lab3.Controls.GL.Shaders;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
@@ -16,7 +18,7 @@ public class ImageRenderer : OpenGlControlBase
 
     public ImageRenderer()
     {
-        AffectsRender<ImageRenderer>(PathProperty);
+        AffectsRender<ImageRenderer>(PathProperty, BlackAndWhiteFilterProperty);
     }
     
     public string Path
@@ -26,6 +28,17 @@ public class ImageRenderer : OpenGlControlBase
     }
 
     public static readonly StyledProperty<string> PathProperty = AvaloniaProperty.Register<ImageRenderer, string>(nameof(Path));
+    
+    public bool BlackAndWhiteFilter
+    {
+        get => GetValue(BlackAndWhiteFilterProperty);
+        set => SetValue(BlackAndWhiteFilterProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> BlackAndWhiteFilterProperty = AvaloniaProperty.Register<ImageRenderer, bool>(nameof(BlackAndWhiteFilter));
+    
+    
+    
 
     private readonly ushort[] _indices =
     {
@@ -85,36 +98,12 @@ public class ImageRenderer : OpenGlControlBase
         _reflectionMatrix
     );
 
-    private string FragmentShaderSource => @"
-    varying vec2 vTexCoord;
-    uniform sampler2D uTexture;
 
-    void main()
-    {
-        gl_FragColor = texture(uTexture, vTexCoord);
-    }
-    ";
-
-    private string VertexShaderSource => @"
-    attribute vec2 aPosition;
-    attribute vec2 aTexCoord;
-    uniform mat4 uProjection;
-    uniform mat4 uView;
-    uniform mat4 uModel;
-
-    varying vec2 vTexCoord;
-
-    void main()
-    {
-        vTexCoord = aTexCoord;
-        gl_Position = uProjection * uView * uModel * vec4(aPosition.x, aPosition.y, 0, 1.0);
-    }
-    ";
 
     private void TryInitOpenGl(GlInterface GL)
     {
         CheckError(GL);
-        _shaderProgram = new ShaderProgram(GL, GlVersion.Type, VertexShaderSource, FragmentShaderSource);
+        _shaderProgram = new ShaderProgram(GL, GlVersion.Type, new List<Filters>() { Filters.BlackAndWhite });
         var positionLocation = _shaderProgram.GetAttribLocation("aPosition");
         var texCoordLocation = _shaderProgram.GetAttribLocation("aTexCoord");
         _shaderProgram.Compile();

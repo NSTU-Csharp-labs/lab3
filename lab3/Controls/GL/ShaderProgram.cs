@@ -1,6 +1,10 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Avalonia.OpenGL;
+using lab3.Controls.GL.Shaders;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
@@ -10,17 +14,22 @@ public class ShaderProgram : OpenGLHelper
     private readonly int _fragmentShader;
     private readonly int _link;
     private readonly GlProfileType _type;
-
     private readonly int _vertexShader;
-
     private int _lastAttributeIndex;
 
-    public ShaderProgram(GlInterface GL, GlProfileType type, string vertexShaderSource, string fragmentShaderSource)
+    // 
+    public ShaderProgram(GlInterface GL, GlProfileType type, IEnumerable<Filters> activatedFilters)
         : base(GL)
     {
+        string shaders = new string("");
+
         _type = type;
-        _vertexShader = AddShader(GL_VERTEX_SHADER, false, vertexShaderSource);
-        _fragmentShader = AddShader(GL_FRAGMENT_SHADER, true, fragmentShaderSource);
+        _vertexShader = AddShader( GL_VERTEX_SHADER, false, VertexShader);
+
+        var fragmentShaderBuilder = new FragmentShaderBuilder(activatedFilters);
+        var fragmentShader = fragmentShaderBuilder.createFragmentShader();
+
+        _fragmentShader = AddShader(GL_FRAGMENT_SHADER, true, fragmentShader);
         _link = _gl.CreateProgram();
         _lastAttributeIndex = 0;
     }
@@ -116,8 +125,28 @@ public class ShaderProgram : OpenGLHelper
     public void Destroy()
     {
         _gl.DeleteProgram(_link);
-
         _gl.DeleteShader(_vertexShader);
         _gl.DeleteShader(_fragmentShader);
     }
+    
+    
+    
+    
+    private const string VertexShader = @"
+    attribute vec2 aPosition;
+    attribute vec2 aTexCoord;
+    uniform mat4 uProjection;
+    uniform mat4 uView;
+    uniform mat4 uModel;
+
+    varying vec2 vTexCoord;
+
+    void main()
+    {
+        vTexCoord = aTexCoord;
+        gl_Position = uProjection * uView * uModel * vec4(aPosition.x, aPosition.y, 0, 1.0);
+    }
+    ";
+    
+    
 }
