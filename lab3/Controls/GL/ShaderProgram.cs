@@ -7,8 +7,8 @@ namespace lab3.Controls.GL;
 
 public class ShaderProgram : OpenGLHelper
 {
-    private readonly int _link;
     private readonly int _fragmentShader;
+    private readonly int _link;
     private readonly GlProfileType _type;
 
     private readonly int _vertexShader;

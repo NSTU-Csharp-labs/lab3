@@ -12,25 +12,16 @@ public class ImageRenderer : OpenGlControlBase
 {
     private readonly Vector3 _cameraUp = new(0, 1, 0);
 
-    private readonly Matrix4x4 _reflectionMatrix = Matrix4x4.CreateReflection
-    (
-        new Plane(0, 1, 0, 0)
-    );
-
-    private float _imageHeight;
-
-    private float _imageWidth;
-
     private readonly ushort[] _indices =
     {
         0, 1, 3,
         1, 2, 3
     };
 
-    private IndicesBuffer _indicesBuffer;
-    private ShaderProgram _shaderProgram;
-    private Texture _texture;
-    private VertexBuffer _vertexBuffer;
+    private readonly Matrix4x4 _reflectionMatrix = Matrix4x4.CreateReflection
+    (
+        new Plane(0, 1, 0, 0)
+    );
 
     private readonly float[] _vertices =
     {
@@ -38,12 +29,16 @@ public class ImageRenderer : OpenGlControlBase
         1f, -1f, 0, 0,
         -1f, -1f, 1, 0,
         -1f, 1f, 1, -1
-
-        // 1f,  1f,   1,  1,
-        // 1f, -1f,   1, -1, 
-        // -1f, -1f,  -1, -1,
-        // -1f,  1f,  -1,  1,
     };
+
+    private float _imageHeight;
+
+    private float _imageWidth;
+
+    private IndicesBuffer _indicesBuffer;
+    private ShaderProgram _shaderProgram;
+    private Texture _texture;
+    private VertexBuffer _vertexBuffer;
 
     private float _widthToHeight;
 
@@ -110,10 +105,10 @@ public class ImageRenderer : OpenGlControlBase
         var texCoordLocation = _shaderProgram.GetAttribLocation("aTexCoord");
         _shaderProgram.Compile();
 
-        _vertexBuffer = new VertexBuffer(GL, _vertices, 4);
-        _vertexBuffer.BindAttribute(positionLocation, 2, 0);
-        _vertexBuffer.BindAttribute(texCoordLocation, 2, 2);
-
+        _vertexBuffer = new VertexBuffer.Builder(GL, _vertices, 4)
+            .AttributeBinding(positionLocation, 2, 0)
+            .AttributeBinding(texCoordLocation, 2, 2)
+            .Build();
 
         _indicesBuffer = new IndicesBuffer(GL, _indices);
 
@@ -124,7 +119,6 @@ public class ImageRenderer : OpenGlControlBase
         _imageWidth = image.Width;
         _imageHeight = image.Height;
         _widthToHeight = _imageWidth / _imageHeight;
-
 
         var pixels = new byte[image.Width * 4 * image.Height];
         image.CopyPixelDataTo(pixels);
@@ -161,6 +155,23 @@ public class ImageRenderer : OpenGlControlBase
         GL.DrawElements(GL_TRIANGLES, _indices.Length, GL_UNSIGNED_SHORT, IntPtr.Zero);
         CheckError(GL);
     }
+    
+    protected override void OnOpenGlRender(GlInterface GL, int fb)
+    {
+        GL.ClearColor(0, 0, 0, 0);
+        GL.Clear(GL_COLOR_BUFFER_BIT);
+
+        GL.Viewport(0, 0, (int)Bounds.Width, (int)Bounds.Height);
+
+        try
+        {
+            TryToRender(GL);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
 
     private void RecalculateImageSize()
     {
@@ -193,24 +204,7 @@ public class ImageRenderer : OpenGlControlBase
         _imageHeight = (float)Bounds.Height;
         _imageWidth = _imageHeight * _widthToHeight;
     }
-
-    protected override void OnOpenGlRender(GlInterface GL, int fb)
-    {
-        GL.ClearColor(0, 0, 0, 0);
-        GL.Clear(GL_COLOR_BUFFER_BIT);
-
-        GL.Viewport(0, 0, (int)Bounds.Width, (int)Bounds.Height);
-
-        try
-        {
-            TryToRender(GL);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
-    }
-
+    
     protected override void OnOpenGlDeinit(GlInterface GL, int fb)
     {
         _indicesBuffer.Destroy();

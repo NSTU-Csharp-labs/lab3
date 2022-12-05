@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/darling/RiderProjects/lab3/lab3/lab3.csproj": {}
+    "/home/danilka108/RiderProjects/lab3/lab3/lab3.csproj": {}
   },
   "projects": {
-    "/home/darling/RiderProjects/lab3/lab3/lab3.csproj": {
+    "/home/danilka108/RiderProjects/lab3/lab3/lab3.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/darling/RiderProjects/lab3/lab3/lab3.csproj",
+        "projectUniqueName": "/home/danilka108/RiderProjects/lab3/lab3/lab3.csproj",
         "projectName": "lab3",
-        "projectPath": "/home/darling/RiderProjects/lab3/lab3/lab3.csproj",
-        "packagesPath": "/home/darling/.nuget/packages/",
-        "outputPath": "/home/darling/RiderProjects/lab3/lab3/obj/",
+        "projectPath": "/home/danilka108/RiderProjects/lab3/lab3/lab3.csproj",
+        "packagesPath": "/home/danilka108/.nuget/packages/",
+        "outputPath": "/home/danilka108/RiderProjects/lab3/lab3/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/darling/.nuget/NuGet/NuGet.Config"
+          "/home/danilka108/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
@@ -94,7 +94,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/6.0.110/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/dotnet6-6.0.110/sdk/6.0.110/RuntimeIdentifierGraph.json"
         }
       }
     }
