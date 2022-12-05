@@ -93,8 +93,8 @@ public class VertexBuffer : OpenGLHelper
                     attributeBinding.Size,
                     GL_FLOAT,
                     0,
-                    _stride,
-                    new IntPtr(attributeBinding.StartPosition)
+                    _stride * sizeof(float),
+                    new IntPtr(attributeBinding.StartPosition * sizeof(float))
                 );
                 _gl.EnableVertexAttribArray(attributeBinding.Location);
                 CheckError();

@@ -25,10 +25,10 @@ public class ImageRenderer : OpenGlControlBase
 
     private readonly float[] _vertices =
     {
-        1f, 1f, 0, -1,
-        1f, -1f, 0, 0,
-        -1f, -1f, 1, 0,
-        -1f, 1f, 1, -1
+        0f, -1f, 0, -1,
+        0f, 0f, 0, 0,
+        1f, 0f, 1, 0,
+        1f, -1f, 1, -1
     };
 
     private float _imageHeight;
@@ -110,6 +110,8 @@ public class ImageRenderer : OpenGlControlBase
             .AttributeBinding(texCoordLocation, 2, 2)
             .Build();
 
+        _vertexBuffer.Use();
+        
         _indicesBuffer = new IndicesBuffer(GL, _indices);
 
         _texture = new Texture(GL);

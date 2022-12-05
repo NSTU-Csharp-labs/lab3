@@ -13,6 +13,8 @@ public class ShaderProgram : OpenGLHelper
 
     private readonly int _vertexShader;
 
+    private int _lastAttributeIndex;
+
     public ShaderProgram(GlInterface GL, GlProfileType type, string vertexShaderSource, string fragmentShaderSource)
         : base(GL)
     {
@@ -20,13 +22,14 @@ public class ShaderProgram : OpenGLHelper
         _vertexShader = AddShader(GL_VERTEX_SHADER, false, vertexShaderSource);
         _fragmentShader = AddShader(GL_FRAGMENT_SHADER, true, fragmentShaderSource);
         _link = _gl.CreateProgram();
+        _lastAttributeIndex = 0;
     }
 
     private int AddShader(int shaderType, bool fragment, string shaderCode)
     {
         var shader = _gl.CreateShader(shaderType);
         var returned = _gl.CompileShaderAndGetError(shader, GetShader(fragment, shaderCode));
-        if (!CheckOpenGlExeption(returned))
+        if (!CheckOpenGlException(returned))
             throw new OpenGlException(
                 $"OpenGl: add shader error. {returned} is fragment: {fragment.ToString()} ");
         CheckError();
@@ -40,7 +43,6 @@ public class ShaderProgram : OpenGLHelper
         LinkShaderProgram();
     }
 
-
     private void CreateShaderProgram()
     {
         _gl.AttachShader(_link, _vertexShader);
@@ -53,7 +55,6 @@ public class ShaderProgram : OpenGLHelper
         _gl.UseProgram(_link);
     }
 
-
     public unsafe void SetUniformMatrix4x4(string name, Matrix4x4 matrix)
     {
         _gl.UniformMatrix4fv(_gl.GetUniformLocationString(_link, name), 1, false, &matrix);
@@ -63,25 +64,27 @@ public class ShaderProgram : OpenGLHelper
 
     public int GetAttribLocation(string name)
     {
-        var index = 0;
-        _gl.BindAttribLocationString(_link, index, name);
+        _gl.BindAttribLocationString(_link, _lastAttributeIndex, name);
         CheckError();
+        
+        var index = _lastAttributeIndex;
+        _lastAttributeIndex += 1;
+        
         return index;
     }
 
     private void LinkShaderProgram()
     {
         var returned = _gl.LinkProgramAndGetError(_link);
-        if (!CheckOpenGlExeption(returned)) throw new OpenGlException("OpenGl: link shader program error");
+        if (!CheckOpenGlException(returned)) throw new OpenGlException("OpenGl: link shader program error");
 
         CheckError();
     }
 
-    private bool CheckOpenGlExeption(string? returned)
+    private bool CheckOpenGlException(string? returned)
     {
         return returned == null || returned.Length.Equals(0);
     }
-
 
     private string GetShader(bool fragment, string shader)
     {
