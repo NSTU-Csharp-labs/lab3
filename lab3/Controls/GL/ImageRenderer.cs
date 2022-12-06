@@ -18,7 +18,13 @@ public class ImageRenderer : OpenGlControlBase
 
     public ImageRenderer()
     {
-        AffectsRender<ImageRenderer>(PathProperty, BlackAndWhiteFilterProperty);
+        AffectsRender<ImageRenderer>(
+            PathProperty,
+            BlackAndWhiteFilterProperty,
+            RedFilterProperty, 
+            GreenFilterProperty,
+            BlueFilterProperty
+            );
     }
     
     public string Path
@@ -36,6 +42,41 @@ public class ImageRenderer : OpenGlControlBase
     }
 
     public static readonly StyledProperty<bool> BlackAndWhiteFilterProperty = AvaloniaProperty.Register<ImageRenderer, bool>(nameof(BlackAndWhiteFilter));
+    
+    public bool RedFilter
+    {
+        get => GetValue(RedFilterProperty);
+        set => SetValue(RedFilterProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> RedFilterProperty = AvaloniaProperty.Register<ImageRenderer, bool>(nameof(RedFilter));
+
+    public bool GreenFilter
+    {
+        get => GetValue(GreenFilterProperty);
+        set => SetValue(GreenFilterProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> GreenFilterProperty = AvaloniaProperty.Register<ImageRenderer, bool>(nameof(GreenFilter));
+    
+    public bool BlueFilter
+    {
+        get => GetValue(BlueFilterProperty);
+        set => SetValue(BlueFilterProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> BlueFilterProperty = AvaloniaProperty.Register<ImageRenderer, bool>(nameof(BlueFilter));
+    
+    
+    
+    private void SetFilters()
+    {
+        _shaderProgram.SetUniformBool("uBlackAndWhite", BlackAndWhiteFilter);
+        _shaderProgram.SetUniformBool("uRed", RedFilter);
+        _shaderProgram.SetUniformBool("uGreen", GreenFilter);
+        _shaderProgram.SetUniformBool("uBlue", BlueFilter);
+    }
+    
 
     private readonly ushort[] _indices =
     {
@@ -150,7 +191,7 @@ public class ImageRenderer : OpenGlControlBase
         _texture.Use();
         _shaderProgram.Use();
 
-        _shaderProgram.SetUniformBool("uBlackAndWhite", false);
+        SetFilters();
         _shaderProgram.SetUniformMatrix4x4("uProjection", _projectionMatrix);
         _shaderProgram.SetUniformMatrix4x4("uView", _viewMatrix);
         _shaderProgram.SetUniformMatrix4x4("uModel", _modelMatrix);
