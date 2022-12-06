@@ -19,60 +19,7 @@ public class ShaderProgram : OpenGLHelper
     
         
 
-    private string _fragShader => @"
-    varying vec2 vTexCoord;
-    uniform sampler2D uTexture;
-    
-    uniform bool uBlackAndWhite;
-    uniform bool uRed;
-    uniform bool uBlue;
-    uniform bool uGreen;
-
-    vec4 BlackAndWhite(vec4 color);
-    vec4 Green(vec4 color);
-    vec4 Red(vec4 color);
-    vec4 Blue(vec4 color);
-    
-
-    void main()
-    {
-        vec4 color = texture(uTexture, vTexCoord); 
-        if (uBlackAndWhite) {
-            color = BlackAndWhite(color);
-        } 
-        if (uRed) {
-            color = Red(color);
-        }
-        if (uGreen) {
-            color = Green(color);
-        } 
-        if (uBlue) {
-            color = Blue(color);
-        } 
-        gl_FragColor = color;   
-    }
-
-    vec4 BlackAndWhite(vec4 color)
-    {
-        float grey = 0.21 * color.r + 0.71 * color.g + 0.07 * color.b;
-        return vec4(grey , grey, grey, 1.0);
-    }
-    vec4 Red(vec4 color)
-    {
-        return vec4(color.r * 1.1, color.g * 0.4, color.b * 0.4, 1.0);
-    }
-    vec4 Green(vec4 color)
-    {
-        return vec4(color.r * 0.4, color.g * 1.1, color.b * 0.4, 1.0);
-    }
-    
-    vec4 Blue(vec4 color)
-    {
-        return vec4(color.r * 0.4, color.g * 0.4, color.b * 1.05, 1.0);
-    }
-    
-
-    ";
+   
 
     // 
     public ShaderProgram(GlInterface GL, GlProfileType type)
@@ -83,7 +30,7 @@ public class ShaderProgram : OpenGLHelper
         _type = type;
         _vertexShader = AddShader( GL_VERTEX_SHADER, false, VertexShader);
 
-        _fragmentShader = AddShader(GL_FRAGMENT_SHADER, true, _fragShader);
+        _fragmentShader = AddShader(GL_FRAGMENT_SHADER, true, FragmentShader);
         _link = _gl.CreateProgram();
         _lastAttributeIndex = 0;
     }
@@ -129,8 +76,8 @@ public class ShaderProgram : OpenGLHelper
         CheckError();
         _gl.Uniform1f(_gl.GetUniformLocationString(_link, name), flag switch
         {
-            true => 1,
-            false => 0
+            true => 1f,
+            false => 0f
         });
         CheckError();
     }
@@ -195,8 +142,58 @@ public class ShaderProgram : OpenGLHelper
         _gl.DeleteShader(_fragmentShader);
     }
     
+    private const string FragmentShader = @"
+    varying vec2 vTexCoord;
+    uniform sampler2D uTexture;
     
+    uniform bool uBlackAndWhite;
+    uniform bool uRed;
+    uniform bool uBlue;
+    uniform bool uGreen;
+
+    vec4 BlackAndWhite(vec4 color);
+    vec4 Green(vec4 color);
+    vec4 Red(vec4 color);
+    vec4 Blue(vec4 color);
     
+
+    void main()
+    {
+        vec4 color = texture(uTexture, vTexCoord); 
+        if (uBlackAndWhite) {
+            color = BlackAndWhite(color);
+        } 
+        if (uRed) {
+            color = Red(color);
+        }
+        if (uGreen) {
+            color = Green(color);
+        } 
+        if (uBlue) {
+            color = Blue(color);
+        } 
+        gl_FragColor = color;   
+    }
+
+    vec4 BlackAndWhite(vec4 color)
+    {
+        float grey = 0.21 * color.r + 0.71 * color.g + 0.07 * color.b;
+        return vec4(grey , grey, grey, 1.0);
+    }
+    vec4 Red(vec4 color)
+    {
+        return vec4(color.r * 1.1, color.g * 0.4, color.b * 0.4, 1.0);
+    }
+    vec4 Green(vec4 color)
+    {
+        return vec4(color.r * 0.4, color.g * 1.1, color.b * 0.4, 1.0);
+    }
+    
+    vec4 Blue(vec4 color)
+    {
+        return vec4(color.r * 0.4, color.g * 0.4, color.b * 1.05, 1.0);
+    }
+    ";
     
     private const string VertexShader = @"
     attribute vec2 aPosition;
