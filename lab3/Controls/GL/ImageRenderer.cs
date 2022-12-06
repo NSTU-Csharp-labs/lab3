@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Numerics;
 using Avalonia;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
-using System;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using lab3.Controls.GL.Shaders;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
@@ -66,9 +63,7 @@ public class ImageRenderer : OpenGlControlBase
     }
 
     public static readonly StyledProperty<bool> BlueFilterProperty = AvaloniaProperty.Register<ImageRenderer, bool>(nameof(BlueFilter));
-    
-    
-    
+
     private void SetFilters()
     {
         _shaderProgram.SetUniformBool("uBlackAndWhite", BlackAndWhiteFilter);
@@ -76,7 +71,6 @@ public class ImageRenderer : OpenGlControlBase
         _shaderProgram.SetUniformBool("uGreen", GreenFilter);
         _shaderProgram.SetUniformBool("uBlue", BlueFilter);
     }
-    
 
     private readonly ushort[] _indices =
     {
@@ -195,6 +189,7 @@ public class ImageRenderer : OpenGlControlBase
         _shaderProgram.SetUniformMatrix4X4("uProjection", _projectionMatrix);
         _shaderProgram.SetUniformMatrix4X4("uView", _viewMatrix);
         _shaderProgram.SetUniformMatrix4X4("uModel", _modelMatrix);
+        _shaderProgram.SetUniformFloat("uCornerRadius", 10);
 
         GL.DrawElements(GL_TRIANGLES, _indices.Length, GL_UNSIGNED_SHORT, IntPtr.Zero);
         CheckError(GL);

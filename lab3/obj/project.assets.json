@@ -4944,19 +4944,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Артем\\.nuget\\packages\\": {}
+    "/home/danilka108/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Артем\\RiderProjects\\lab3\\lab3\\lab3.csproj",
+      "projectUniqueName": "/home/danilka108/RiderProjects/lab3/lab3/lab3.csproj",
       "projectName": "lab3",
-      "projectPath": "C:\\Users\\Артем\\RiderProjects\\lab3\\lab3\\lab3.csproj",
-      "packagesPath": "C:\\Users\\Артем\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Артем\\RiderProjects\\lab3\\lab3\\obj\\",
+      "projectPath": "/home/danilka108/RiderProjects/lab3/lab3/lab3.csproj",
+      "packagesPath": "/home/danilka108/.nuget/packages/",
+      "outputPath": "/home/danilka108/RiderProjects/lab3/lab3/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Артем\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/home/danilka108/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
@@ -5027,8 +5027,7 @@
           "net47",
           "net471",
           "net472",
-          "net48",
-          "net481"
+          "net48"
         ],
         "assetTargetFallback": true,
         "warn": true,
@@ -5037,7 +5036,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Users\\Артем\\.dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/dotnet6-6.0.110/sdk/6.0.110/RuntimeIdentifierGraph.json"
       }
     }
   }

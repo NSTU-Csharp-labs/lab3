@@ -12,8 +12,6 @@ public class ShaderProgram : OpenGLHelper
     private readonly GlProfileType _type;
     private readonly int _vertexShader;
     private int _lastAttributeIndex;
-    
-   
 
     public ShaderProgram(GlInterface GL, GlProfileType type)
         : base(GL)
@@ -73,7 +71,12 @@ public class ShaderProgram : OpenGLHelper
         CheckError();
     }
     
-
+    public void SetUniformFloat(string name, float value)
+    {
+        CheckError();
+        _gl.Uniform1f(_gl.GetUniformLocationString(_link, name), value);
+        CheckError();
+    }
 
     public int GetAttribLocation(string name)
     {
@@ -141,12 +144,13 @@ public class ShaderProgram : OpenGLHelper
     uniform bool uRed;
     uniform bool uBlue;
     uniform bool uGreen;
+    uniform float uCornerRadius;
 
     vec4 EnableEffects(vec4 color);
     vec4 Green(vec4 color);
     vec4 Red(vec4 color);
     vec4 Blue(vec4 color);
-    
+    vec4 RoundCorners(vec4 color);
 
     void main()
     {
@@ -162,8 +166,27 @@ public class ShaderProgram : OpenGLHelper
         } 
         if (uBlue) {
             color = Blue(color);
-        } 
+        }
+
+        /*color = RoundCorners(color);*/
+
         gl_FragColor = color;   
+    }
+
+    vec4 RoundCorners(vec4 color)
+    {
+        float distTL = length(vTexCoord - vec2(0.0, 0.0));
+        float distTR = length(vTexCoord - vec2(1.0, 0.0));
+        float distBL = length(vTexCoord - vec2(0.0, 1.0));
+        float distBR = length(vTexCoord - vec2(1.0, 1.0));
+
+        if (!(distTL < uCornerRadius || distTR < uCornerRadius ||
+            distBL < uCornerRadius || distBR < uCornerRadius))
+        {
+            return vec4(0.0, 0.0, 0.0, 0.0);
+        }
+
+        return color; 
     }
 
     vec4 EnableEffects(vec4 color)
@@ -171,10 +194,12 @@ public class ShaderProgram : OpenGLHelper
         float grey = 0.21 * color.r + 0.71 * color.g + 0.07 * color.b;
         return vec4(grey , grey, grey, 1.0);
     }
+
     vec4 Red(vec4 color)
     {
         return vec4(color.r * 1.1, color.g * 0.4, color.b * 0.4, 1.0);
     }
+
     vec4 Green(vec4 color)
     {
         return vec4(color.r * 0.4, color.g * 1.1, color.b * 0.4, 1.0);
