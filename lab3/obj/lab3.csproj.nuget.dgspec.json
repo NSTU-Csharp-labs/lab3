@@ -1,27 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\s-hro\\RiderProjects\\lab3\\lab3\\lab3.csproj": {}
+    "C:\\Users\\Артем\\RiderProjects\\lab3\\lab3\\lab3.csproj": {}
   },
   "projects": {
-    "C:\\Users\\s-hro\\RiderProjects\\lab3\\lab3\\lab3.csproj": {
+    "C:\\Users\\Артем\\RiderProjects\\lab3\\lab3\\lab3.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\s-hro\\RiderProjects\\lab3\\lab3\\lab3.csproj",
+        "projectUniqueName": "C:\\Users\\Артем\\RiderProjects\\lab3\\lab3\\lab3.csproj",
         "projectName": "lab3",
-        "projectPath": "C:\\Users\\s-hro\\RiderProjects\\lab3\\lab3\\lab3.csproj",
-        "packagesPath": "C:\\Users\\s-hro\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\s-hro\\RiderProjects\\lab3\\lab3\\obj\\",
+        "projectPath": "C:\\Users\\Артем\\RiderProjects\\lab3\\lab3\\lab3.csproj",
+        "packagesPath": "C:\\Users\\Артем\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Артем\\RiderProjects\\lab3\\lab3\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\s-hro\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\Артем\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -97,7 +95,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\Артем\\.dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
         }
       }
     }
