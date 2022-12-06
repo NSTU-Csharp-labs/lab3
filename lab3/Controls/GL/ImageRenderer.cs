@@ -192,9 +192,9 @@ public class ImageRenderer : OpenGlControlBase
         _shaderProgram.Use();
 
         SetFilters();
-        _shaderProgram.SetUniformMatrix4x4("uProjection", _projectionMatrix);
-        _shaderProgram.SetUniformMatrix4x4("uView", _viewMatrix);
-        _shaderProgram.SetUniformMatrix4x4("uModel", _modelMatrix);
+        _shaderProgram.SetUniformMatrix4X4("uProjection", _projectionMatrix);
+        _shaderProgram.SetUniformMatrix4X4("uView", _viewMatrix);
+        _shaderProgram.SetUniformMatrix4X4("uModel", _modelMatrix);
 
         GL.DrawElements(GL_TRIANGLES, _indices.Length, GL_UNSIGNED_SHORT, IntPtr.Zero);
         CheckError(GL);

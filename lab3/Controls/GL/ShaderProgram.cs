@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using Avalonia.OpenGL;
-using lab3.Controls.GL.Shaders;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
@@ -17,16 +13,11 @@ public class ShaderProgram : OpenGLHelper
     private readonly int _vertexShader;
     private int _lastAttributeIndex;
     
-        
-
    
 
-    // 
     public ShaderProgram(GlInterface GL, GlProfileType type)
         : base(GL)
     {
-        string shaders = new string("");
-
         _type = type;
         _vertexShader = AddShader( GL_VERTEX_SHADER, false, VertexShader);
 
@@ -65,13 +56,13 @@ public class ShaderProgram : OpenGLHelper
         _gl.UseProgram(_link);
     }
 
-    public unsafe void SetUniformMatrix4x4(string name, Matrix4x4 matrix)
+    public unsafe void SetUniformMatrix4X4(string name, Matrix4x4 matrix)
     {
         _gl.UniformMatrix4fv(_gl.GetUniformLocationString(_link, name), 1, false, &matrix);
         CheckError();
     }
     
-    public unsafe void SetUniformBool(string name, bool flag)
+    public void SetUniformBool(string name, bool flag)
     {
         CheckError();
         _gl.Uniform1f(_gl.GetUniformLocationString(_link, name), flag switch
