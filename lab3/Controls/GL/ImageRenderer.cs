@@ -15,11 +15,9 @@ namespace lab3.Controls.GL;
 public class ImageRenderer : OpenGlControlBase
 {
     private readonly Vector3 _cameraUp = new(0, 1, 0);
-    // public Image<Rgba32> Image;
 
     public ImageRenderer()
     {
-        _filters = new List<Filters>( ){ Filters.BlackAndWhite };
         AffectsRender<ImageRenderer>(PathProperty, BlackAndWhiteFilterProperty);
     }
     
@@ -38,11 +36,6 @@ public class ImageRenderer : OpenGlControlBase
     }
 
     public static readonly StyledProperty<bool> BlackAndWhiteFilterProperty = AvaloniaProperty.Register<ImageRenderer, bool>(nameof(BlackAndWhiteFilter));
-
-
-    private List<Filters> _filters;
-
-
 
     private readonly ushort[] _indices =
     {
@@ -105,7 +98,7 @@ public class ImageRenderer : OpenGlControlBase
     private void TryInitOpenGl(GlInterface GL)
     {
         CheckError(GL);
-        _shaderProgram = new ShaderProgram(GL, GlVersion.Type, _filters);
+        _shaderProgram = new ShaderProgram(GL, GlVersion.Type);
         var positionLocation = _shaderProgram.GetAttribLocation("aPosition");
         var texCoordLocation = _shaderProgram.GetAttribLocation("aTexCoord");
         _shaderProgram.Compile();
@@ -157,6 +150,7 @@ public class ImageRenderer : OpenGlControlBase
         _texture.Use();
         _shaderProgram.Use();
 
+        _shaderProgram.SetUniformBool("uBlackAndWhite", false);
         _shaderProgram.SetUniformMatrix4x4("uProjection", _projectionMatrix);
         _shaderProgram.SetUniformMatrix4x4("uView", _viewMatrix);
         _shaderProgram.SetUniformMatrix4x4("uModel", _modelMatrix);

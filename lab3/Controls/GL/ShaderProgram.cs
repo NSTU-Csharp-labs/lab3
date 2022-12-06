@@ -16,9 +16,38 @@ public class ShaderProgram : OpenGLHelper
     private readonly GlProfileType _type;
     private readonly int _vertexShader;
     private int _lastAttributeIndex;
+    
+        
+
+    private string _fragShader => @"
+    varying vec2 vTexCoord;
+    uniform sampler2D uTexture;
+    uniform bool uBlackAndWhite;
+
+    vec4 blackAndWhite(vec4 color);
+    
+
+    void main()
+    {
+        vec4 color = texture(uTexture, vTexCoord); 
+        if (uBlackAndWhite == true) {
+            color = blackAndWhite(color);
+        } 
+        gl_FragColor = color;   
+    }
+
+    vec4 blackAndWhite(vec4 color)
+    {
+        float grey = 0.21 * color.r + 0.71 * color.g + 0.07 * color.b;
+        return vec4(grey , grey, grey, 1.0);
+    }
+
+    
+
+    ";
 
     // 
-    public ShaderProgram(GlInterface GL, GlProfileType type, IEnumerable<Filters> activatedFilters)
+    public ShaderProgram(GlInterface GL, GlProfileType type)
         : base(GL)
     {
         string shaders = new string("");
@@ -26,10 +55,7 @@ public class ShaderProgram : OpenGLHelper
         _type = type;
         _vertexShader = AddShader( GL_VERTEX_SHADER, false, VertexShader);
 
-        var fragmentShaderBuilder = new FragmentShaderBuilder(activatedFilters);
-        var fragmentShader = fragmentShaderBuilder.createFragmentShader();
-
-        _fragmentShader = AddShader(GL_FRAGMENT_SHADER, true, fragmentShader);
+        _fragmentShader = AddShader(GL_FRAGMENT_SHADER, true, _fragShader);
         _link = _gl.CreateProgram();
         _lastAttributeIndex = 0;
     }
@@ -69,6 +95,18 @@ public class ShaderProgram : OpenGLHelper
         _gl.UniformMatrix4fv(_gl.GetUniformLocationString(_link, name), 1, false, &matrix);
         CheckError();
     }
+    
+    public unsafe void SetUniformBool(string name, bool flag)
+    {
+        CheckError();
+        _gl.Uniform1f(_gl.GetUniformLocationString(_link, name), flag switch
+        {
+            true => 1,
+            false => 0
+        });
+        CheckError();
+    }
+    
 
 
     public int GetAttribLocation(string name)
