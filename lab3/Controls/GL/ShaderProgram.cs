@@ -142,7 +142,7 @@ public class ShaderProgram : OpenGLHelper
     uniform bool uBlue;
     uniform bool uGreen;
 
-    vec4 BlackAndWhite(vec4 color);
+    vec4 EnableEffects(vec4 color);
     vec4 Green(vec4 color);
     vec4 Red(vec4 color);
     vec4 Blue(vec4 color);
@@ -152,7 +152,7 @@ public class ShaderProgram : OpenGLHelper
     {
         vec4 color = texture(uTexture, vTexCoord); 
         if (uBlackAndWhite) {
-            color = BlackAndWhite(color);
+            color = EnableEffects(color);
         } 
         if (uRed) {
             color = Red(color);
@@ -166,7 +166,7 @@ public class ShaderProgram : OpenGLHelper
         gl_FragColor = color;   
     }
 
-    vec4 BlackAndWhite(vec4 color)
+    vec4 EnableEffects(vec4 color)
     {
         float grey = 0.21 * color.r + 0.71 * color.g + 0.07 * color.b;
         return vec4(grey , grey, grey, 1.0);
