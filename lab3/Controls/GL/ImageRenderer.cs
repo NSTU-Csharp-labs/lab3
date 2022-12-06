@@ -4,6 +4,7 @@ using System.Numerics;
 using Avalonia;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
+using System;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using lab3.Controls.GL.Shaders;
@@ -18,6 +19,7 @@ public class ImageRenderer : OpenGlControlBase
 
     public ImageRenderer()
     {
+        _filters = new List<Filters>( ){ Filters.BlackAndWhite };
         AffectsRender<ImageRenderer>(PathProperty, BlackAndWhiteFilterProperty);
     }
     
@@ -36,9 +38,11 @@ public class ImageRenderer : OpenGlControlBase
     }
 
     public static readonly StyledProperty<bool> BlackAndWhiteFilterProperty = AvaloniaProperty.Register<ImageRenderer, bool>(nameof(BlackAndWhiteFilter));
-    
-    
-    
+
+
+    private List<Filters> _filters;
+
+
 
     private readonly ushort[] _indices =
     {
@@ -97,13 +101,11 @@ public class ImageRenderer : OpenGlControlBase
         ),
         _reflectionMatrix
     );
-
-
-
+    
     private void TryInitOpenGl(GlInterface GL)
     {
         CheckError(GL);
-        _shaderProgram = new ShaderProgram(GL, GlVersion.Type, new List<Filters>() { Filters.BlackAndWhite });
+        _shaderProgram = new ShaderProgram(GL, GlVersion.Type, _filters);
         var positionLocation = _shaderProgram.GetAttribLocation("aPosition");
         var texCoordLocation = _shaderProgram.GetAttribLocation("aTexCoord");
         _shaderProgram.Compile();
@@ -148,6 +150,8 @@ public class ImageRenderer : OpenGlControlBase
     {
         RecalculateImageSize();
 
+        
+        
         _indicesBuffer.Use();
         _vertexBuffer.Use();
         _texture.Use();
