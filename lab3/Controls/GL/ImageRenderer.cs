@@ -16,21 +16,20 @@ public class ImageRenderer : OpenGlControlBase
     public ImageRenderer()
     {
         AffectsRender<ImageRenderer>(
-            PathProperty,
             BlackAndWhiteFilterProperty,
             RedFilterProperty, 
             GreenFilterProperty,
-            BlueFilterProperty
+            BlueFilterProperty,
+            ImgProperty
             );
     }
-    
-    public string Path
+    public ImgBitmap Img
     {
-        get => GetValue(PathProperty);
-        set => SetValue(PathProperty, value);
+        get => GetValue(ImgProperty);
+        set => SetValue(ImgProperty, value);
     }
 
-    public static readonly StyledProperty<string> PathProperty = AvaloniaProperty.Register<ImageRenderer, string>(nameof(Path));
+    public static readonly StyledProperty<ImgBitmap> ImgProperty = AvaloniaProperty.Register<ImageRenderer, ImgBitmap>(nameof(Img));
     
     public bool BlackAndWhiteFilter
     {
@@ -149,19 +148,17 @@ public class ImageRenderer : OpenGlControlBase
 
         _texture = new Texture(GL);
 
-        var image = Image.Load<Rgba32>(Path);
 
-        _imageWidth = image.Width;
-        _imageHeight = image.Height;
-        _widthToHeight = _imageWidth / _imageHeight;
 
-        var pixels = new byte[image.Width * 4 * image.Height];
-        image.CopyPixelDataTo(pixels);
-        image.Dispose();
-
-        _texture.SetPixels(pixels, _imageWidth, _imageHeight);
     }
 
+    private void SetPicturePatams()
+    {
+        _imageWidth = Img.Width;
+        _imageHeight = Img.Height;
+        _widthToHeight = _imageWidth / _imageHeight;
+    }
+    
     protected override void OnOpenGlInit(GlInterface GL, int fb)
     {
         try
@@ -176,9 +173,9 @@ public class ImageRenderer : OpenGlControlBase
 
     private void TryToRender(GlInterface GL)
     {
+        SetPicturePatams();
+        _texture.SetPixels(Img.Pixels, _imageWidth, _imageHeight);
         RecalculateImageSize();
-
-        
         
         _indicesBuffer.Use();
         _vertexBuffer.Use();
@@ -189,7 +186,7 @@ public class ImageRenderer : OpenGlControlBase
         _shaderProgram.SetUniformMatrix4X4("uProjection", _projectionMatrix);
         _shaderProgram.SetUniformMatrix4X4("uView", _viewMatrix);
         _shaderProgram.SetUniformMatrix4X4("uModel", _modelMatrix);
-        _shaderProgram.SetUniformFloat("uCornerRadius", 10);
+        // _shaderProgram.SetUniformFloat("uCornerRadius", 10);
 
         GL.DrawElements(GL_TRIANGLES, _indices.Length, GL_UNSIGNED_SHORT, IntPtr.Zero);
         CheckError(GL);
