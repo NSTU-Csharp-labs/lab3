@@ -50,7 +50,7 @@ public class ImgBitmap
         }
     
         RecalculateImageHeight(boundsHeight);
-
+        
         if (RenderWidth > boundsWidth)
         {
             RecalculateImageWidth(boundsWidth);

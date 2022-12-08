@@ -56,9 +56,7 @@ public class Painter : OpenGLHelper, IDisposable
             .Build();
 
         _vertexBuffer.Use();
-
         _indicesBuffer = new IndicesBuffer(GL, _indices);
-
         _texture = new Texture(GL);
     }
 
@@ -67,9 +65,8 @@ public class Painter : OpenGLHelper, IDisposable
         bitmap.OnRender(boundsWidth, boundsHeight); 
         _texture.SetPixels(bitmap.Pixels, bitmap.Width, bitmap.Height);
         
-        
         _gl.Clear(GL_COLOR_BUFFER_BIT);
-        _gl.Viewport(0, 0, bitmap.Width, bitmap.Height);
+        _gl.Viewport(0, 0, (int)boundsWidth, (int)boundsHeight);
         
         _indicesBuffer.Use();
         _vertexBuffer.Use();
