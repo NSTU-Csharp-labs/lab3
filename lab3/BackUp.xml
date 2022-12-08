@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MainWindowViewModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <PathToPicture>C:\Users\s-hro\RiderProjects\lab3\lab3\Assets\logo.png</PathToPicture>
+    <_rotateMode>0</_rotateMode>
+    <Img />
+    <IsCheckedB>false</IsCheckedB>
+    <IsCheckedG>false</IsCheckedG>
+    <IsCheckedR>true</IsCheckedR>
+    <IsCheckedBW>false</IsCheckedBW>
+    <BlackAndWhiteFilter>false</BlackAndWhiteFilter>
+    <GreenFilter>false</GreenFilter>
+    <RedFilter>true</RedFilter>
+    <BlueFilter>false</BlueFilter>
+    <IsVisibleEffectBtn>false</IsVisibleEffectBtn>
+    <IsVisibleSaveBtn>false</IsVisibleSaveBtn>
+    <IsVisibleRotateBtn>false</IsVisibleRotateBtn>
+    <IsVisibleDrawBtn>false</IsVisibleDrawBtn>
+    <IsVisibleEffectsElements>true</IsVisibleEffectsElements>
+</MainWindowViewModel>
