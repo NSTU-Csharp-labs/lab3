@@ -4,7 +4,7 @@ using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
 
-public class Texture : OpenGLHelper
+public class Texture : OpenGLHelper, IDisposable
 {
     public int _texture;
 
@@ -51,5 +51,10 @@ public class Texture : OpenGLHelper
     {
         _gl.BindTexture(GL_TEXTURE_2D, _texture);
         CheckError();
+    }
+
+    public void Dispose()
+    {
+        _gl.DeleteTexture(_texture);
     }
 }

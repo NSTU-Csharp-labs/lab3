@@ -4,7 +4,7 @@ using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
 
-public class IndicesBuffer : OpenGLHelper
+public class IndicesBuffer : OpenGLHelper, IDisposable
 {
     private readonly ushort[] _indices;
     private readonly int _indicesBufferObject;
@@ -32,7 +32,7 @@ public class IndicesBuffer : OpenGLHelper
         _gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
     }
 
-    public void Destroy()
+    public void Dispose()
     {
         _gl.DeleteBuffer(_indicesBufferObject);
     }

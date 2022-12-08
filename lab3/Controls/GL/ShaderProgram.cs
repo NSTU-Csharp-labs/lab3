@@ -1,11 +1,12 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Avalonia.OpenGL;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
 
-public class ShaderProgram : OpenGLHelper
+public class ShaderProgram : OpenGLHelper, IDisposable
 {
     private readonly int _fragmentShader;
     private readonly int _link;
@@ -129,7 +130,7 @@ public class ShaderProgram : OpenGLHelper
         return data;
     }
 
-    public void Destroy()
+    public void Dispose()
     {
         _gl.DeleteProgram(_link);
         _gl.DeleteShader(_vertexShader);
@@ -226,6 +227,4 @@ public class ShaderProgram : OpenGLHelper
         gl_Position = uProjection * uView * uModel * vec4(aPosition.x, aPosition.y, 0, 1.0);
     }
     ";
-    
-    
 }

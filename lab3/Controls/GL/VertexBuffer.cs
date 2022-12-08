@@ -5,7 +5,7 @@ using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
 
-public class VertexBuffer : OpenGLHelper
+public class VertexBuffer : OpenGLHelper, IDisposable
 {
     private readonly int _vertexArrayObject;
     private readonly int _vertexBufferObject;
@@ -22,7 +22,7 @@ public class VertexBuffer : OpenGLHelper
         CheckError();
     }
 
-    public void Destroy()
+    public void Dispose()
     {
         _gl.DeleteBuffer(_vertexBufferObject);
         _gl.DeleteVertexArray(_vertexArrayObject);
