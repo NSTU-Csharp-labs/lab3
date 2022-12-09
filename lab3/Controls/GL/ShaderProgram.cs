@@ -1,142 +1,114 @@
 ﻿using System;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using Avalonia.OpenGL;
-using static Avalonia.OpenGL.GlConsts;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
+using Svg;
 
 namespace lab3.Controls.GL;
 
-public class ShaderProgram : OpenGLHelper, IDisposable
+public class ShaderProgram : IDisposable
 {
-    private readonly int _fragmentShader;
-    private readonly int _link;
-    private readonly GlProfileType _type;
-    private readonly int _vertexShader;
-    private int _lastAttributeIndex;
+    private readonly ShaderHandle _fragmentShader;
+    private readonly ProgramHandle _program;
+    private readonly ShaderHandle _vertexShader;
+    private uint _lastAttributeIndex;
 
-    public ShaderProgram(GlInterface GL, GlProfileType type)
-        : base(GL)
+    public ShaderProgram()
     {
-        _type = type;
-        _vertexShader = AddShader( GL_VERTEX_SHADER, false, VertexShader);
+        _vertexShader = AddShader(ShaderType.VertexShader, VertexShader);
+        _fragmentShader = AddShader(ShaderType.FragmentShader, FragmentShader);
+        _program = OpenTK.Graphics.OpenGL.GL.CreateProgram();
 
-        _fragmentShader = AddShader(GL_FRAGMENT_SHADER, true, FragmentShader);
-        _link = _gl.CreateProgram();
         _lastAttributeIndex = 0;
     }
 
-    private int AddShader(int shaderType, bool fragment, string shaderCode)
+    private ShaderHandle AddShader(ShaderType type, string sourceCode)
     {
-        var shader = _gl.CreateShader(shaderType);
-        var returned = _gl.CompileShaderAndGetError(shader, GetShader(fragment, shaderCode));
-        if (!CheckOpenGlException(returned))
+        var shader = OpenTK.Graphics.OpenGL.GL.CreateShader(type);
+        OpenTK.Graphics.OpenGL.GL.ShaderSource(shader, sourceCode);
+        OpenTK.Graphics.OpenGL.GL.CompileShader(shader);
+
+        OpenGlUtils.CheckError();
+
+        OpenTK.Graphics.OpenGL.GL.GetShaderInfoLog(shader, out var errorMessage);
+
+        if (errorMessage.Length != 0)
             throw new OpenGlException(
-                $"OpenGl: add shader error. {returned} is fragment: {fragment.ToString()} ");
-        CheckError();
+                $"OpenGl: add shader error. {errorMessage} fragment type: {type.ToString()}");
 
         return shader;
     }
 
     public void Compile()
     {
-        CreateShaderProgram();
-        LinkShaderProgram();
-    }
+        OpenTK.Graphics.OpenGL.GL.AttachShader(_program, _vertexShader);
+        OpenTK.Graphics.OpenGL.GL.AttachShader(_program, _fragmentShader);
 
-    private void CreateShaderProgram()
-    {
-        _gl.AttachShader(_link, _vertexShader);
-        _gl.AttachShader(_link, _fragmentShader);
-        CheckError();
+        OpenGlUtils.CheckError();
+
+        OpenTK.Graphics.OpenGL.GL.LinkProgram(_program);
+        OpenTK.Graphics.OpenGL.GL.GetProgramInfoLog(_program, out var errorMessage);
+
+        if (errorMessage.Length != 0)
+            throw new OpenGlException($"OpenGl: link program error. {errorMessage}");
     }
 
     public void Use()
     {
-        _gl.UseProgram(_link);
+        OpenTK.Graphics.OpenGL.GL.UseProgram(_program);
     }
 
-    public unsafe void SetUniformMatrix4X4(string name, Matrix4x4 matrix)
+    public void SetUniformMatrix4X4(string name, Matrix4x4 matrix)
     {
-        _gl.UniformMatrix4fv(_gl.GetUniformLocationString(_link, name), 1, false, &matrix);
-        CheckError();
+        var location = OpenTK.Graphics.OpenGL.GL.GetUniformLocation(_program, name);
+        OpenTK.Graphics.OpenGL.GL.UniformMatrix4f(location, false, matrix.MapToOpenTKMatrix());
+        
+        OpenGlUtils.CheckError();
     }
-    
+
     public void SetUniformBool(string name, bool flag)
     {
-        CheckError();
-        _gl.Uniform1f(_gl.GetUniformLocationString(_link, name), flag switch
+        var location = OpenTK.Graphics.OpenGL.GL.GetUniformLocation(_program, name);
+        OpenTK.Graphics.OpenGL.GL.Uniform1f(location, flag switch
         {
             true => 1f,
-            false => 0f
+            false => 0f,
         });
-        CheckError();
+        
+        OpenGlUtils.CheckError();
     }
-    
+
     public void SetUniformFloat(string name, float value)
     {
-        CheckError();
-        _gl.Uniform1f(_gl.GetUniformLocationString(_link, name), value);
-        CheckError();
+        var location = OpenTK.Graphics.OpenGL.GL.GetUniformLocation(_program, name);
+        OpenTK.Graphics.OpenGL.GL.Uniform1f(location, value);
+        
+        OpenGlUtils.CheckError();
     }
 
-    public int GetAttribLocation(string name)
+    public uint BindAttribLocation(string name)
     {
-        _gl.BindAttribLocationString(_link, _lastAttributeIndex, name);
-        CheckError();
-        
+        OpenTK.Graphics.OpenGL.GL.BindAttribLocation(_program, _lastAttributeIndex, name);
+        OpenGlUtils.CheckError();
+
         var index = _lastAttributeIndex;
         _lastAttributeIndex += 1;
-        
+
         return index;
-    }
-
-    private void LinkShaderProgram()
-    {
-        var returned = _gl.LinkProgramAndGetError(_link);
-        if (!CheckOpenGlException(returned)) throw new OpenGlException("OpenGl: link shader program error");
-
-        CheckError();
-    }
-
-    private bool CheckOpenGlException(string? returned)
-    {
-        return returned == null || returned.Length.Equals(0);
-    }
-
-    private string GetShader(bool fragment, string shader)
-    {
-        var version = _type == GlProfileType.OpenGL
-            ? RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 150 : 120
-            : 100;
-        var data = "#version " + 330 + "\n";
-
-        if (_type == GlProfileType.OpenGLES)
-            data += "precision mediump float;\n";
-        if (version >= 150)
-        {
-            shader = shader.Replace("attribute", "in");
-            if (fragment)
-                shader = shader
-                    .Replace("varying", "in")
-                    .Replace("//DECLAREGLFRAG", "out vec4 outFragColor;")
-                    .Replace("gl_FragColor", "outFragColor");
-            else
-                shader = shader.Replace("varying", "out");
-        }
-
-        data += shader;
-
-        return data;
     }
 
     public void Dispose()
     {
-        _gl.DeleteProgram(_link);
-        _gl.DeleteShader(_vertexShader);
-        _gl.DeleteShader(_fragmentShader);
+        OpenTK.Graphics.OpenGL.GL.DeleteProgram(_program);
+        OpenTK.Graphics.OpenGL.GL.DeleteShader(_vertexShader);
+        OpenTK.Graphics.OpenGL.GL.DeleteShader(_fragmentShader);
     }
-    
+
     private const string FragmentShader = @"
+    #version 330 core
+
     varying vec2 vTexCoord;
     uniform sampler2D uTexture;
     
@@ -210,8 +182,10 @@ public class ShaderProgram : OpenGLHelper, IDisposable
         return vec4(color.r * 0.4, color.g * 0.4, color.b * 1.05, 1.0);
     }
     ";
-    
+
     private const string VertexShader = @"
+    #version 330 core
+
     attribute vec2 aPosition;
     attribute vec2 aTexCoord;
     uniform mat4 uProjection;
@@ -226,4 +200,17 @@ public class ShaderProgram : OpenGLHelper, IDisposable
         gl_Position = uProjection * uView * uModel * vec4(aPosition.x, aPosition.y, 0, 1.0);
     }
     ";
+}
+
+public static class Matrix4x4Extensions
+{
+    public static Matrix4 MapToOpenTKMatrix(this Matrix4x4 matrix)
+    {
+        return new Matrix4(
+            matrix.M11, matrix.M12, matrix.M13, matrix.M14,
+            matrix.M21, matrix.M22, matrix.M23, matrix.M24,
+            matrix.M31, matrix.M32, matrix.M33, matrix.M34,
+            matrix.M41, matrix.M42, matrix.M43, matrix.M44
+        );
+    }
 }

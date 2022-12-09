@@ -43,16 +43,25 @@ public class Painter : OpenGLHelper, IDisposable
 
     public Painter(GlInterface GL, GlProfileType type) : base(GL)
     {
+        try
+        {
+            OpenGlUtils.CheckError();
+        }
+        catch
+        {
+            // ignored
+        }
+
         GL.ClearColor(0, 0, 0, 0);
-        
-        _shaderProgram = new ShaderProgram(GL, type);
-        var positionLocation = _shaderProgram.GetAttribLocation("aPosition");
-        var texCoordLocation = _shaderProgram.GetAttribLocation("aTexCoord");
+
+        _shaderProgram = new ShaderProgram();
+        var positionLocation = _shaderProgram.BindAttribLocation("aPosition");
+        var texCoordLocation = _shaderProgram.BindAttribLocation("aTexCoord");
         _shaderProgram.Compile();
 
         _vertexBuffer = new VertexBuffer.Builder(_vertices, 4)
-            .AttributeBinding((uint)positionLocation, 2, 0)
-            .AttributeBinding((uint)texCoordLocation, 2, 2)
+            .AttributeBinding(positionLocation, 2, 0)
+            .AttributeBinding(texCoordLocation, 2, 2)
             .Build();
 
         _vertexBuffer.Use();
@@ -62,12 +71,12 @@ public class Painter : OpenGLHelper, IDisposable
 
     public void Paint(ImgBitmap bitmap, float boundsWidth, float boundsHeight)
     {
-        bitmap.OnRender(boundsWidth, boundsHeight); 
+        bitmap.OnRender(boundsWidth, boundsHeight);
         _texture.SetPixels(bitmap.Pixels, bitmap.Width, bitmap.Height);
-        
+
         _gl.Clear(GL_COLOR_BUFFER_BIT);
         _gl.Viewport(0, 0, (int)boundsWidth, (int)boundsHeight);
-        
+
         _indicesBuffer.Use();
         _vertexBuffer.Use();
         _texture.Use();
@@ -98,20 +107,22 @@ public class Painter : OpenGLHelper, IDisposable
 
     private void SetMatrices(ImgBitmap bitmap, float boundsWidth, float boundsHeight)
     {
-        _shaderProgram.SetUniformMatrix4X4("uProjection", GetProjectionMatrix(boundsWidth, boundsHeight));
+        _shaderProgram.SetUniformMatrix4X4("uProjection",
+            GetProjectionMatrix(boundsWidth, boundsHeight));
         _shaderProgram.SetUniformMatrix4X4("uView", GetViewMatrix(bitmap));
         _shaderProgram.SetUniformMatrix4X4("uModel", GetModelMatrix(bitmap));
     }
 
-    private Matrix4x4 GetProjectionMatrix(float boundsWidth, float boundsHeight) => Matrix4x4.CreateOrthographicOffCenter
-    (
-        -boundsWidth / 2,
-        boundsWidth / 2,
-        -boundsHeight / 2,
-        boundsHeight / 2,
-        0,
-        10
-    );
+    private Matrix4x4 GetProjectionMatrix(float boundsWidth, float boundsHeight) =>
+        Matrix4x4.CreateOrthographicOffCenter
+        (
+            -boundsWidth / 2,
+            boundsWidth / 2,
+            -boundsHeight / 2,
+            boundsHeight / 2,
+            0,
+            10
+        );
 
     private Matrix4x4 GetViewMatrix(ImgBitmap bitmap) => Matrix4x4.CreateLookAt
     (
