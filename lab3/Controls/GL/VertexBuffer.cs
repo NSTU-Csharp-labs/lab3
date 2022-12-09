@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using Avalonia.OpenGL;
-using static Avalonia.OpenGL.GlConsts;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 
 namespace lab3.Controls.GL;
 
-public class VertexBuffer : OpenGLHelper, IDisposable
+public class VertexBuffer : IDisposable
 {
-    private readonly int _vertexArrayObject;
-    private readonly int _vertexBufferObject;
+    private readonly VertexArrayHandle _vertexArrayObject;
+    private readonly BufferHandle _vertexBufferObject;
 
-    private VertexBuffer(GlInterface GL, int vertexArrayObject, int vertexBufferObject) : base(GL)
+    private VertexBuffer(VertexArrayHandle vertexArrayObject, BufferHandle vertexBufferObject)
     {
         _vertexArrayObject = vertexArrayObject;
         _vertexBufferObject = vertexBufferObject;
@@ -18,32 +18,32 @@ public class VertexBuffer : OpenGLHelper, IDisposable
 
     public void Use()
     {
-        _gl.BindVertexArray(_vertexArrayObject);
-        CheckError();
+        OpenTK.Graphics.OpenGL.GL.BindVertexArray(_vertexArrayObject);
+        OpenGlUtils.CheckError();
     }
 
     public void Dispose()
     {
-        _gl.DeleteBuffer(_vertexBufferObject);
-        _gl.DeleteVertexArray(_vertexArrayObject);
+        OpenTK.Graphics.OpenGL.GL.DeleteVertexArray(_vertexArrayObject);
+        OpenTK.Graphics.OpenGL.GL.DeleteBuffer(_vertexBufferObject);
     }
 
-    private record struct AttributeBinding(int Location, int Size, int StartPosition);
+    private record struct AttributeBinding(uint Location, int Size, int StartPosition);
 
-    public class Builder : OpenGLHelper
+    public class Builder
     {
         private readonly List<AttributeBinding> _attributeBindings;
         private readonly int _stride;
         private readonly float[] _vertices;
 
-        public Builder(GlInterface GL, float[] vertices, int stride) : base(GL)
+        public Builder(float[] vertices, int stride)
         {
             _vertices = vertices;
             _stride = stride;
             _attributeBindings = new List<AttributeBinding>();
         }
 
-        public Builder AttributeBinding(int location, int size, int startPosition)
+        public Builder AttributeBinding(uint location, int size, int startPosition)
         {
             _attributeBindings.Add(new AttributeBinding(location, size, startPosition));
             return this;
@@ -55,57 +55,55 @@ public class VertexBuffer : OpenGLHelper, IDisposable
             Fill();
             BindAttributes();
             Unbind();
-            
-            return new VertexBuffer(_gl, vertexArrayObject, vertexBufferObject);
-        }
-        
-        private (int, int) Generate()
-        {
-            var vertexArrayObject = _gl.GenVertexArray();
-            var vertexBufferObject = _gl.GenBuffer();
 
-            _gl.BindVertexArray(vertexArrayObject);
-            _gl.BindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-            CheckError();
+            return new VertexBuffer(vertexArrayObject, vertexBufferObject);
+        }
+
+        private (VertexArrayHandle, BufferHandle) Generate()
+        {
+            var vertexArrayObject = OpenTK.Graphics.OpenGL.GL.GenVertexArray();
+            var vertexBufferObject = OpenTK.Graphics.OpenGL.GL.GenBuffer();
+
+            OpenTK.Graphics.OpenGL.GL.BindVertexArray(vertexArrayObject);
+            OpenTK.Graphics.OpenGL.GL.BindBuffer(BufferTargetARB.ArrayBuffer, vertexBufferObject);
+            OpenGlUtils.CheckError();
 
             return (vertexArrayObject, vertexBufferObject);
         }
 
-        private unsafe void Fill()
+        private void Fill()
         {
-            fixed (void* verticesPtr = _vertices)
-            {
-                _gl.BufferData(
-                    GL_ARRAY_BUFFER, new IntPtr(_vertices.Length * sizeof(float)),
-                    new IntPtr(verticesPtr), GL_STATIC_DRAW
-                );
-            }
-
-            CheckError();
+            OpenTK.Graphics.OpenGL.GL.BufferData(
+                BufferTargetARB.ArrayBuffer,
+                new ReadOnlySpan<float>(_vertices),
+                BufferUsageARB.DynamicDraw
+            );
+            
+            OpenGlUtils.CheckError();
         }
-        
+
         private void BindAttributes()
         {
             foreach (var attributeBinding in _attributeBindings)
             {
-                _gl.VertexAttribPointer(
+                OpenTK.Graphics.OpenGL.GL.VertexAttribPointer(
                     attributeBinding.Location,
                     attributeBinding.Size,
-                    GL_FLOAT,
-                    0,
+                    VertexAttribPointerType.Float,
+                    false,
                     _stride * sizeof(float),
-                    new IntPtr(attributeBinding.StartPosition * sizeof(float))
-                );
-                _gl.EnableVertexAttribArray(attributeBinding.Location);
-                CheckError();
+                    attributeBinding.StartPosition * sizeof(float)
+                ); 
+                
+                OpenTK.Graphics.OpenGL.GL.EnableVertexAttribArray(attributeBinding.Location);
+                OpenGlUtils.CheckError();
             }
         }
 
         private void Unbind()
         {
-            _gl.BindBuffer(GL_ARRAY_BUFFER, 0);
-            _gl.BindVertexArray(0);
-            CheckError();
+            OpenTK.Graphics.OpenGL.GL.BindBuffer(BufferTargetARB.ArrayBuffer, BufferHandle.Zero);
+            OpenTK.Graphics.OpenGL.GL.BindVertexArray(VertexArrayHandle.Zero);
         }
     }
 }

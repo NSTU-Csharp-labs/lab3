@@ -50,9 +50,9 @@ public class Painter : OpenGLHelper, IDisposable
         var texCoordLocation = _shaderProgram.GetAttribLocation("aTexCoord");
         _shaderProgram.Compile();
 
-        _vertexBuffer = new VertexBuffer.Builder(GL, _vertices, 4)
-            .AttributeBinding(positionLocation, 2, 0)
-            .AttributeBinding(texCoordLocation, 2, 2)
+        _vertexBuffer = new VertexBuffer.Builder(_vertices, 4)
+            .AttributeBinding((uint)positionLocation, 2, 0)
+            .AttributeBinding((uint)texCoordLocation, 2, 2)
             .Build();
 
         _vertexBuffer.Use();
