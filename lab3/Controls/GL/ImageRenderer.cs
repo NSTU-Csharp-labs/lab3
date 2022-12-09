@@ -89,7 +89,7 @@ public class ImageRenderer : OpenGlControlBase
             _painter.UseGreenFilter = GreenFilter;
             _painter.UseBlueFilter = BlueFilter;
 
-            _painter.Paint(Img, (float)Bounds.Width, (float)Bounds.Height);
+            _painter.Paint(Img.Adjust((int)Bounds.Width, (int)Bounds.Height));
         }
         catch (OpenGlException ex)
         {

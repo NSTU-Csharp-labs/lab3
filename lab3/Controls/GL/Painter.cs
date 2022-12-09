@@ -70,13 +70,12 @@ public class Painter : IDisposable
         _texture = new Texture();
     }
 
-    public void Paint(ImgBitmap bitmap, float boundsWidth, float boundsHeight)
+    public void Paint(AdjustedBitmap bitmap)
     {
-        bitmap.OnRender(boundsWidth, boundsHeight);
         _texture.SetPixels(bitmap.Pixels, bitmap.Width, bitmap.Height);
 
         OpenTK.Graphics.OpenGL.GL.Clear(ClearBufferMask.ColorBufferBit);
-        OpenTK.Graphics.OpenGL.GL.Viewport(0, 0, (int)boundsWidth, (int)boundsHeight);
+        OpenTK.Graphics.OpenGL.GL.Viewport(0, 0, bitmap.BoundsWidth, bitmap.BoundsHeight);
 
         _indicesBuffer.Use();
         _vertexBuffer.Use();
@@ -84,7 +83,7 @@ public class Painter : IDisposable
         _shaderProgram.Use();
 
         SetFilters();
-        SetMatrices(bitmap, boundsWidth, boundsHeight);
+        SetMatrices(bitmap);
 
         OpenTK.Graphics.OpenGL.GL.DrawElements(PrimitiveType.Triangles, _indices.Length,
             DrawElementsType.UnsignedShort, 0);
@@ -108,38 +107,37 @@ public class Painter : IDisposable
         _shaderProgram.SetUniformBool("uBlue", UseBlueFilter);
     }
 
-    private void SetMatrices(ImgBitmap bitmap, float boundsWidth, float boundsHeight)
+    private void SetMatrices(AdjustedBitmap bitmap)
     {
-        _shaderProgram.SetUniformMatrix4X4("uProjection",
-            GetProjectionMatrix(boundsWidth, boundsHeight));
+        _shaderProgram.SetUniformMatrix4X4("uProjection", GetProjectionMatrix(bitmap));
         _shaderProgram.SetUniformMatrix4X4("uView", GetViewMatrix(bitmap));
         _shaderProgram.SetUniformMatrix4X4("uModel", GetModelMatrix(bitmap));
     }
 
-    private Matrix4x4 GetProjectionMatrix(float boundsWidth, float boundsHeight) =>
+    private Matrix4x4 GetProjectionMatrix(AdjustedBitmap bitmap) =>
         Matrix4x4.CreateOrthographicOffCenter
         (
-            -boundsWidth / 2,
-            boundsWidth / 2,
-            -boundsHeight / 2,
-            boundsHeight / 2,
+            -(float)bitmap.BoundsWidth / 2,
+            (float)bitmap.BoundsWidth / 2,
+            -(float)bitmap.BoundsHeight / 2,
+            (float)bitmap.BoundsHeight / 2,
             0,
             10
         );
 
-    private Matrix4x4 GetViewMatrix(ImgBitmap bitmap) => Matrix4x4.CreateLookAt
+    private Matrix4x4 GetViewMatrix(AdjustedBitmap bitmap) => Matrix4x4.CreateLookAt
     (
-        new Vector3(bitmap.RenderWidth / 2, bitmap.RenderHeight / 2, 1),
-        new Vector3(bitmap.RenderWidth / 2, bitmap.RenderHeight / 2, 0),
+        new Vector3(bitmap.AdjustedWidth / 2, bitmap.AdjustedHeight / 2, 1),
+        new Vector3(bitmap.AdjustedWidth / 2, bitmap.AdjustedHeight / 2, 0),
         _cameraUp
     );
 
-    private Matrix4x4 GetModelMatrix(ImgBitmap bitmap) => Matrix4x4.Multiply
+    private Matrix4x4 GetModelMatrix(AdjustedBitmap bitmap) => Matrix4x4.Multiply
     (
         Matrix4x4.CreateScale
         (
-            bitmap.RenderWidth,
-            bitmap.RenderHeight,
+            bitmap.AdjustedWidth,
+            bitmap.AdjustedHeight,
             1
         ),
         _reflectionMatrix

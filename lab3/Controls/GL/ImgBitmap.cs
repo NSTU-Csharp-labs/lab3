@@ -11,16 +11,11 @@ public class ImgBitmap
         Width = width;
         Height = height;
         Pixels = pixels;
-
-        RenderWidth = Width;
-        RenderHeight = Height;
-        _renderWidthToHeight = RenderWidth / RenderHeight;
     }
 
     public ImgBitmap()
     {
     }
-
 
     public int Width { get; }
 
@@ -28,52 +23,6 @@ public class ImgBitmap
 
     public byte[] Pixels { get; }
 
-    [field: NonSerialized] [XmlIgnore] public float RenderWidth { get; private set; }
-    
-    [field: NonSerialized] [XmlIgnore] public float RenderHeight { get; private set; }
-
-    private float _renderWidthToHeight;
-
-    public void OnRender(float boundsWidth, float boundsHeight)
-    {
-        RenderWidth = Width;
-        RenderHeight = Height;
-        _renderWidthToHeight = RenderWidth / RenderHeight;
-
-        RecalculateSize(boundsWidth, boundsHeight);
-    }
-
-    private void RecalculateSize(float boundsWidth, float boundsHeight)
-    {
-        if (RenderWidth > RenderHeight)
-        {
-            RecalculateImageWidth(boundsWidth);
-
-            if (RenderHeight > boundsHeight)
-            {
-                RecalculateImageHeight(boundsHeight);
-            }
-
-            return;
-        }
-
-        RecalculateImageHeight(boundsHeight);
-
-        if (RenderWidth > boundsWidth)
-        {
-            RecalculateImageWidth(boundsWidth);
-        }
-    }
-
-    private void RecalculateImageWidth(float boundsWidth)
-    {
-        RenderWidth = boundsWidth;
-        RenderHeight = RenderWidth / _renderWidthToHeight;
-    }
-
-    private void RecalculateImageHeight(float boundsHeight)
-    {
-        RenderHeight = boundsHeight;
-        RenderWidth = RenderHeight * _renderWidthToHeight;
-    }
+    public AdjustedBitmap Adjust(int boundsWidth, int boundsHeight) =>
+        new AdjustedBitmap(this, boundsWidth, boundsHeight);
 }
