@@ -1,39 +1,49 @@
 ﻿using System;
 using Avalonia.OpenGL;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
 
-public class IndicesBuffer : OpenGLHelper, IDisposable
+public class IndicesBuffer : IDisposable
 {
     private readonly ushort[] _indices;
-    private readonly int _indicesBufferObject;
+    private readonly BufferHandle _indicesBufferObject;
 
-    public unsafe IndicesBuffer(GlInterface GL, ushort[] indices) : base(GL)
+    public IndicesBuffer(ushort[] indices)
     {
         _indices = indices;
-        _indicesBufferObject = _gl.GenBuffer();
-        _gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
+        _indicesBufferObject = OpenTK.Graphics.OpenGL.GL.GenBuffer();
 
-        fixed (void* pdata = _indices)
-        {
-            _gl.BufferData(
-                GL_ELEMENT_ARRAY_BUFFER, new IntPtr(_indices.Length * sizeof(ushort)),
-                new IntPtr(pdata), GL_STATIC_DRAW
-            );
-        }
+        Fill();
+    }
 
-        _gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        CheckError();
+    private void Fill()
+    {
+        OpenTK.Graphics.OpenGL.GL.BindBuffer(BufferTargetARB.ElementArrayBuffer,
+            _indicesBufferObject);
+
+        OpenTK.Graphics.OpenGL.GL.BufferData(
+            BufferTargetARB.ElementArrayBuffer,
+            new ReadOnlySpan<ushort>(_indices),
+            BufferUsageARB.DynamicDraw
+        );
+
+        OpenTK.Graphics.OpenGL.GL.BindBuffer(BufferTargetARB.ElementArrayBuffer,
+            BufferHandle.Zero);
+
+        OpenGlUtils.CheckError();
     }
 
     public void Use()
     {
-        _gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
+        OpenTK.Graphics.OpenGL.GL.BindBuffer(BufferTargetARB.ElementArrayBuffer,
+            _indicesBufferObject);
     }
 
     public void Dispose()
     {
-        _gl.DeleteBuffer(_indicesBufferObject);
+        OpenTK.Graphics.OpenGL.GL.DeleteBuffer(_indicesBufferObject);
     }
 }
