@@ -108,7 +108,6 @@ public class ShaderProgram : OpenGLHelper, IDisposable
         var version = _type == GlProfileType.OpenGL
             ? RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 150 : 120
             : 100;
-        // var version = 330;
         var data = "#version " + 330 + "\n";
 
         if (_type == GlProfileType.OpenGLES)

@@ -1,15 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MainWindowViewModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <PathToPicture>C:\Users\s-hro\RiderProjects\lab3\lab3\Assets\logo.png</PathToPicture>
-    <_rotateMode>90</_rotateMode>
+    <PicturesInFolder>
+        <string>C:\Users\s-hro\Desktop\Фото Командор\Санузел\3\photo_2021-11-12_14-47-33.jpg</string>
+        <string>C:\Users\s-hro\Desktop\Фото Командор\Санузел\3\photo_2021-11-12_14-51-27.jpg</string>
+        <string>C:\Users\s-hro\Desktop\Фото Командор\Санузел\3\photo_2021-11-12_14-51-30.jpg</string>
+        <string>C:\Users\s-hro\Desktop\Фото Командор\Санузел\3\photo_2021-11-12_14-51-31.jpg</string>
+        <string>C:\Users\s-hro\Desktop\Фото Командор\Санузел\3\photo_2021-11-12_14-51-46.jpg</string>
+    </PicturesInFolder>
+    <PathToCurrentPicture>C:\Users\s-hro\Desktop\Фото Командор\Санузел\3\photo_2021-11-12_14-51-31.jpg</PathToCurrentPicture>
+    <_rotateMode>0</_rotateMode>
     <Img />
     <IsCheckedB>false</IsCheckedB>
     <IsCheckedG>false</IsCheckedG>
-    <IsCheckedR>true</IsCheckedR>
+    <IsCheckedR>false</IsCheckedR>
     <IsCheckedBW>false</IsCheckedBW>
     <BlackAndWhiteFilter>false</BlackAndWhiteFilter>
     <GreenFilter>false</GreenFilter>
-    <RedFilter>true</RedFilter>
+    <RedFilter>false</RedFilter>
     <BlueFilter>false</BlueFilter>
     <IsVisibleEffectBtn>true</IsVisibleEffectBtn>
     <IsVisibleSaveBtn>true</IsVisibleSaveBtn>
