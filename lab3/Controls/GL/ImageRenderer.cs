@@ -67,6 +67,8 @@ public class ImageRenderer : OpenGlControlBase
 
     protected override void OnOpenGlInit(GlInterface GL, int fb)
     {
+        OpenTK.Graphics.GLLoader.LoadBindings(new AvaloniaBindingsContext(GL));
+        
         try
         {
             _painter = new Painter(GL, GlProfileType.OpenGLES);

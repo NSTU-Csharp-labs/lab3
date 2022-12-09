@@ -1,59 +1,57 @@
 ﻿using System;
 using Avalonia.OpenGL;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
 
-public class Texture : OpenGLHelper, IDisposable
+public class Texture : IDisposable
 {
-    public int _texture;
+    private readonly TextureHandle _texture;
 
-    public Texture(GlInterface GL) : base(GL)
+    public Texture()
     {
-        _texture = _gl.GenTexture();
-        _gl.BindTexture(GL_TEXTURE_2D, _texture);
-        _gl.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        _gl.TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        _gl.BindTexture(GL_TEXTURE_2D, 0);
+        _texture = OpenTK.Graphics.OpenGL.GL.GenTexture();
 
-        CheckError();
+        OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, _texture);
+        OpenTK.Graphics.OpenGL.GL.TexParameteri(TextureTarget.Texture2d,
+            TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+        OpenTK.Graphics.OpenGL.GL.TexParameteri(TextureTarget.Texture2d, 
+            TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+        OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, TextureHandle.Zero);
+
+        OpenGlUtils.CheckError();
     }
 
-    public unsafe void SetPixels(byte[] pixels, float width, float height)
+    public void SetPixels(byte[] pixels, int width, int height)
     {
-        fixed (byte* p = pixels)
-        {
-            SetPixels(p, width, height);
-        }
+        OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, _texture);
+
+        OpenTK.Graphics.OpenGL.GL.TexImage2D(
+            TextureTarget.Texture2d, 0,
+            InternalFormat.Rgba,
+            width,
+            height,
+            border: 0,
+            PixelFormat.Rgba,
+            PixelType.UnsignedByte,
+            new ReadOnlySpan<byte>(pixels)
+        );
+        
+        OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, TextureHandle.Zero);
     }
 
-    public unsafe void SetPixels(byte* p, float width, float height)
-    {
-        _gl.BindTexture(GL_TEXTURE_2D, _texture);
-
-        _gl.TexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGBA,
-            (int)width,
-            (int)height,
-            0,
-            GL_RGBA,
-            GL_UNSIGNED_BYTE,
-            new IntPtr(p));
-
-        _gl.BindTexture(GL_TEXTURE_2D, 0);
-        CheckError();
-    }
 
     public void Use()
     {
-        _gl.BindTexture(GL_TEXTURE_2D, _texture);
-        CheckError();
+        OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, _texture);
+        OpenGlUtils.CheckError();
     }
 
     public void Dispose()
     {
-        _gl.DeleteTexture(_texture);
+        OpenTK.Graphics.OpenGL.GL.DeleteTexture(_texture);
+        OpenGlUtils.CheckError();
     }
 }

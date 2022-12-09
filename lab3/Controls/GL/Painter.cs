@@ -57,7 +57,7 @@ public class Painter : OpenGLHelper, IDisposable
 
         _vertexBuffer.Use();
         _indicesBuffer = new IndicesBuffer(GL, _indices);
-        _texture = new Texture(GL);
+        _texture = new Texture();
     }
 
     public void Paint(ImgBitmap bitmap, float boundsWidth, float boundsHeight)
