@@ -65,13 +65,13 @@ public class ImageRenderer : OpenGlControlBase
 
     private Painter _painter;
 
-    protected override void OnOpenGlInit(GlInterface GL, int fb)
+    protected override void OnOpenGlInit(GlInterface GL, int _)
     {
         OpenTK.Graphics.GLLoader.LoadBindings(new AvaloniaBindingsContext(GL));
-        
+
         try
         {
-            _painter = new Painter(GL, GlProfileType.OpenGLES);
+            _painter = new Painter();
         }
         catch (OpenGlException ex)
         {
@@ -79,16 +79,16 @@ public class ImageRenderer : OpenGlControlBase
         }
     }
 
-    protected override void OnOpenGlRender(GlInterface GL, int fb)
+    protected override void OnOpenGlRender(GlInterface _, int __)
     {
         try
         {
             _painter.UseBlackAndWhiteFilter = BlackAndWhiteFilter;
-            
+
             _painter.UseRedFilter = RedFilter;
             _painter.UseGreenFilter = GreenFilter;
             _painter.UseBlueFilter = BlueFilter;
-            
+
             _painter.Paint(Img, (float)Bounds.Width, (float)Bounds.Height);
         }
         catch (OpenGlException ex)
@@ -97,7 +97,7 @@ public class ImageRenderer : OpenGlControlBase
         }
     }
 
-    protected override void OnOpenGlDeinit(GlInterface GL, int fb)
+    protected override void OnOpenGlDeinit(GlInterface _, int __)
     {
         _painter.Dispose();
     }

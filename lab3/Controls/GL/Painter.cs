@@ -1,11 +1,12 @@
 using System;
 using System.Numerics;
 using Avalonia.OpenGL;
+using OpenTK.Graphics.OpenGL;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
 
-public class Painter : OpenGLHelper, IDisposable
+public class Painter : IDisposable
 {
     private readonly ShaderProgram _shaderProgram;
     private readonly VertexBuffer _vertexBuffer;
@@ -41,7 +42,7 @@ public class Painter : OpenGLHelper, IDisposable
 
     public bool UseBlueFilter { get; set; }
 
-    public Painter(GlInterface GL, GlProfileType type) : base(GL)
+    public Painter()
     {
         try
         {
@@ -52,7 +53,7 @@ public class Painter : OpenGLHelper, IDisposable
             // ignored
         }
 
-        GL.ClearColor(0, 0, 0, 0);
+        OpenTK.Graphics.OpenGL.GL.ClearColor(0, 0, 0, 0);
 
         _shaderProgram = new ShaderProgram();
         var positionLocation = _shaderProgram.BindAttribLocation("aPosition");
@@ -74,8 +75,8 @@ public class Painter : OpenGLHelper, IDisposable
         bitmap.OnRender(boundsWidth, boundsHeight);
         _texture.SetPixels(bitmap.Pixels, bitmap.Width, bitmap.Height);
 
-        _gl.Clear(GL_COLOR_BUFFER_BIT);
-        _gl.Viewport(0, 0, (int)boundsWidth, (int)boundsHeight);
+        OpenTK.Graphics.OpenGL.GL.Clear(ClearBufferMask.ColorBufferBit);
+        OpenTK.Graphics.OpenGL.GL.Viewport(0, 0, (int)boundsWidth, (int)boundsHeight);
 
         _indicesBuffer.Use();
         _vertexBuffer.Use();
@@ -85,8 +86,10 @@ public class Painter : OpenGLHelper, IDisposable
         SetFilters();
         SetMatrices(bitmap, boundsWidth, boundsHeight);
 
-        _gl.DrawElements(GL_TRIANGLES, _indices.Length, GL_UNSIGNED_SHORT, IntPtr.Zero);
-        CheckError();
+        OpenTK.Graphics.OpenGL.GL.DrawElements(PrimitiveType.Triangles, _indices.Length,
+            DrawElementsType.UnsignedShort, 0);
+
+        OpenGlUtils.CheckError();
     }
 
     public void Dispose()
