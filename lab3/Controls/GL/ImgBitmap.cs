@@ -17,9 +17,7 @@ public class ImgBitmap
         _renderWidthToHeight = RenderWidth / RenderHeight;
     }
 
-    public ImgBitmap()
-    {
-    }
+    public ImgBitmap() { }
 
 
     public int Width { get; }
