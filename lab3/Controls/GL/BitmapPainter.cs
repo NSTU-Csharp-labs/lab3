@@ -1,12 +1,13 @@
 using System;
 using System.Numerics;
 using Avalonia.OpenGL;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
 
-public class Painter : IDisposable
+public class BitmapPainter : IDisposable
 {
     private readonly ShaderProgram _shaderProgram;
     private readonly VertexBuffer _vertexBuffer;
@@ -27,13 +28,6 @@ public class Painter : IDisposable
         1f, -1f, 1, -1
     };
 
-    private readonly Matrix4x4 _reflectionMatrix = Matrix4x4.CreateReflection
-    (
-        new Plane(0, 1, 0, 0)
-    );
-
-    private readonly Vector3 _cameraUp = new(0, 1, 0);
-
     public bool UseBlackAndWhiteFilter { get; set; }
 
     public bool UseRedFilter { get; set; }
@@ -42,7 +36,7 @@ public class Painter : IDisposable
 
     public bool UseBlueFilter { get; set; }
 
-    public Painter()
+    public BitmapPainter()
     {
         try
         {
@@ -70,7 +64,7 @@ public class Painter : IDisposable
         _texture = new Texture();
     }
 
-    public void Paint(AdjustedBitmap bitmap)
+    public void Paint(AdjustedBitmap bitmap, IMatricesProvider matricesProvider)
     {
         _texture.SetPixels(bitmap.Pixels, bitmap.Width, bitmap.Height);
 
@@ -83,7 +77,7 @@ public class Painter : IDisposable
         _shaderProgram.Use();
 
         SetFilters();
-        SetMatrices(bitmap);
+        SetMatrices(matricesProvider);
 
         OpenTK.Graphics.OpenGL.GL.DrawElements(PrimitiveType.Triangles, _indices.Length,
             DrawElementsType.UnsignedShort, 0);
@@ -107,39 +101,10 @@ public class Painter : IDisposable
         _shaderProgram.SetUniformBool("uBlue", UseBlueFilter);
     }
 
-    private void SetMatrices(AdjustedBitmap bitmap)
+    private void SetMatrices(IMatricesProvider matricesProvider)
     {
-        _shaderProgram.SetUniformMatrix4X4("uProjection", GetProjectionMatrix(bitmap));
-        _shaderProgram.SetUniformMatrix4X4("uView", GetViewMatrix(bitmap));
-        _shaderProgram.SetUniformMatrix4X4("uModel", GetModelMatrix(bitmap));
+        _shaderProgram.SetUniformMatrix4X4("uProjection", matricesProvider.Projection);
+        _shaderProgram.SetUniformMatrix4X4("uView", matricesProvider.View);
+        _shaderProgram.SetUniformMatrix4X4("uModel", matricesProvider.Model);
     }
-
-    private Matrix4x4 GetProjectionMatrix(AdjustedBitmap bitmap) =>
-        Matrix4x4.CreateOrthographicOffCenter
-        (
-            -(float)bitmap.BoundsWidth / 2,
-            (float)bitmap.BoundsWidth / 2,
-            -(float)bitmap.BoundsHeight / 2,
-            (float)bitmap.BoundsHeight / 2,
-            0,
-            10
-        );
-
-    private Matrix4x4 GetViewMatrix(AdjustedBitmap bitmap) => Matrix4x4.CreateLookAt
-    (
-        new Vector3(bitmap.AdjustedWidth / 2, bitmap.AdjustedHeight / 2, 1),
-        new Vector3(bitmap.AdjustedWidth / 2, bitmap.AdjustedHeight / 2, 0),
-        _cameraUp
-    );
-
-    private Matrix4x4 GetModelMatrix(AdjustedBitmap bitmap) => Matrix4x4.Multiply
-    (
-        Matrix4x4.CreateScale
-        (
-            bitmap.AdjustedWidth,
-            bitmap.AdjustedHeight,
-            1
-        ),
-        _reflectionMatrix
-    );
 }

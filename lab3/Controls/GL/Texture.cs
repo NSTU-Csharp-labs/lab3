@@ -17,7 +17,7 @@ public class Texture : IDisposable
         OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, _texture);
         OpenTK.Graphics.OpenGL.GL.TexParameteri(TextureTarget.Texture2d,
             TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-        OpenTK.Graphics.OpenGL.GL.TexParameteri(TextureTarget.Texture2d, 
+        OpenTK.Graphics.OpenGL.GL.TexParameteri(TextureTarget.Texture2d,
             TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
         OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, TextureHandle.Zero);
 
@@ -38,10 +38,33 @@ public class Texture : IDisposable
             PixelType.UnsignedByte,
             new ReadOnlySpan<byte>(pixels)
         );
-        
+
         OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, TextureHandle.Zero);
     }
 
+    public void SetPixels(int width, int height)
+    {
+        OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, _texture);
+
+        OpenTK.Graphics.OpenGL.GL.TexImage2D(
+            TextureTarget.Texture2d, 0,
+            InternalFormat.Rgba,
+            width,
+            height,
+            border: 0,
+            PixelFormat.Rgba,
+            PixelType.UnsignedByte,
+            new IntPtr()
+        );
+
+        OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, TextureHandle.Zero);
+    }
+
+    public void AttachToFramebuffer(FramebufferTarget target, FramebufferAttachment attachment)
+    {
+        OpenTK.Graphics.OpenGL.GL.FramebufferTexture2D(target,
+            attachment, TextureTarget.Texture2d, _texture, 0);
+    }
 
     public void Use()
     {

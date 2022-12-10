@@ -63,7 +63,7 @@ public class ImageRenderer : OpenGlControlBase
     public static readonly StyledProperty<bool> BlueFilterProperty =
         AvaloniaProperty.Register<ImageRenderer, bool>(nameof(BlueFilter));
 
-    private Painter _painter;
+    private BitmapPainter _bitmapPainter;
 
     protected override void OnOpenGlInit(GlInterface GL, int _)
     {
@@ -71,7 +71,7 @@ public class ImageRenderer : OpenGlControlBase
 
         try
         {
-            _painter = new Painter();
+            _bitmapPainter = new BitmapPainter();
         }
         catch (OpenGlException ex)
         {
@@ -83,13 +83,16 @@ public class ImageRenderer : OpenGlControlBase
     {
         try
         {
-            _painter.UseBlackAndWhiteFilter = BlackAndWhiteFilter;
+            _bitmapPainter.UseBlackAndWhiteFilter = BlackAndWhiteFilter;
 
-            _painter.UseRedFilter = RedFilter;
-            _painter.UseGreenFilter = GreenFilter;
-            _painter.UseBlueFilter = BlueFilter;
+            _bitmapPainter.UseRedFilter = RedFilter;
+            _bitmapPainter.UseGreenFilter = GreenFilter;
+            _bitmapPainter.UseBlueFilter = BlueFilter;
 
-            _painter.Paint(Img.Adjust((int)Bounds.Width, (int)Bounds.Height));
+            var adjustedBitmap = Img.Adjust((int)Bounds.Width, (int)Bounds.Height);
+            var matricesProvider = new MatricesOfDisplayedImage(adjustedBitmap);
+            
+            _bitmapPainter.Paint(adjustedBitmap, matricesProvider);
         }
         catch (OpenGlException ex)
         {
@@ -99,6 +102,6 @@ public class ImageRenderer : OpenGlControlBase
 
     protected override void OnOpenGlDeinit(GlInterface _, int __)
     {
-        _painter.Dispose();
+        _bitmapPainter.Dispose();
     }
 }
