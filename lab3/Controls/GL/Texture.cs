@@ -16,9 +16,9 @@ public class Texture : IDisposable
 
         OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, _texture);
         OpenTK.Graphics.OpenGL.GL.TexParameteri(TextureTarget.Texture2d,
-            TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         OpenTK.Graphics.OpenGL.GL.TexParameteri(TextureTarget.Texture2d,
-            TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
         OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, TextureHandle.Zero);
 
         OpenGlUtils.CheckError();
@@ -39,6 +39,8 @@ public class Texture : IDisposable
             new ReadOnlySpan<byte>(pixels)
         );
 
+        OpenGlUtils.CheckError();
+
         OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, TextureHandle.Zero);
     }
 
@@ -47,7 +49,8 @@ public class Texture : IDisposable
         OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, _texture);
 
         OpenTK.Graphics.OpenGL.GL.TexImage2D(
-            TextureTarget.Texture2d, 0,
+            TextureTarget.Texture2d,
+            level: 0,
             InternalFormat.Rgba,
             width,
             height,
@@ -56,6 +59,8 @@ public class Texture : IDisposable
             PixelType.UnsignedByte,
             new IntPtr()
         );
+
+        OpenGlUtils.CheckError();
 
         OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, TextureHandle.Zero);
     }
@@ -66,10 +71,27 @@ public class Texture : IDisposable
             attachment, TextureTarget.Texture2d, _texture, 0);
     }
 
-    public void Use()
+    public byte[] ReadPixels(int pixelsNumber)
     {
+        var pixels = new byte[4 * pixelsNumber];
+        
         OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, _texture);
-        OpenGlUtils.CheckError();
+        OpenTK.Graphics.OpenGL.GL.GetTexImage(TextureTarget.Texture2d, 0, PixelFormat.Rgba,
+            PixelType.UnsignedByte, pixels);
+        OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, TextureHandle.Zero);
+        
+        return pixels;
+    }
+
+    public IDisposable Use()
+    {
+        OpenTK.Graphics.OpenGL.GL.ActiveTexture(TextureUnit.Texture0);
+        OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, _texture);
+
+        return new DisposableUsing(() =>
+        {
+            OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, TextureHandle.Zero);
+        });
     }
 
     public void Dispose()

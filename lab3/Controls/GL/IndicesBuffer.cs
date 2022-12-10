@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Avalonia.OpenGL;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -36,10 +37,16 @@ public class IndicesBuffer : IDisposable
         OpenGlUtils.CheckError();
     }
 
-    public void Use()
+    public IDisposable Use()
     {
         OpenTK.Graphics.OpenGL.GL.BindBuffer(BufferTargetARB.ElementArrayBuffer,
             _indicesBufferObject);
+
+        return new DisposableUsing(() =>
+        {
+            OpenTK.Graphics.OpenGL.GL.BindBuffer(BufferTargetARB.ElementArrayBuffer,
+                BufferHandle.Zero);
+        });
     }
 
     public void Dispose()

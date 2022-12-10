@@ -16,10 +16,14 @@ public class VertexBuffer : IDisposable
         _vertexBufferObject = vertexBufferObject;
     }
 
-    public void Use()
+    public IDisposable Use()
     {
         OpenTK.Graphics.OpenGL.GL.BindVertexArray(_vertexArrayObject);
-        OpenGlUtils.CheckError();
+
+        return new DisposableUsing(() =>
+        {
+            OpenTK.Graphics.OpenGL.GL.BindVertexArray(VertexArrayHandle.Zero);
+        });
     }
 
     public void Dispose()
@@ -78,7 +82,7 @@ public class VertexBuffer : IDisposable
                 new ReadOnlySpan<float>(_vertices),
                 BufferUsageARB.DynamicDraw
             );
-            
+
             OpenGlUtils.CheckError();
         }
 
@@ -93,8 +97,8 @@ public class VertexBuffer : IDisposable
                     false,
                     _stride * sizeof(float),
                     attributeBinding.StartPosition * sizeof(float)
-                ); 
-                
+                );
+
                 OpenTK.Graphics.OpenGL.GL.EnableVertexAttribArray(attributeBinding.Location);
                 OpenGlUtils.CheckError();
             }
