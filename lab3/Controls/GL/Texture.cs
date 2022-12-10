@@ -97,6 +97,5 @@ public class Texture : IDisposable
     public void Dispose()
     {
         OpenTK.Graphics.OpenGL.GL.DeleteTexture(_texture);
-        OpenGlUtils.CheckError();
     }
 }

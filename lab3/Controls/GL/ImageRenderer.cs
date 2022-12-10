@@ -1,15 +1,8 @@
 using System;
-using System.Reactive;
-using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using OpenTK.Graphics;
-using ReactiveUI;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace lab3.Controls.GL;
 
@@ -24,31 +17,6 @@ public class ImageRenderer : OpenGlControlBase
             BlueFilterProperty,
             ImgProperty
         );
-
-        Observable
-            .Return(Unit.Default)
-            .SelectMany(async _ =>
-            {
-                await Test().ConfigureAwait(true);
-                return Unit.Default;
-            })
-            .Subscribe();
-    }
-
-    private async Task Test()
-    {
-        var feature = AvaloniaLocator.Current.GetService<IPlatformOpenGlInterface>();
-        using var ctx = feature.CreateSharedContext();
-        using var _ = ctx.MakeCurrent();
-        GLLoader.LoadBindings(new AvaloniaBindingsContext(ctx.GlInterface));
-
-        // await Task.Delay(TimeSpan.FromSeconds(5));
-
-        var p = ApplyPostprocessing(Img);
-
-        var newImage = Image.LoadPixelData<Rgba32>(p.Pixels, p.Width, p.Height);
-        newImage.Save("testimage.jpg");
-        newImage.Dispose();
     }
 
     public ImgBitmap Img
@@ -133,49 +101,12 @@ public class ImageRenderer : OpenGlControlBase
             var adjustedBitmap = Img.Adjust((int)Bounds.Width, (int)Bounds.Height);
 
             _bitmapPainter.Paint(adjustedBitmap);
-
-            // var p = ApplyPostprocessing(Img);
-            //
-            // var newImage = Image.LoadPixelData<Rgba32>(p.Pixels, p.Width, p.Height);
-            // newImage.Save("testimage.png");
-            // newImage.Dispose();
         }
         catch (OpenGlException ex)
         {
             Console.WriteLine(ex.Message);
         }
     }
-
-    public ImgBitmap ApplyPostprocessing(ImgBitmap bitmap)
-    {
-        // try
-        // {
-        //     OpenGlUtils.CheckError();
-        // }
-        // catch
-        // {
-        //     // ignored
-        // }
-
-        var frameBuffer = new FrameBuffer(bitmap.Width, bitmap.Height);
-        using var _ = frameBuffer.Use();
-
-        using var painter = new BitmapPainter(isPostprocessing: true);
-
-        painter.UseBlackAndWhiteFilter = BlackAndWhiteFilter;
-        painter.UseRedFilter = RedFilter;
-        painter.UseGreenFilter = GreenFilter;
-        painter.UseBlueFilter = BlueFilter;
-
-        painter.Paint(bitmap.Adjust(bitmap.Width, bitmap.Height));
-
-        var bitmapWithPostprocessing = frameBuffer.ReadBitmap();
-
-        painter.Dispose();
-
-        return bitmapWithPostprocessing;
-    }
-
 
     protected override void OnOpenGlDeinit(GlInterface _, int __)
     {
