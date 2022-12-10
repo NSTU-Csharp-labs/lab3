@@ -1,6 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <MainWindowViewModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <_bitmap />
+    <ImageManager>
+        <RotateMode>0</RotateMode>
+        <CurrentPicture>C:\Users\s-hro\Desktop\Фото Командор\Спальни\1\PH-1.jpg</CurrentPicture>
+        <PicturesInFolder>
+            <string>C:\Users\s-hro\Desktop\Фото Командор\Спальни\1\PH-1.jpg</string>
+            <string>C:\Users\s-hro\Desktop\Фото Командор\Спальни\1\PH-11.jpg</string>
+            <string>C:\Users\s-hro\Desktop\Фото Командор\Спальни\1\PH-12.jpg</string>
+            <string>C:\Users\s-hro\Desktop\Фото Командор\Спальни\1\PH-13.jpg</string>
+            <string>C:\Users\s-hro\Desktop\Фото Командор\Спальни\1\PH-14.jpg</string>
+            <string>C:\Users\s-hro\Desktop\Фото Командор\Спальни\1\PH-15.jpg</string>
+            <string>C:\Users\s-hro\Desktop\Фото Командор\Спальни\1\PH-2.jpg</string>
+            <string>C:\Users\s-hro\Desktop\Фото Командор\Спальни\1\PH-3.jpg</string>
+            <string>C:\Users\s-hro\Desktop\Фото Командор\Спальни\1\PH-4.jpg</string>
+            <string>C:\Users\s-hro\Desktop\Фото Командор\Спальни\1\PH-5.jpg</string>
+        </PicturesInFolder>
+    </ImageManager>
     <IsCheckedB>false</IsCheckedB>
     <IsCheckedG>false</IsCheckedG>
     <IsCheckedR>false</IsCheckedR>
@@ -9,9 +24,9 @@
     <GreenFilter>false</GreenFilter>
     <RedFilter>false</RedFilter>
     <BlueFilter>false</BlueFilter>
-    <IsVisibleEffectBtn>false</IsVisibleEffectBtn>
-    <IsVisibleSaveBtn>false</IsVisibleSaveBtn>
-    <IsVisibleRotateBtn>false</IsVisibleRotateBtn>
-    <IsVisibleDrawBtn>false</IsVisibleDrawBtn>
-    <IsVisibleEffectsElements>true</IsVisibleEffectsElements>
+    <IsVisibleEffectBtn>true</IsVisibleEffectBtn>
+    <IsVisibleSaveBtn>true</IsVisibleSaveBtn>
+    <IsVisibleRotateBtn>true</IsVisibleRotateBtn>
+    <IsVisibleDrawBtn>true</IsVisibleDrawBtn>
+    <IsVisibleEffectsElements>false</IsVisibleEffectsElements>
 </MainWindowViewModel>

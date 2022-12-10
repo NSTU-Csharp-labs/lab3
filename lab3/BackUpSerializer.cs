@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -10,7 +9,7 @@ using lab3.Controls.MainWindow;
 
 namespace lab3;
 
-public class BackUpSerializer
+public class BackUpSerializer : IBackUpSerializer
 {
     private string _pathToFile;
     private XmlSerializer _serializer;
@@ -23,6 +22,8 @@ public class BackUpSerializer
 
     public async Task BackUp(MainWindowViewModel viewModel)
     {
+        await File.WriteAllTextAsync(_pathToFile, "",CancellationToken.None);
+        
         await using var fs = new FileStream(
             _pathToFile,
             FileMode.OpenOrCreate,
@@ -31,7 +32,8 @@ public class BackUpSerializer
             4096,
             FileOptions.Asynchronous
         );
-
+        
+        
         var writer = XmlWriter.Create(fs, new XmlWriterSettings()
         {
             Indent = true,
@@ -40,9 +42,11 @@ public class BackUpSerializer
         _serializer.Serialize(writer, viewModel);
         writer.Close();
         fs.Close();
+        // await WriteAsync(viewModel);
+
     }
 
-    public Task<MainWindowViewModel> DeserializeAsync()
+    public Task<MainWindowViewModel?> DeserializeAsync()
     {
         using StringReader reader = new StringReader(
             File.ReadAllTextAsync(
@@ -72,12 +76,12 @@ public class BackUpSerializer
     public MainWindowViewModel LoadBackUp()
     {
         MainWindowViewModel viewModel;
-
+        
         Stream s = GenerateStreamFromString(File.ReadAllText(_pathToFile));
         try
         {
             object? deserialized = (_serializer.Deserialize(s));
-
+        
             if (deserialized is null)
             {
                 viewModel = new MainWindowViewModel();
@@ -90,15 +94,15 @@ public class BackUpSerializer
         }
         catch (Exception e)
         {
-            s.Close();
             viewModel = new MainWindowViewModel();
         }
         finally
         {
             s.Close();
         }
-
+        
         return viewModel;
+        // return DeserializeAsync().Result!;
     }
 
     private static Stream GenerateStreamFromString(string s)

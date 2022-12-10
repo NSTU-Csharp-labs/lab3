@@ -15,23 +15,25 @@ namespace lab3.Controls.MainWindow;
 [Serializable]
 public class ImageManager : IDisposable
 {
-    private List<string> _imageExtentions;
+    private readonly List<string> _imageExtentions;
 
     private Image<Rgba32>? _image;
 
     private string _currentPicture;
-    [field: NonSerialized] [XmlIgnore] private ImgBitmap _img;
-    private BehaviorSubject<ImgBitmap> _bitmap;
-    public IObservable<ImgBitmap> BitmapChanged => _bitmap.AsObservable();
 
-    private int _rotateMode;
+    private ImgBitmap _img;
+
+    private Subject<ImgBitmap> _bitmap;
+    [field: NonSerialized] [XmlIgnore] public IObservable<ImgBitmap> BitmapChanged => _bitmap.AsObservable();
+
+    public int RotateMode { get; set; }
     private string[] _picturesInFolder;
 
 
     public void SwipeLeft()
     {
         var newIndex = (PicturesInFolder.IndexOf(CurrentPicture) - 1);
-        CurrentPicture = PicturesInFolder[newIndex > -1 ? newIndex : PicturesInFolder.Length];
+        CurrentPicture = PicturesInFolder[newIndex > -1 ? newIndex : PicturesInFolder.Length - 1];
         SetPicture();
     }
 
@@ -45,34 +47,51 @@ public class ImageManager : IDisposable
 
     public ImageManager()
     {
-        _bitmap = new BehaviorSubject<ImgBitmap>(new ImgBitmap(0, 0, new byte[] { }));
+        _bitmap = new Subject<ImgBitmap>();
         _imageExtentions = new List<string>() { ".JPG", ".JPEG", ".PNG" };
-        _rotateMode = (int)RotateMode.None;
-        CurrentPicture = new string("../../../Assets/texture.jpg");
+        RotateMode = (int)SixLabors.ImageSharp.Processing.RotateMode.None;
+        PicturesInFolder = new[] {"../../../Assets/texture.jpg"};
         SetPicture();
     }
 
-    public string CurrentPicture { get; private set; }
+    public string CurrentPicture
+    {
+        get => _currentPicture;
+        set
+        {
+            try
+            {
+                if (PicturesInFolder.Any(pic => pic.Equals(value)))
+                {
+                    _currentPicture = value;
+                    return;
+                }
+            }
+            catch (Exception)
+            {
+                PicturesInFolder = new[] { value };
+            }
+        }
+    }
 
 
     public void DoRotation()
     {
         if (_image is null) return;
-        
-        var newRot = (RotateMode)_rotateMode switch
+
+        RotateMode = (RotateMode)RotateMode switch
         {
-            RotateMode.None => (int)RotateMode.Rotate270,
-            RotateMode.Rotate270 => (int)RotateMode.Rotate180,
-            RotateMode.Rotate180 => (int)RotateMode.Rotate90,
-            RotateMode.Rotate90 => (int)RotateMode.None,
+            SixLabors.ImageSharp.Processing.RotateMode.None =>
+                (int)SixLabors.ImageSharp.Processing.RotateMode.Rotate270,
+            SixLabors.ImageSharp.Processing.RotateMode.Rotate270 => (int)SixLabors.ImageSharp.Processing.RotateMode
+                .Rotate180,
+            SixLabors.ImageSharp.Processing.RotateMode.Rotate180 => (int)SixLabors.ImageSharp.Processing.RotateMode
+                .Rotate90,
+            SixLabors.ImageSharp.Processing.RotateMode.Rotate90 => (int)SixLabors.ImageSharp.Processing.RotateMode.None,
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        _image.Mutate(context =>
-        {
-            context.Rotate((RotateMode)(Math.Abs(newRot - _rotateMode)));
-        });
-        _rotateMode = newRot;
+        _image.Mutate(context => { context.Rotate(SixLabors.ImageSharp.Processing.RotateMode.Rotate270); });
         var pixels = new byte[_image.Width * 4 * _image.Height];
         _image.CopyPixelDataTo(pixels);
         var bitmap = new ImgBitmap(_image.Width, _image.Height, pixels);
@@ -83,7 +102,7 @@ public class ImageManager : IDisposable
     {
         _image?.Dispose();
         _image = await Image.LoadAsync<Rgba32>(CurrentPicture);
-        _image.Mutate(context => context.Rotate((RotateMode)_rotateMode));
+        _image.Mutate(context => context.Rotate((RotateMode)RotateMode));
         var pixels = new byte[_image.Width * 4 * _image.Height];
         _image.CopyPixelDataTo(pixels);
         var bitmap = new ImgBitmap(_image.Width, _image.Height, pixels);
@@ -93,12 +112,10 @@ public class ImageManager : IDisposable
 
     public void ResetPictures()
     {
-        _rotateMode = (int)RotateMode.None;
-        _picturesInFolder = new[] { "../../../Assets/texture.jpg" };
-        if (_picturesInFolder.Length > 0)
-        {
-            CurrentPicture = _picturesInFolder[0];
-        }
+        RotateMode = (int)SixLabors.ImageSharp.Processing.RotateMode.None;
+        PicturesInFolder = new[] { "../../../Assets/texture.jpg" };
+        CurrentPicture = PicturesInFolder[0];
+        SetPicture();
     }
 
     public string[] PicturesInFolder
@@ -122,7 +139,12 @@ public class ImageManager : IDisposable
                 }).ToArray();
                 if (_picturesInFolder.Length > 0)
                 {
-                    CurrentPicture = _picturesInFolder[0];
+                    _currentPicture = _picturesInFolder[0];
+                    SetPicture();
+                }
+                else
+                {
+                    ResetPictures();
                 }
             }
             else
