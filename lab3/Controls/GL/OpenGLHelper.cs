@@ -17,8 +17,7 @@ public abstract class OpenGLHelper
     {
         int err;
         while ((err = _gl.GetError()) != GL_NO_ERROR)
-        {
-            if (err != 1280) throw new OpenGlException(Convert.ToString(err));
-        }
+            if (err != 1280)
+                throw new OpenGlException(Convert.ToString(err));
     }
 }

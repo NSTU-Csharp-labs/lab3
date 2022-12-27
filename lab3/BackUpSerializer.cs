@@ -11,8 +11,8 @@ namespace lab3;
 
 public class BackUpSerializer : IBackUpSerializer
 {
-    private string _pathToFile;
-    private XmlSerializer _serializer;
+    private readonly string _pathToFile;
+    private readonly XmlSerializer _serializer;
 
     public BackUpSerializer(string pathToFile)
     {
@@ -22,49 +22,37 @@ public class BackUpSerializer : IBackUpSerializer
 
     public async Task BackUp(MainWindowViewModel viewModel)
     {
-        await File.WriteAllTextAsync(_pathToFile, "",CancellationToken.None);
-        
+        await File.WriteAllTextAsync(_pathToFile, "", CancellationToken.None);
+
         await using var fs = new FileStream(
             _pathToFile,
             FileMode.OpenOrCreate,
             FileAccess.Write,
-            FileShare.Write, 
+            FileShare.Write,
             4096,
             FileOptions.Asynchronous
         );
-        
-        
-        var writer = XmlWriter.Create(fs, new XmlWriterSettings()
+
+
+        var writer = XmlWriter.Create(fs, new XmlWriterSettings
         {
             Indent = true,
-            IndentChars = "    ",
+            IndentChars = "    "
         });
         _serializer.Serialize(writer, viewModel);
         writer.Close();
         fs.Close();
     }
-    
-    public Task<string> WriteAsync(MainWindowViewModel viewModel)
-    {
-        using var stringWriter = new StringWriter();
-        using XmlWriter xmlWriter = XmlWriter.Create(stringWriter);
-        DataContractSerializer serializer =
-            new DataContractSerializer(typeof(MainWindowViewModel));
-        serializer.WriteObject(xmlWriter, viewModel);
-        return Task.FromResult(stringWriter.ToString());
-    }
-    
 
 
     public MainWindowViewModel LoadBackUp()
     {
         MainWindowViewModel? viewModel = null;
-        
-        Stream s = GenerateStreamFromString(File.ReadAllText(_pathToFile));
+
+        var s = GenerateStreamFromString(File.ReadAllText(_pathToFile));
         try
         {
             viewModel = (MainWindowViewModel)_serializer.Deserialize(s)!;
-        
         }
         catch (Exception e)
         {
@@ -72,14 +60,22 @@ public class BackUpSerializer : IBackUpSerializer
         }
         finally
         {
-            if (viewModel is null)
-            {
-                viewModel = new MainWindowViewModel();
-            }
+            if (viewModel is null) viewModel = new MainWindowViewModel();
+            else viewModel.PictureManager.SetPicture();
             s.Close();
         }
-        
+
         return viewModel;
+    }
+
+    public Task<string> WriteAsync(MainWindowViewModel viewModel)
+    {
+        using var stringWriter = new StringWriter();
+        using var xmlWriter = XmlWriter.Create(stringWriter);
+        var serializer =
+            new DataContractSerializer(typeof(MainWindowViewModel));
+        serializer.WriteObject(xmlWriter, viewModel);
+        return Task.FromResult(stringWriter.ToString());
     }
 
     private static Stream GenerateStreamFromString(string s)

@@ -19,6 +19,11 @@ public class Texture : OpenGLHelper, IDisposable
         CheckError();
     }
 
+    public void Dispose()
+    {
+        _gl.DeleteTexture(_texture);
+    }
+
     public unsafe void SetPixels(byte[] pixels, float width, float height)
     {
         fixed (byte* p = pixels)
@@ -50,10 +55,5 @@ public class Texture : OpenGLHelper, IDisposable
     {
         _gl.BindTexture(GL_TEXTURE_2D, _texture);
         CheckError();
-    }
-
-    public void Dispose()
-    {
-        _gl.DeleteTexture(_texture);
     }
 }

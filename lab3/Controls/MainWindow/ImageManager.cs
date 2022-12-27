@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
-using MessageBox.Avalonia;
-using MessageBox.Avalonia.DTO;
 using DynamicData;
 using lab3.Controls.GL;
-using SixLabors.ImageSharp.Processing;
+using MessageBox.Avalonia;
+using MessageBox.Avalonia.DTO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace lab3.Controls.MainWindow;
 
@@ -19,54 +20,26 @@ public class ImageManager : IDisposable
 {
     private readonly List<string> _imageExtentions;
 
-    private Image<Rgba32>? _image;
+    private Subject<ImgBitmap> _bitmap;
 
     private string _currentPicture;
 
-    private Subject<ImgBitmap> _bitmap;
-    [XmlIgnore] public IObservable<ImgBitmap> BitmapChanged => _bitmap.AsObservable();
-    public RotateMode CurrentRotationMode { get; set; }
-    
+    private Image<Rgba32> _image;
+
     private string[] _picturesInFolder;
 
     public ImageManager()
     {
         _bitmap = new Subject<ImgBitmap>();
-        _imageExtentions = new List<string>() { ".JPG", ".JPEG", ".PNG" };
+        _imageExtentions = new List<string> { ".JPG", ".JPEG", ".PNG" };
         CurrentRotationMode = RotateMode.None;
         PicturesInFolder = new[] { "../../../Assets/texture.jpg" };
         SetPicture();
     }
+
+    [XmlIgnore] public IObservable<ImgBitmap> BitmapChanged => _bitmap.AsObservable();
+    public RotateMode CurrentRotationMode { get; set; }
     
-    public string[] PicturesInFolder
-    {
-        get => _picturesInFolder;
-        set
-        {
-            if (value is null)
-            {
-                ResetPictures();
-                return;
-            }
-            CurrentRotationMode = RotateMode.None;
-
-            _picturesInFolder = value.Where(name =>
-                    _imageExtentions.Any(extention =>
-                        name.ToUpper()
-                            .EndsWith(extention)))
-                .ToArray();
-            if (PicturesInFolder.Length > 0)
-            {
-                CurrentPicture = PicturesInFolder[0];
-            }
-            else
-            {
-                ResetPictures();
-            }
-            SetPicture();
-        }
-    }
-
     public string CurrentPicture
     {
         get => _currentPicture;
@@ -74,30 +47,111 @@ public class ImageManager : IDisposable
         {
             try
             {
-                if (PicturesInFolder.Any(pic => pic.Equals(value)))
-                {
+                if (PicturesInFolder is not null && PicturesInFolder.Any(pic => pic.Equals(value)))
                     _currentPicture = value;
-                }
                 else
-                {
                     PicturesInFolder = new[] { value };
-                }
                 SetPicture();
             }
             catch (Exception)
             {
                 // Сообщение об ошибке надо сделать
-                PicturesInFolder = new[] { "../../../Assets/texture.jpg" };
+                ResetPictures("../../../Assets/CurrentPicture.png");
             }
         }
     }
 
+    public string[] PicturesInFolder
+    {
+        get => _picturesInFolder;
+        set
+        {
+            CurrentRotationMode = RotateMode.None;
 
+            if (value is null)
+            {
+                ResetPictures("../../../Assets/PicturesInFolder.png");
+                return;
+            }
+
+            _picturesInFolder = value.Where(ValidatePictureName).ToArray();
+
+            if (PicturesInFolder is not null && PicturesInFolder.Length > 0)
+                CurrentPicture = PicturesInFolder[0];
+            else
+                ResetPictures("../../../Assets/PicturesInFolder.png");
+            SetPicture();
+        }
+    }
+
+  
+
+    public void Dispose()
+    {
+        _image?.Dispose();
+        _bitmap.Dispose();
+    }
+
+
+    public async void SetPicture()
+    {
+        _image?.Dispose();
+        try
+        {
+            _image = await Image.LoadAsync<Rgba32>(CurrentPicture);
+            _image.Mutate(context => context.Rotate(CurrentRotationMode));
+            SetPixels();
+        }
+        catch
+        {
+            ResetPictures("../../../Assets/SetPicture.png");
+            await ShowErrorMessageBox("Необработанная ошибка, обратитесь, пожалуйста в поддержку");
+        }
+    }
+
+
+    public void ResetPictures(string pathToErrorImage)
+    {
+        CurrentRotationMode = RotateMode.None;
+        PicturesInFolder = new[] { pathToErrorImage };
+        SetPicture();
+    }
+
+    private void SetPixels()
+    {
+        var pixels = new byte[_image.Width * 4 * _image.Height];
+        _image.CopyPixelDataTo(pixels);
+        _bitmap.OnNext(new ImgBitmap(_image.Width, _image.Height, pixels));
+    }
+
+    public void SwipeLeft()
+    {
+        CurrentRotationMode = RotateMode.None;
+
+        if (PicturesInFolder is not null)
+        {
+            var newIndex = PicturesInFolder.IndexOf(CurrentPicture) - 1;
+            CurrentPicture = PicturesInFolder[newIndex > -1 ? newIndex : PicturesInFolder.Length - 1];
+        }
+
+        SetPicture();
+    }
+
+    public void SwipeRight()
+    {
+        CurrentRotationMode = RotateMode.None;
+
+        if (PicturesInFolder is not null)
+        {
+            var newIndex = PicturesInFolder.IndexOf(CurrentPicture) + 1;
+            CurrentPicture = PicturesInFolder[newIndex < PicturesInFolder.Length ? newIndex : 0];
+        }
+
+        SetPicture();
+    }
 
     public void DoRightRotation()
     {
-        if (_image is null) return;
-
         CurrentRotationMode = CurrentRotationMode switch
         {
             RotateMode.None => RotateMode.Rotate90,
@@ -111,77 +165,22 @@ public class ImageManager : IDisposable
         SetPixels();
     }
 
-  
-
-    public async void SetPicture()
+    private bool ValidatePictureName(string name)
     {
-        _image?.Dispose();
-        try
-        {
-            _image = await Image.LoadAsync<Rgba32>(CurrentPicture);
-            _image.Mutate(context => context.Rotate(CurrentRotationMode));
-            SetPixels();
-        }
-        catch
-        {
-            var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                new MessageBoxStandardParams
-                {
-                    ContentTitle = "Ошибка",
-                    ContentMessage = "Не обработанная ошибка, обратитесь, пожалуйста в поддержку"
-                });
-            await messageBoxStandardWindow.Show();
-        }
-    }
-
-   
-
-   
-    
-    
-    public void ResetPictures()
-    {
-        CurrentRotationMode = RotateMode.None;
-        PicturesInFolder = new[] { "../../../Assets/texture.jpg" };
-        CurrentPicture = PicturesInFolder[0];
-        SetPicture();
-    }
-    
-    private void SetPixels()
-    {
-        if (_image is null) return;
-        var pixels = new byte[_image.Width * 4 * _image.Height];
-        _image.CopyPixelDataTo(pixels);
-        _bitmap.OnNext(new ImgBitmap(_image.Width, _image.Height, pixels));
+        return _imageExtentions.Any(extention => name.ToUpper().EndsWith(extention));
     }
 
 
-    
-    public void SwipeLeft()
+    private async Task ShowErrorMessageBox(string message)
     {
-        CurrentRotationMode = RotateMode.None;
-
-        var newIndex = (PicturesInFolder.IndexOf(CurrentPicture) - 1);
-        CurrentPicture = PicturesInFolder[newIndex > -1 ? newIndex : PicturesInFolder.Length - 1];
-        SetPicture();
+        var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+            new MessageBoxStandardParams
+            {
+                ContentTitle = "Ошибка",
+                ContentMessage = message
+            });
+        await messageBoxStandardWindow.Show();
     }
-
-    public void SwipeRight()
-    {
-        CurrentRotationMode = RotateMode.None;
-
-        var newIndex = PicturesInFolder.IndexOf(CurrentPicture) + 1;
-        CurrentPicture = PicturesInFolder[newIndex < PicturesInFolder.Length ? newIndex : 0];
-        SetPicture();
-    }
-    
-    public void Dispose()
-    {
-        _image?.Dispose();
-        _bitmap.Dispose();
-    }
-    
-    
 }
 
 public class ImageManagerException : Exception

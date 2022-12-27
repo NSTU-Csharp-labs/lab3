@@ -7,6 +7,23 @@ namespace lab3.Controls.GL;
 
 public class ImageRenderer : OpenGlControlBase
 {
+    public static readonly StyledProperty<ImgBitmap> ImgProperty =
+        AvaloniaProperty.Register<ImageRenderer, ImgBitmap>(nameof(Img));
+
+    public static readonly StyledProperty<bool> BlackAndWhiteFilterProperty =
+        AvaloniaProperty.Register<ImageRenderer, bool>(nameof(BlackAndWhiteFilter));
+
+    public static readonly StyledProperty<bool> RedFilterProperty =
+        AvaloniaProperty.Register<ImageRenderer, bool>(nameof(RedFilter));
+
+    public static readonly StyledProperty<bool> GreenFilterProperty =
+        AvaloniaProperty.Register<ImageRenderer, bool>(nameof(GreenFilter));
+
+    public static readonly StyledProperty<bool> BlueFilterProperty =
+        AvaloniaProperty.Register<ImageRenderer, bool>(nameof(BlueFilter));
+
+    private Painter _painter;
+
     public ImageRenderer()
     {
         AffectsRender<ImageRenderer>(
@@ -24,17 +41,11 @@ public class ImageRenderer : OpenGlControlBase
         set => SetValue(ImgProperty, value);
     }
 
-    public static readonly StyledProperty<ImgBitmap> ImgProperty =
-        AvaloniaProperty.Register<ImageRenderer, ImgBitmap>(nameof(Img));
-
     public bool BlackAndWhiteFilter
     {
         get => GetValue(BlackAndWhiteFilterProperty);
         set => SetValue(BlackAndWhiteFilterProperty, value);
     }
-
-    public static readonly StyledProperty<bool> BlackAndWhiteFilterProperty =
-        AvaloniaProperty.Register<ImageRenderer, bool>(nameof(BlackAndWhiteFilter));
 
     public bool RedFilter
     {
@@ -42,28 +53,17 @@ public class ImageRenderer : OpenGlControlBase
         set => SetValue(RedFilterProperty, value);
     }
 
-    public static readonly StyledProperty<bool> RedFilterProperty =
-        AvaloniaProperty.Register<ImageRenderer, bool>(nameof(RedFilter));
-
     public bool GreenFilter
     {
         get => GetValue(GreenFilterProperty);
         set => SetValue(GreenFilterProperty, value);
     }
 
-    public static readonly StyledProperty<bool> GreenFilterProperty =
-        AvaloniaProperty.Register<ImageRenderer, bool>(nameof(GreenFilter));
-
     public bool BlueFilter
     {
         get => GetValue(BlueFilterProperty);
         set => SetValue(BlueFilterProperty, value);
     }
-
-    public static readonly StyledProperty<bool> BlueFilterProperty =
-        AvaloniaProperty.Register<ImageRenderer, bool>(nameof(BlueFilter));
-
-    private Painter _painter;
 
     protected override void OnOpenGlInit(GlInterface GL, int fb)
     {
@@ -82,11 +82,11 @@ public class ImageRenderer : OpenGlControlBase
         try
         {
             _painter.UseBlackAndWhiteFilter = BlackAndWhiteFilter;
-            
+
             _painter.UseRedFilter = RedFilter;
             _painter.UseGreenFilter = GreenFilter;
             _painter.UseBlueFilter = BlueFilter;
-            
+
             _painter.Paint(Img, (float)Bounds.Width, (float)Bounds.Height);
         }
         catch (OpenGlException ex)

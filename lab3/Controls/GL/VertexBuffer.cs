@@ -16,16 +16,16 @@ public class VertexBuffer : OpenGLHelper, IDisposable
         _vertexBufferObject = vertexBufferObject;
     }
 
-    public void Use()
-    {
-        _gl.BindVertexArray(_vertexArrayObject);
-        CheckError();
-    }
-
     public void Dispose()
     {
         _gl.DeleteBuffer(_vertexBufferObject);
         _gl.DeleteVertexArray(_vertexArrayObject);
+    }
+
+    public void Use()
+    {
+        _gl.BindVertexArray(_vertexArrayObject);
+        CheckError();
     }
 
     private record struct AttributeBinding(int Location, int Size, int StartPosition);
@@ -55,10 +55,10 @@ public class VertexBuffer : OpenGLHelper, IDisposable
             Fill();
             BindAttributes();
             Unbind();
-            
+
             return new VertexBuffer(_gl, vertexArrayObject, vertexBufferObject);
         }
-        
+
         private (int, int) Generate()
         {
             var vertexArrayObject = _gl.GenVertexArray();
@@ -83,7 +83,7 @@ public class VertexBuffer : OpenGLHelper, IDisposable
 
             CheckError();
         }
-        
+
         private void BindAttributes()
         {
             foreach (var attributeBinding in _attributeBindings)

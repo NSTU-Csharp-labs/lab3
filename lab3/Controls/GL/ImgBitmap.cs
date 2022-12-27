@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Xml.Serialization;
-using Avalonia;
 
 namespace lab3.Controls.GL;
 
 public class ImgBitmap
 {
+    private float _renderWidthToHeight;
+
     public ImgBitmap(int width, int height, byte[] pixels)
     {
         Width = width;
@@ -17,7 +18,9 @@ public class ImgBitmap
         _renderWidthToHeight = RenderWidth / RenderHeight;
     }
 
-    public ImgBitmap() { }
+    public ImgBitmap()
+    {
+    }
 
 
     public int Width { get; }
@@ -27,10 +30,8 @@ public class ImgBitmap
     public byte[] Pixels { get; }
 
     [field: NonSerialized] [XmlIgnore] public float RenderWidth { get; private set; }
-    
-    [field: NonSerialized] [XmlIgnore] public float RenderHeight { get; private set; }
 
-    private float _renderWidthToHeight;
+    [field: NonSerialized] [XmlIgnore] public float RenderHeight { get; private set; }
 
     public void OnRender(float boundsWidth, float boundsHeight)
     {
@@ -47,20 +48,14 @@ public class ImgBitmap
         {
             RecalculateImageWidth(boundsWidth);
 
-            if (RenderHeight > boundsHeight)
-            {
-                RecalculateImageHeight(boundsHeight);
-            }
+            if (RenderHeight > boundsHeight) RecalculateImageHeight(boundsHeight);
 
             return;
         }
 
         RecalculateImageHeight(boundsHeight);
 
-        if (RenderWidth > boundsWidth)
-        {
-            RecalculateImageWidth(boundsWidth);
-        }
+        if (RenderWidth > boundsWidth) RecalculateImageWidth(boundsWidth);
     }
 
     private void RecalculateImageWidth(float boundsWidth)

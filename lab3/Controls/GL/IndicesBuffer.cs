@@ -27,13 +27,13 @@ public class IndicesBuffer : OpenGLHelper, IDisposable
         CheckError();
     }
 
-    public void Use()
-    {
-        _gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
-    }
-
     public void Dispose()
     {
         _gl.DeleteBuffer(_indicesBufferObject);
+    }
+
+    public void Use()
+    {
+        _gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indicesBufferObject);
     }
 }
