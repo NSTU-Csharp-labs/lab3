@@ -94,6 +94,20 @@
           }
         }
       },
+      "Avalonia.AvaloniaEdit/11.0.0-preview1": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "11.0.0-preview1",
+          "System.Collections.Immutable": "1.6.0",
+          "System.Xml.ReaderWriter": "4.3.1"
+        },
+        "compile": {
+          "lib/netstandard2.0/AvaloniaEdit.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/AvaloniaEdit.dll": {}
+        }
+      },
       "Avalonia.Controls.ColorPicker/11.0.0-preview4": {
         "type": "package",
         "dependencies": {
@@ -362,6 +376,18 @@
           "lib/netstandard2.0/Citrus.Avalonia.dll": {}
         }
       },
+      "ColorTextBlock.Avalonia/11.0.0-a3": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "11.0.0-preview1"
+        },
+        "compile": {
+          "lib/net6.0/ColorTextBlock.Avalonia.dll": {}
+        },
+        "runtime": {
+          "lib/net6.0/ColorTextBlock.Avalonia.dll": {}
+        }
+      },
       "DynamicData/7.9.5": {
         "type": "package",
         "dependencies": {
@@ -512,6 +538,52 @@
           "lib/netstandard1.0/JetBrains.Annotations.dll": {
             "related": ".xml"
           }
+        }
+      },
+      "Markdown.Avalonia/11.0.0-a3": {
+        "type": "package",
+        "dependencies": {
+          "Markdown.Avalonia.SyntaxHigh": "11.0.0-a3",
+          "Markdown.Avalonia.Tight": "11.0.0-a3"
+        }
+      },
+      "Markdown.Avalonia.SyntaxHigh/11.0.0-a3": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "11.0.0-preview1",
+          "Avalonia.AvaloniaEdit": "11.0.0-preview1"
+        },
+        "compile": {
+          "lib/net6.0/Markdown.Avalonia.SyntaxHigh.dll": {}
+        },
+        "runtime": {
+          "lib/net6.0/Markdown.Avalonia.SyntaxHigh.dll": {}
+        }
+      },
+      "Markdown.Avalonia.Tight/11.0.0-a3": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "11.0.0-preview1",
+          "ColorTextBlock.Avalonia": "11.0.0-a3"
+        },
+        "compile": {
+          "lib/net6.0/Markdown.Avalonia.dll": {}
+        },
+        "runtime": {
+          "lib/net6.0/Markdown.Avalonia.dll": {}
+        }
+      },
+      "MessageBox.Avalonia/2.3.1-prev2": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "11.0.0-preview2",
+          "Markdown.Avalonia": "11.0.0-a3"
+        },
+        "compile": {
+          "lib/netstandard2.0/MessageBox.Avalonia.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/MessageBox.Avalonia.dll": {}
         }
       },
       "MicroCom.Runtime/0.11.0": {
@@ -1150,6 +1222,38 @@
           }
         }
       },
+      "System.IO.FileSystem/4.3.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "1.1.0",
+          "Microsoft.NETCore.Targets": "1.1.0",
+          "System.IO": "4.3.0",
+          "System.IO.FileSystem.Primitives": "4.3.0",
+          "System.Runtime": "4.3.0",
+          "System.Runtime.Handles": "4.3.0",
+          "System.Text.Encoding": "4.3.0",
+          "System.Threading.Tasks": "4.3.0"
+        },
+        "compile": {
+          "ref/netstandard1.3/_._": {
+            "related": ".xml"
+          }
+        }
+      },
+      "System.IO.FileSystem.Primitives/4.3.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Runtime": "4.3.0"
+        },
+        "compile": {
+          "ref/netstandard1.3/_._": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.IO.FileSystem.Primitives.dll": {}
+        }
+      },
       "System.Linq/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -1500,6 +1604,32 @@
           }
         }
       },
+      "System.Text.Encoding.Extensions/4.3.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "1.1.0",
+          "Microsoft.NETCore.Targets": "1.1.0",
+          "System.Runtime": "4.3.0",
+          "System.Text.Encoding": "4.3.0"
+        },
+        "compile": {
+          "ref/netstandard1.3/_._": {
+            "related": ".xml"
+          }
+        }
+      },
+      "System.Text.RegularExpressions/4.3.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Runtime": "4.3.0"
+        },
+        "compile": {
+          "ref/netcoreapp1.1/_._": {}
+        },
+        "runtime": {
+          "lib/netstandard1.6/System.Text.RegularExpressions.dll": {}
+        }
+      },
       "System.Threading/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -1544,6 +1674,34 @@
         },
         "runtime": {
           "lib/netcoreapp2.0/_._": {}
+        }
+      },
+      "System.Xml.ReaderWriter/4.3.1": {
+        "type": "package",
+        "dependencies": {
+          "System.Collections": "4.3.0",
+          "System.Diagnostics.Debug": "4.3.0",
+          "System.Globalization": "4.3.0",
+          "System.IO": "4.3.0",
+          "System.IO.FileSystem": "4.3.0",
+          "System.IO.FileSystem.Primitives": "4.3.0",
+          "System.Resources.ResourceManager": "4.3.0",
+          "System.Runtime": "4.3.0",
+          "System.Runtime.Extensions": "4.3.0",
+          "System.Runtime.InteropServices": "4.3.0",
+          "System.Text.Encoding": "4.3.0",
+          "System.Text.Encoding.Extensions": "4.3.0",
+          "System.Text.RegularExpressions": "4.3.0",
+          "System.Threading.Tasks": "4.3.0",
+          "System.Threading.Tasks.Extensions": "4.3.0"
+        },
+        "compile": {
+          "ref/netstandard1.3/System.Xml.ReaderWriter.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Xml.ReaderWriter.dll": {}
         }
       },
       "Tmds.DBus/0.9.0": {
@@ -1682,6 +1840,18 @@
         "runtimes/win-arm64/native/av_libglesv2.dll",
         "runtimes/win7-x64/native/av_libglesv2.dll",
         "runtimes/win7-x86/native/av_libglesv2.dll"
+      ]
+    },
+    "Avalonia.AvaloniaEdit/11.0.0-preview1": {
+      "sha512": "8ZIw0n7554yw8ZIqKgQUehpPwDpMqmAe3ZQW0m536H1xFZgHN2+wwmpiGDBLjOAcw5UaVPeGxNIN4/d3WIQBeA==",
+      "type": "package",
+      "path": "avalonia.avaloniaedit/11.0.0-preview1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "avalonia.avaloniaedit.11.0.0-preview1.nupkg.sha512",
+        "avalonia.avaloniaedit.nuspec",
+        "lib/netstandard2.0/AvaloniaEdit.dll"
       ]
     },
     "Avalonia.Controls.ColorPicker/11.0.0-preview4": {
@@ -1916,6 +2086,21 @@
         "citrus.avalonia.1.6.1.nupkg.sha512",
         "citrus.avalonia.nuspec",
         "lib/netstandard2.0/Citrus.Avalonia.dll"
+      ]
+    },
+    "ColorTextBlock.Avalonia/11.0.0-a3": {
+      "sha512": "3DmltCESQnMCAOzZuiingRD9Q37GXziElScxqIcsEEkJmheD8ssw5Y+cfXHkQ9TKJ9klB4+P7Cuo2T+lpGlBYg==",
+      "type": "package",
+      "path": "colortextblock.avalonia/11.0.0-a3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "colortextblock.avalonia.11.0.0-a3.nupkg.sha512",
+        "colortextblock.avalonia.nuspec",
+        "lib/net461/ColorTextBlock.Avalonia.dll",
+        "lib/net6.0/ColorTextBlock.Avalonia.dll",
+        "lib/netcoreapp2.0/ColorTextBlock.Avalonia.dll",
+        "lib/netstandard2.0/ColorTextBlock.Avalonia.dll"
       ]
     },
     "DynamicData/7.9.5": {
@@ -2158,6 +2343,59 @@
         "lib/portable-net4+sl4+wp7+netcore45/JetBrains.Annotations.xml",
         "lib/portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/JetBrains.Annotations.dll",
         "lib/portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/JetBrains.Annotations.xml"
+      ]
+    },
+    "Markdown.Avalonia/11.0.0-a3": {
+      "sha512": "tQUojQ+zySU+CY8oUlKYEYUTpf6hGbK36uYmdKsguWCVMWe8wpa3SeHYQPBtqxNteZeFcPMtCCf2b8RbqAiCpw==",
+      "type": "package",
+      "path": "markdown.avalonia/11.0.0-a3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "markdown.avalonia.11.0.0-a3.nupkg.sha512",
+        "markdown.avalonia.nuspec"
+      ]
+    },
+    "Markdown.Avalonia.SyntaxHigh/11.0.0-a3": {
+      "sha512": "J5AquPRJsf/N+DmxdNTqu/3mq0I8tgJAUW/gEzIg1DVDFpwokBBZaTICYT6lhmzSwxZDBkoq1WG73IGl7xoVdw==",
+      "type": "package",
+      "path": "markdown.avalonia.syntaxhigh/11.0.0-a3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net461/Markdown.Avalonia.SyntaxHigh.dll",
+        "lib/net6.0/Markdown.Avalonia.SyntaxHigh.dll",
+        "lib/netcoreapp2.0/Markdown.Avalonia.SyntaxHigh.dll",
+        "lib/netstandard2.0/Markdown.Avalonia.SyntaxHigh.dll",
+        "markdown.avalonia.syntaxhigh.11.0.0-a3.nupkg.sha512",
+        "markdown.avalonia.syntaxhigh.nuspec"
+      ]
+    },
+    "Markdown.Avalonia.Tight/11.0.0-a3": {
+      "sha512": "nbKr9Axw4erbUZ4TAbeRNt1FQb+xahsxg84YXX0aRHPw5WE16WABoSK4CMjtFn/b+PI/xZcCWuGGkxF9J3Z5HA==",
+      "type": "package",
+      "path": "markdown.avalonia.tight/11.0.0-a3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net461/Markdown.Avalonia.dll",
+        "lib/net6.0/Markdown.Avalonia.dll",
+        "lib/netcoreapp2.0/Markdown.Avalonia.dll",
+        "lib/netstandard2.0/Markdown.Avalonia.dll",
+        "markdown.avalonia.tight.11.0.0-a3.nupkg.sha512",
+        "markdown.avalonia.tight.nuspec"
+      ]
+    },
+    "MessageBox.Avalonia/2.3.1-prev2": {
+      "sha512": "Dm2NApWF63lauzL/dxySF7kUClPt4ZcZ6eyGxMkSDIbVJVIZbxaWidjV00F5ceta7Fn1INMQAWsPM6CSaXGvTA==",
+      "type": "package",
+      "path": "messagebox.avalonia/2.3.1-prev2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/MessageBox.Avalonia.dll",
+        "messagebox.avalonia.2.3.1-prev2.nupkg.sha512",
+        "messagebox.avalonia.nuspec"
       ]
     },
     "MicroCom.Runtime/0.11.0": {
@@ -3381,6 +3619,83 @@
         "ref/xamarinwatchos10/_._",
         "system.io.4.3.0.nupkg.sha512",
         "system.io.nuspec"
+      ]
+    },
+    "System.IO.FileSystem/4.3.0": {
+      "sha512": "3wEMARTnuio+ulnvi+hkRNROYwa1kylvYahhcLk4HSoVdl+xxTFVeVlYOfLwrDPImGls0mDqbMhrza8qnWPTdA==",
+      "type": "package",
+      "path": "system.io.filesystem/4.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net46/System.IO.FileSystem.dll",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net46/System.IO.FileSystem.dll",
+        "ref/netstandard1.3/System.IO.FileSystem.dll",
+        "ref/netstandard1.3/System.IO.FileSystem.xml",
+        "ref/netstandard1.3/de/System.IO.FileSystem.xml",
+        "ref/netstandard1.3/es/System.IO.FileSystem.xml",
+        "ref/netstandard1.3/fr/System.IO.FileSystem.xml",
+        "ref/netstandard1.3/it/System.IO.FileSystem.xml",
+        "ref/netstandard1.3/ja/System.IO.FileSystem.xml",
+        "ref/netstandard1.3/ko/System.IO.FileSystem.xml",
+        "ref/netstandard1.3/ru/System.IO.FileSystem.xml",
+        "ref/netstandard1.3/zh-hans/System.IO.FileSystem.xml",
+        "ref/netstandard1.3/zh-hant/System.IO.FileSystem.xml",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "system.io.filesystem.4.3.0.nupkg.sha512",
+        "system.io.filesystem.nuspec"
+      ]
+    },
+    "System.IO.FileSystem.Primitives/4.3.0": {
+      "sha512": "6QOb2XFLch7bEc4lIcJH49nJN2HV+OC3fHDgsLVsBVBk3Y4hFAnOBGzJ2lUu7CyDDFo9IBWkSsnbkT6IBwwiMw==",
+      "type": "package",
+      "path": "system.io.filesystem.primitives/4.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net46/System.IO.FileSystem.Primitives.dll",
+        "lib/netstandard1.3/System.IO.FileSystem.Primitives.dll",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net46/System.IO.FileSystem.Primitives.dll",
+        "ref/netstandard1.3/System.IO.FileSystem.Primitives.dll",
+        "ref/netstandard1.3/System.IO.FileSystem.Primitives.xml",
+        "ref/netstandard1.3/de/System.IO.FileSystem.Primitives.xml",
+        "ref/netstandard1.3/es/System.IO.FileSystem.Primitives.xml",
+        "ref/netstandard1.3/fr/System.IO.FileSystem.Primitives.xml",
+        "ref/netstandard1.3/it/System.IO.FileSystem.Primitives.xml",
+        "ref/netstandard1.3/ja/System.IO.FileSystem.Primitives.xml",
+        "ref/netstandard1.3/ko/System.IO.FileSystem.Primitives.xml",
+        "ref/netstandard1.3/ru/System.IO.FileSystem.Primitives.xml",
+        "ref/netstandard1.3/zh-hans/System.IO.FileSystem.Primitives.xml",
+        "ref/netstandard1.3/zh-hant/System.IO.FileSystem.Primitives.xml",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "system.io.filesystem.primitives.4.3.0.nupkg.sha512",
+        "system.io.filesystem.primitives.nuspec"
       ]
     },
     "System.Linq/4.3.0": {
@@ -4681,6 +4996,158 @@
         "version.txt"
       ]
     },
+    "System.Text.Encoding.Extensions/4.3.0": {
+      "sha512": "YVMK0Bt/A43RmwizJoZ22ei2nmrhobgeiYwFzC4YAN+nue8RF6djXDMog0UCn+brerQoYVyaS+ghy9P/MUVcmw==",
+      "type": "package",
+      "path": "system.text.encoding.extensions/4.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net45/_._",
+        "lib/portable-net45+win8+wp8+wpa81/_._",
+        "lib/win8/_._",
+        "lib/wp80/_._",
+        "lib/wpa81/_._",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net45/_._",
+        "ref/netcore50/System.Text.Encoding.Extensions.dll",
+        "ref/netcore50/System.Text.Encoding.Extensions.xml",
+        "ref/netcore50/de/System.Text.Encoding.Extensions.xml",
+        "ref/netcore50/es/System.Text.Encoding.Extensions.xml",
+        "ref/netcore50/fr/System.Text.Encoding.Extensions.xml",
+        "ref/netcore50/it/System.Text.Encoding.Extensions.xml",
+        "ref/netcore50/ja/System.Text.Encoding.Extensions.xml",
+        "ref/netcore50/ko/System.Text.Encoding.Extensions.xml",
+        "ref/netcore50/ru/System.Text.Encoding.Extensions.xml",
+        "ref/netcore50/zh-hans/System.Text.Encoding.Extensions.xml",
+        "ref/netcore50/zh-hant/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.0/System.Text.Encoding.Extensions.dll",
+        "ref/netstandard1.0/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.0/de/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.0/es/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.0/fr/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.0/it/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.0/ja/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.0/ko/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.0/ru/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.0/zh-hans/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.0/zh-hant/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.3/System.Text.Encoding.Extensions.dll",
+        "ref/netstandard1.3/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.3/de/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.3/es/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.3/fr/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.3/it/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.3/ja/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.3/ko/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.3/ru/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.3/zh-hans/System.Text.Encoding.Extensions.xml",
+        "ref/netstandard1.3/zh-hant/System.Text.Encoding.Extensions.xml",
+        "ref/portable-net45+win8+wp8+wpa81/_._",
+        "ref/win8/_._",
+        "ref/wp80/_._",
+        "ref/wpa81/_._",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "system.text.encoding.extensions.4.3.0.nupkg.sha512",
+        "system.text.encoding.extensions.nuspec"
+      ]
+    },
+    "System.Text.RegularExpressions/4.3.0": {
+      "sha512": "RpT2DA+L660cBt1FssIE9CAGpLFdFPuheB7pLpKpn6ZXNby7jDERe8Ua/Ne2xGiwLVG2JOqziiaVCGDon5sKFA==",
+      "type": "package",
+      "path": "system.text.regularexpressions/4.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net45/_._",
+        "lib/net463/System.Text.RegularExpressions.dll",
+        "lib/netcore50/System.Text.RegularExpressions.dll",
+        "lib/netstandard1.6/System.Text.RegularExpressions.dll",
+        "lib/portable-net45+win8+wp8+wpa81/_._",
+        "lib/win8/_._",
+        "lib/wp80/_._",
+        "lib/wpa81/_._",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net45/_._",
+        "ref/net463/System.Text.RegularExpressions.dll",
+        "ref/netcore50/System.Text.RegularExpressions.dll",
+        "ref/netcore50/System.Text.RegularExpressions.xml",
+        "ref/netcore50/de/System.Text.RegularExpressions.xml",
+        "ref/netcore50/es/System.Text.RegularExpressions.xml",
+        "ref/netcore50/fr/System.Text.RegularExpressions.xml",
+        "ref/netcore50/it/System.Text.RegularExpressions.xml",
+        "ref/netcore50/ja/System.Text.RegularExpressions.xml",
+        "ref/netcore50/ko/System.Text.RegularExpressions.xml",
+        "ref/netcore50/ru/System.Text.RegularExpressions.xml",
+        "ref/netcore50/zh-hans/System.Text.RegularExpressions.xml",
+        "ref/netcore50/zh-hant/System.Text.RegularExpressions.xml",
+        "ref/netcoreapp1.1/System.Text.RegularExpressions.dll",
+        "ref/netstandard1.0/System.Text.RegularExpressions.dll",
+        "ref/netstandard1.0/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.0/de/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.0/es/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.0/fr/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.0/it/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.0/ja/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.0/ko/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.0/ru/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.0/zh-hans/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.0/zh-hant/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.3/System.Text.RegularExpressions.dll",
+        "ref/netstandard1.3/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.3/de/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.3/es/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.3/fr/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.3/it/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.3/ja/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.3/ko/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.3/ru/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.3/zh-hans/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.3/zh-hant/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.6/System.Text.RegularExpressions.dll",
+        "ref/netstandard1.6/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.6/de/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.6/es/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.6/fr/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.6/it/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.6/ja/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.6/ko/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.6/ru/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.6/zh-hans/System.Text.RegularExpressions.xml",
+        "ref/netstandard1.6/zh-hant/System.Text.RegularExpressions.xml",
+        "ref/portable-net45+win8+wp8+wpa81/_._",
+        "ref/win8/_._",
+        "ref/wp80/_._",
+        "ref/wpa81/_._",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "system.text.regularexpressions.4.3.0.nupkg.sha512",
+        "system.text.regularexpressions.nuspec"
+      ]
+    },
     "System.Threading/4.3.0": {
       "sha512": "VkUS0kOBcUf3Wwm0TSbrevDDZ6BlM+b/HRiapRFWjM5O0NS0LviG0glKmFK+hhPDd1XFeSdU1GmlLhb2CoVpIw==",
       "type": "package",
@@ -4901,6 +5368,78 @@
         "version.txt"
       ]
     },
+    "System.Xml.ReaderWriter/4.3.1": {
+      "sha512": "fVU1Xp9TEOHv1neQDtcJ4hNfYJ1pjfXzKY3VFeiRZK6HTV4Af2Ihyvq1FkPLrL1hzZhXv7NTmowQnL5DgTzIKA==",
+      "type": "package",
+      "path": "system.xml.readerwriter/4.3.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net45/_._",
+        "lib/net46/System.Xml.ReaderWriter.dll",
+        "lib/netcore50/System.Xml.ReaderWriter.dll",
+        "lib/netstandard1.3/System.Xml.ReaderWriter.dll",
+        "lib/portable-net45+win8+wp8+wpa81/_._",
+        "lib/win8/_._",
+        "lib/wp80/_._",
+        "lib/wpa81/_._",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net45/_._",
+        "ref/net46/System.Xml.ReaderWriter.dll",
+        "ref/netcore50/System.Xml.ReaderWriter.dll",
+        "ref/netcore50/System.Xml.ReaderWriter.xml",
+        "ref/netcore50/de/System.Xml.ReaderWriter.xml",
+        "ref/netcore50/es/System.Xml.ReaderWriter.xml",
+        "ref/netcore50/fr/System.Xml.ReaderWriter.xml",
+        "ref/netcore50/it/System.Xml.ReaderWriter.xml",
+        "ref/netcore50/ja/System.Xml.ReaderWriter.xml",
+        "ref/netcore50/ko/System.Xml.ReaderWriter.xml",
+        "ref/netcore50/ru/System.Xml.ReaderWriter.xml",
+        "ref/netcore50/zh-hans/System.Xml.ReaderWriter.xml",
+        "ref/netcore50/zh-hant/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.0/System.Xml.ReaderWriter.dll",
+        "ref/netstandard1.0/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.0/de/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.0/es/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.0/fr/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.0/it/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.0/ja/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.0/ko/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.0/ru/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.0/zh-hans/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.0/zh-hant/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.3/System.Xml.ReaderWriter.dll",
+        "ref/netstandard1.3/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.3/de/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.3/es/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.3/fr/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.3/it/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.3/ja/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.3/ko/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.3/ru/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.3/zh-hans/System.Xml.ReaderWriter.xml",
+        "ref/netstandard1.3/zh-hant/System.Xml.ReaderWriter.xml",
+        "ref/portable-net45+win8+wp8+wpa81/_._",
+        "ref/win8/_._",
+        "ref/wp80/_._",
+        "ref/wpa81/_._",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "system.xml.readerwriter.4.3.1.nupkg.sha512",
+        "system.xml.readerwriter.nuspec"
+      ]
+    },
     "Tmds.DBus/0.9.0": {
       "sha512": "KcTWL9aKuob9Qo2sOTTKFePs1rKGTwZrcBvMFuGVIVR5RojX3oIFj5UBLYfSGjYgrcImC7LjQI3DdCFwUnhNXw==",
       "type": "package",
@@ -4939,31 +5478,30 @@
       "Avalonia.Themes.Fluent >= 11.0.0-preview4",
       "Avalonia.Themes.Simple >= 11.0.0-preview4",
       "Citrus.Avalonia >= 1.6.1",
+      "MessageBox.Avalonia >= 2.3.1-prev2",
       "SixLabors.ImageSharp >= 2.1.3",
       "XamlNameReferenceGenerator >= 1.3.4"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\s-hro\\.nuget\\packages\\": {}
+    "/home/xpomin/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\s-hro\\RiderProjects\\lab3\\lab3\\lab3.csproj",
+      "projectUniqueName": "/home/xpomin/RiderProjects/lab3/lab3/lab3.csproj",
       "projectName": "lab3",
-      "projectPath": "C:\\Users\\s-hro\\RiderProjects\\lab3\\lab3\\lab3.csproj",
-      "packagesPath": "C:\\Users\\s-hro\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\s-hro\\RiderProjects\\lab3\\lab3\\obj\\",
+      "projectPath": "/home/xpomin/RiderProjects/lab3/lab3/lab3.csproj",
+      "packagesPath": "/home/xpomin/.nuget/packages/",
+      "outputPath": "/home/xpomin/RiderProjects/lab3/lab3/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\s-hro\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/home/xpomin/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -5014,6 +5552,10 @@
             "target": "Package",
             "version": "[1.6.1, )"
           },
+          "MessageBox.Avalonia": {
+            "target": "Package",
+            "version": "[2.3.1-prev2, )"
+          },
           "SixLabors.ImageSharp": {
             "target": "Package",
             "version": "[2.1.3, )"
@@ -5029,8 +5571,7 @@
           "net47",
           "net471",
           "net472",
-          "net48",
-          "net481"
+          "net48"
         ],
         "assetTargetFallback": true,
         "warn": true,
@@ -5039,7 +5580,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/6.0.111/RuntimeIdentifierGraph.json"
       }
     }
   }

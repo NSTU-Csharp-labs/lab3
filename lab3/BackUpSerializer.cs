@@ -42,23 +42,6 @@ public class BackUpSerializer : IBackUpSerializer
         _serializer.Serialize(writer, viewModel);
         writer.Close();
         fs.Close();
-        // await WriteAsync(viewModel);
-
-    }
-
-    public Task<MainWindowViewModel?> DeserializeAsync()
-    {
-        using StringReader reader = new StringReader(
-            File.ReadAllTextAsync(
-                _pathToFile,
-                CancellationToken.None
-                ).Result
-            );
-        using XmlReader xmlReader = XmlReader.Create(reader);
-        DataContractSerializer serializer =
-            new DataContractSerializer(typeof(MainWindowViewModel));
-        MainWindowViewModel theObject = (MainWindowViewModel)serializer.ReadObject(xmlReader);
-        return Task.FromResult(theObject);
     }
     
     public Task<string> WriteAsync(MainWindowViewModel viewModel)
@@ -75,22 +58,13 @@ public class BackUpSerializer : IBackUpSerializer
 
     public MainWindowViewModel LoadBackUp()
     {
-        MainWindowViewModel viewModel;
+        MainWindowViewModel? viewModel = null;
         
         Stream s = GenerateStreamFromString(File.ReadAllText(_pathToFile));
         try
         {
-            object? deserialized = (_serializer.Deserialize(s));
+            viewModel = (MainWindowViewModel)_serializer.Deserialize(s)!;
         
-            if (deserialized is null)
-            {
-                viewModel = new MainWindowViewModel();
-            }
-            else
-            {
-                viewModel = (MainWindowViewModel)deserialized;
-                viewModel.ImageManager.SetPicture();
-            }
         }
         catch (Exception e)
         {
@@ -98,11 +72,14 @@ public class BackUpSerializer : IBackUpSerializer
         }
         finally
         {
+            if (viewModel is null)
+            {
+                viewModel = new MainWindowViewModel();
+            }
             s.Close();
         }
         
         return viewModel;
-        // return DeserializeAsync().Result!;
     }
 
     private static Stream GenerateStreamFromString(string s)

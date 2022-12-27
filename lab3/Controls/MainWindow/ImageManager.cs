@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Xml.Serialization;
+using MessageBox.Avalonia;
+using MessageBox.Avalonia.DTO;
 using DynamicData;
 using lab3.Controls.GL;
 using SixLabors.ImageSharp.Processing;
@@ -21,37 +23,48 @@ public class ImageManager : IDisposable
 
     private string _currentPicture;
 
-    private ImgBitmap _img;
-
     private Subject<ImgBitmap> _bitmap;
-    [field: NonSerialized] [XmlIgnore] public IObservable<ImgBitmap> BitmapChanged => _bitmap.AsObservable();
-
-    public int RotateMode { get; set; }
+    [XmlIgnore] public IObservable<ImgBitmap> BitmapChanged => _bitmap.AsObservable();
+    public RotateMode CurrentRotationMode { get; set; }
+    
     private string[] _picturesInFolder;
-
-
-    public void SwipeLeft()
-    {
-        var newIndex = (PicturesInFolder.IndexOf(CurrentPicture) - 1);
-        CurrentPicture = PicturesInFolder[newIndex > -1 ? newIndex : PicturesInFolder.Length - 1];
-        SetPicture();
-    }
-
-    public void SwipeRight()
-    {
-        var newIndex = PicturesInFolder.IndexOf(CurrentPicture) + 1;
-        CurrentPicture = PicturesInFolder[newIndex < PicturesInFolder.Length ? newIndex : 0];
-        SetPicture();
-    }
-
 
     public ImageManager()
     {
         _bitmap = new Subject<ImgBitmap>();
         _imageExtentions = new List<string>() { ".JPG", ".JPEG", ".PNG" };
-        RotateMode = (int)SixLabors.ImageSharp.Processing.RotateMode.None;
-        PicturesInFolder = new[] {"../../../Assets/texture.jpg"};
+        CurrentRotationMode = RotateMode.None;
+        PicturesInFolder = new[] { "../../../Assets/texture.jpg" };
         SetPicture();
+    }
+    
+    public string[] PicturesInFolder
+    {
+        get => _picturesInFolder;
+        set
+        {
+            if (value is null)
+            {
+                ResetPictures();
+                return;
+            }
+            CurrentRotationMode = RotateMode.None;
+
+            _picturesInFolder = value.Where(name =>
+                    _imageExtentions.Any(extention =>
+                        name.ToUpper()
+                            .EndsWith(extention)))
+                .ToArray();
+            if (PicturesInFolder.Length > 0)
+            {
+                CurrentPicture = PicturesInFolder[0];
+            }
+            else
+            {
+                ResetPictures();
+            }
+            SetPicture();
+        }
     }
 
     public string CurrentPicture
@@ -64,101 +77,111 @@ public class ImageManager : IDisposable
                 if (PicturesInFolder.Any(pic => pic.Equals(value)))
                 {
                     _currentPicture = value;
-                    return;
                 }
+                else
+                {
+                    PicturesInFolder = new[] { value };
+                }
+                SetPicture();
             }
             catch (Exception)
             {
-                PicturesInFolder = new[] { value };
+                // Сообщение об ошибке надо сделать
+                PicturesInFolder = new[] { "../../../Assets/texture.jpg" };
             }
         }
     }
 
 
-    public void DoRotation()
+
+    public void DoRightRotation()
     {
         if (_image is null) return;
 
-        RotateMode = (RotateMode)RotateMode switch
+        CurrentRotationMode = CurrentRotationMode switch
         {
-            SixLabors.ImageSharp.Processing.RotateMode.None =>
-                (int)SixLabors.ImageSharp.Processing.RotateMode.Rotate270,
-            SixLabors.ImageSharp.Processing.RotateMode.Rotate270 => (int)SixLabors.ImageSharp.Processing.RotateMode
-                .Rotate180,
-            SixLabors.ImageSharp.Processing.RotateMode.Rotate180 => (int)SixLabors.ImageSharp.Processing.RotateMode
-                .Rotate90,
-            SixLabors.ImageSharp.Processing.RotateMode.Rotate90 => (int)SixLabors.ImageSharp.Processing.RotateMode.None,
+            RotateMode.None => RotateMode.Rotate90,
+            RotateMode.Rotate90 => RotateMode.Rotate180,
+            RotateMode.Rotate180 => RotateMode.Rotate270,
+            RotateMode.Rotate270 => RotateMode.None,
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        _image.Mutate(context => { context.Rotate(SixLabors.ImageSharp.Processing.RotateMode.Rotate270); });
-        var pixels = new byte[_image.Width * 4 * _image.Height];
-        _image.CopyPixelDataTo(pixels);
-        var bitmap = new ImgBitmap(_image.Width, _image.Height, pixels);
-        _bitmap.OnNext(bitmap);
+        _image.Mutate(context => { context.Rotate(RotateMode.Rotate90); });
+        SetPixels();
     }
+
+  
 
     public async void SetPicture()
     {
         _image?.Dispose();
-        _image = await Image.LoadAsync<Rgba32>(CurrentPicture);
-        _image.Mutate(context => context.Rotate((RotateMode)RotateMode));
-        var pixels = new byte[_image.Width * 4 * _image.Height];
-        _image.CopyPixelDataTo(pixels);
-        var bitmap = new ImgBitmap(_image.Width, _image.Height, pixels);
-
-        _bitmap.OnNext(bitmap);
+        try
+        {
+            _image = await Image.LoadAsync<Rgba32>(CurrentPicture);
+            _image.Mutate(context => context.Rotate(CurrentRotationMode));
+            SetPixels();
+        }
+        catch
+        {
+            var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                new MessageBoxStandardParams
+                {
+                    ContentTitle = "Ошибка",
+                    ContentMessage = "Не обработанная ошибка, обратитесь, пожалуйста в поддержку"
+                });
+            await messageBoxStandardWindow.Show();
+        }
     }
 
+   
+
+   
+    
+    
     public void ResetPictures()
     {
-        RotateMode = (int)SixLabors.ImageSharp.Processing.RotateMode.None;
+        CurrentRotationMode = RotateMode.None;
         PicturesInFolder = new[] { "../../../Assets/texture.jpg" };
         CurrentPicture = PicturesInFolder[0];
         SetPicture();
     }
-
-    public string[] PicturesInFolder
+    
+    private void SetPixels()
     {
-        get => _picturesInFolder;
-        set
-        {
-            if (value is not null)
-            {
-                _picturesInFolder = value.Where(name =>
-                {
-                    foreach (var extention in _imageExtentions)
-                    {
-                        if (name.ToUpper().EndsWith(extention))
-                        {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                }).ToArray();
-                if (_picturesInFolder.Length > 0)
-                {
-                    _currentPicture = _picturesInFolder[0];
-                    SetPicture();
-                }
-                else
-                {
-                    ResetPictures();
-                }
-            }
-            else
-            {
-                ResetPictures();
-            }
-        }
+        if (_image is null) return;
+        var pixels = new byte[_image.Width * 4 * _image.Height];
+        _image.CopyPixelDataTo(pixels);
+        _bitmap.OnNext(new ImgBitmap(_image.Width, _image.Height, pixels));
     }
 
+
+    
+    public void SwipeLeft()
+    {
+        CurrentRotationMode = RotateMode.None;
+
+        var newIndex = (PicturesInFolder.IndexOf(CurrentPicture) - 1);
+        CurrentPicture = PicturesInFolder[newIndex > -1 ? newIndex : PicturesInFolder.Length - 1];
+        SetPicture();
+    }
+
+    public void SwipeRight()
+    {
+        CurrentRotationMode = RotateMode.None;
+
+        var newIndex = PicturesInFolder.IndexOf(CurrentPicture) + 1;
+        CurrentPicture = PicturesInFolder[newIndex < PicturesInFolder.Length ? newIndex : 0];
+        SetPicture();
+    }
+    
     public void Dispose()
     {
         _image?.Dispose();
         _bitmap.Dispose();
     }
+    
+    
 }
 
 public class ImageManagerException : Exception
