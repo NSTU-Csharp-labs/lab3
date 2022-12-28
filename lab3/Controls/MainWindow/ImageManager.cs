@@ -1,129 +1,191 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive;
+using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
+using DynamicData;
 using lab3.Controls.GL;
-using ReactiveUI;
-using SixLabors.ImageSharp.Processing;
+using MessageBox.Avalonia;
+using MessageBox.Avalonia.DTO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace lab3.Controls.MainWindow;
 
-public class ImageManager
+[Serializable]
+public class ImageManager : IDisposable
 {
-    private List<string> _imageExtentions;
-    private string _pathToCurrentPicture;
-    private ImgBitmap _img;
-    private int _rotateMode;
+    private readonly List<string> _imageExtentions;
+
+    private Subject<ImgBitmap> _bitmap;
+
+    private string _currentPicture;
+
+    private Image<Rgba32> _image;
+
     private string[] _picturesInFolder;
-
-    public readonly Interaction<Unit, string[]> ShowOpenImageDialog;
-    public ReactiveCommand<Unit, Unit> OpenImage { get; }
-    public ReactiveCommand<Unit, Unit> Rotate { get; }
-
 
     public ImageManager()
     {
-        _imageExtentions = new List<string>() { ".JPG", ".JPEG", ".PNG" };
-        _rotateMode =  (int)RotateMode.None;
-        PathToCurrentPicture = new string("../../../Assets/texture.jpg");
-        ShowOpenImageDialog = new Interaction<Unit, string[]>();
-        SetPicture();
-        OpenImage = ReactiveCommand.CreateFromTask(OnOpenImage);
-        Rotate = ReactiveCommand.Create(DoRotation);
-    }
-
-    public string PathToCurrentPicture
-    {
-        get => _pathToCurrentPicture;
-        set
-        {
-            foreach (var extention in _imageExtentions)
-            {
-                if (value.ToUpper().EndsWith(extention))
-                {
-                     _pathToCurrentPicture =  value;
-                    break;
-                }
-            }
-
-            throw new ImageManagerException("picture is not jpg or png");
-        }
-    }
-    private ImgBitmap Img
-    {
-        get => _img;
-        set
-        {
-            if (value is not null)
-            {
-                _img = value;
-            }
-            else
-            {
-                Img = new ImgBitmap();
-                throw new ImageManagerException("Field Img: ImgBitmap isn't nullable");
-            }
-        }
-    }
-    
-    private void DoRotation()
-    {
-        _rotateMode = (RotateMode)_rotateMode switch
-        {
-            RotateMode.None => (int)RotateMode.Rotate270,
-            RotateMode.Rotate270 => (int)RotateMode.Rotate180,
-            RotateMode.Rotate180 => (int)RotateMode.Rotate90,
-            RotateMode.Rotate90 => (int)RotateMode.None,
-            _ => throw new ArgumentOutOfRangeException()
-        };
+        _bitmap = new Subject<ImgBitmap>();
+        _imageExtentions = new List<string> { ".JPG", ".JPEG", ".PNG" };
+        CurrentRotationMode = RotateMode.None;
+        PicturesInFolder = new[] { "../../../Assets/texture.jpg" };
         SetPicture();
     }
-    public void SetPicture()
-    {
-        var img = Image.Load<Rgba32>(PathToCurrentPicture);
-        img.Mutate(context => context.Rotate((RotateMode)_rotateMode));
 
-        var pixels = new byte[img.Width * 4 * img.Height];
-        img.CopyPixelDataTo(pixels);
-        Img = new ImgBitmap(img.Width, img.Height, pixels);
-        img.Dispose();
-    }
+    [XmlIgnore] public IObservable<ImgBitmap> BitmapChanged => _bitmap.AsObservable();
+    public RotateMode CurrentRotationMode { get; set; }
     
-
-    private async Task OnOpenImage()
+    public string CurrentPicture
     {
-        try
+        get => _currentPicture;
+        set
         {
-            var dirPictures = await ShowOpenImageDialog.Handle(Unit.Default);
-            if (dirPictures is not null)
+            try
             {
-                _rotateMode = (int)RotateMode.None;
-                PicturesInFolder = dirPictures;
-                PathToCurrentPicture = dirPictures[0];
+                if (PicturesInFolder is not null && PicturesInFolder.Any(pic => pic.Equals(value)))
+                    _currentPicture = value;
+                else
+                    PicturesInFolder = new[] { value };
                 SetPicture();
             }
-        }
-        catch
-        {
-            // ignored, because picture will net reseted
+            catch (Exception)
+            {
+                // Сообщение об ошибке надо сделать
+                ResetPictures("../../../Assets/CurrentPicture.png");
+            }
         }
     }
-    
 
     public string[] PicturesInFolder
     {
         get => _picturesInFolder;
-        set =>  _picturesInFolder =  value;
+        set
+        {
+            CurrentRotationMode = RotateMode.None;
+
+            if (value is null)
+            {
+                ResetPictures("../../../Assets/PicturesInFolder.png");
+                return;
+            }
+
+            _picturesInFolder = value.Where(ValidatePictureName).ToArray();
+
+            if (PicturesInFolder is not null && PicturesInFolder.Length > 0)
+                CurrentPicture = PicturesInFolder[0];
+            else
+                ResetPictures("../../../Assets/PicturesInFolder.png");
+            SetPicture();
+        }
     }
-    
-    
-    
+
+  
+
+    public void Dispose()
+    {
+        _image?.Dispose();
+        _bitmap.Dispose();
+    }
+
+
+    public async void SetPicture()
+    {
+        _image?.Dispose();
+        try
+        {
+            _image = await Image.LoadAsync<Rgba32>(CurrentPicture);
+            _image.Mutate(context => context.Rotate(CurrentRotationMode));
+            SetPixels();
+        }
+        catch
+        {
+            ResetPictures("../../../Assets/SetPicture.png");
+            await ShowErrorMessageBox("Необработанная ошибка, обратитесь, пожалуйста в поддержку");
+        }
+    }
+
+
+    public void ResetPictures(string pathToErrorImage)
+    {
+        CurrentRotationMode = RotateMode.None;
+        PicturesInFolder = new[] { pathToErrorImage };
+        SetPicture();
+    }
+
+    private void SetPixels()
+    {
+        var pixels = new byte[_image.Width * 4 * _image.Height];
+        _image.CopyPixelDataTo(pixels);
+        _bitmap.OnNext(new ImgBitmap(_image.Width, _image.Height, pixels));
+    }
+
+    public void SwipeLeft()
+    {
+        CurrentRotationMode = RotateMode.None;
+
+        if (PicturesInFolder is not null)
+        {
+            var newIndex = PicturesInFolder.IndexOf(CurrentPicture) - 1;
+            CurrentPicture = PicturesInFolder[newIndex > -1 ? newIndex : PicturesInFolder.Length - 1];
+        }
+
+        SetPicture();
+    }
+
+    public void SwipeRight()
+    {
+        CurrentRotationMode = RotateMode.None;
+
+        if (PicturesInFolder is not null)
+        {
+            var newIndex = PicturesInFolder.IndexOf(CurrentPicture) + 1;
+            CurrentPicture = PicturesInFolder[newIndex < PicturesInFolder.Length ? newIndex : 0];
+        }
+
+        SetPicture();
+    }
+
+    public void DoRightRotation()
+    {
+        CurrentRotationMode = CurrentRotationMode switch
+        {
+            RotateMode.None => RotateMode.Rotate90,
+            RotateMode.Rotate90 => RotateMode.Rotate180,
+            RotateMode.Rotate180 => RotateMode.Rotate270,
+            RotateMode.Rotate270 => RotateMode.None,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        _image.Mutate(context => { context.Rotate(RotateMode.Rotate90); });
+        SetPixels();
+    }
+
+    private bool ValidatePictureName(string name)
+    {
+        return _imageExtentions.Any(extention => name.ToUpper().EndsWith(extention));
+    }
+
+
+    private async Task ShowErrorMessageBox(string message)
+    {
+        var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+            new MessageBoxStandardParams
+            {
+                ContentTitle = "Ошибка",
+                ContentMessage = message
+            });
+        await messageBoxStandardWindow.Show();
+    }
 }
 
 public class ImageManagerException : Exception
 {
-    public  ImageManagerException(string message) : base(message){}
+    public ImageManagerException(string message) : base(message)
+    {
+    }
 }
