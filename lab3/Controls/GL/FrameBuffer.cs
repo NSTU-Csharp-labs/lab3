@@ -35,11 +35,18 @@ public class FrameBuffer
 
         OpenGlUtils.CheckError();
 
-        OpenTK.Graphics.OpenGL.GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer,
-            InternalFormat.Depth24Stencil8, _width, _height);
-        OpenTK.Graphics.OpenGL.GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer,
-            FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer,
-            renderbuffer);
+        OpenTK.Graphics.OpenGL.GL.RenderbufferStorage(
+            RenderbufferTarget.Renderbuffer,
+            InternalFormat.Depth24Stencil8,
+            _width,
+            _height
+            );
+        OpenTK.Graphics.OpenGL.GL.FramebufferRenderbuffer(
+            FramebufferTarget.Framebuffer,
+            FramebufferAttachment.DepthStencilAttachment,
+            RenderbufferTarget.Renderbuffer,
+            renderbuffer
+            );
 
         OpenGlUtils.CheckError();
 

@@ -14,11 +14,24 @@ public class Texture : IDisposable
     {
         _texture = OpenTK.Graphics.OpenGL.GL.GenTexture();
 
-        OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, _texture);
-        OpenTK.Graphics.OpenGL.GL.TexParameteri(TextureTarget.Texture2d,
-            TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        OpenTK.Graphics.OpenGL.GL.TexParameteri(TextureTarget.Texture2d,
-            TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+        OpenTK.Graphics.OpenGL.GL.BindTexture(
+            TextureTarget.Texture2d,
+            _texture);
+        
+        OpenTK.Graphics.OpenGL.GL.TexParameteri(
+            TextureTarget.Texture2d,
+            TextureParameterName.TextureMinFilter,
+            (int)TextureMinFilter.Linear
+            );
+        
+        
+        
+        OpenTK.Graphics.OpenGL.GL.TexParameteri(
+            TextureTarget.Texture2d,
+            TextureParameterName.TextureMagFilter,
+            (int)TextureMagFilter.Linear
+            );
+        
         OpenTK.Graphics.OpenGL.GL.BindTexture(TextureTarget.Texture2d, TextureHandle.Zero);
 
         OpenGlUtils.CheckError();

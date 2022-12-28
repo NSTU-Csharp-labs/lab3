@@ -18,6 +18,7 @@
           "Citrus.Avalonia": "1.6.1",
           "MessageBox.Avalonia": "2.3.1-prev2",
           "OpenTK": "5.0.0-pre.8",
+          "ReactiveUI.Fody": "18.4.1",
           "SixLabors.ImageSharp": "2.1.3",
           "XamlNameReferenceGenerator": "1.3.4"
         },
@@ -200,7 +201,7 @@
       "Avalonia.ReactiveUI/11.0.0-preview4": {
         "dependencies": {
           "Avalonia": "11.0.0-preview4",
-          "ReactiveUI": "18.3.1",
+          "ReactiveUI": "18.4.1",
           "System.Reactive": "5.0.0"
         },
         "runtime": {
@@ -320,14 +321,14 @@
           }
         }
       },
-      "DynamicData/7.9.5": {
+      "DynamicData/7.12.8": {
         "dependencies": {
           "System.Reactive": "5.0.0"
         },
         "runtime": {
           "lib/net6.0/DynamicData.dll": {
-            "assemblyVersion": "7.9.0.0",
-            "fileVersion": "7.9.5.54039"
+            "assemblyVersion": "7.12.0.0",
+            "fileVersion": "7.12.8.22963"
           }
         }
       },
@@ -347,6 +348,7 @@
           }
         }
       },
+      "Fody/6.6.4": {},
       "HarfBuzzSharp/2.8.2.1-preview.108": {
         "dependencies": {
           "HarfBuzzSharp.NativeAssets.Win32": "2.8.2.1-preview.108",
@@ -871,15 +873,27 @@
           }
         }
       },
-      "ReactiveUI/18.3.1": {
+      "ReactiveUI/18.4.1": {
         "dependencies": {
-          "DynamicData": "7.9.5",
-          "Splat": "14.4.1"
+          "DynamicData": "7.12.8",
+          "Splat": "14.5.1"
         },
         "runtime": {
           "lib/net6.0/ReactiveUI.dll": {
-            "assemblyVersion": "18.3.0.0",
-            "fileVersion": "18.3.1.49589"
+            "assemblyVersion": "18.4.0.0",
+            "fileVersion": "18.4.1.23244"
+          }
+        }
+      },
+      "ReactiveUI.Fody/18.4.1": {
+        "dependencies": {
+          "Fody": "6.6.4",
+          "ReactiveUI": "18.4.1"
+        },
+        "runtime": {
+          "lib/net6.0/ReactiveUI.Fody.Helpers.dll": {
+            "assemblyVersion": "18.4.0.0",
+            "fileVersion": "18.4.1.23244"
           }
         }
       },
@@ -971,11 +985,11 @@
           }
         }
       },
-      "Splat/14.4.1": {
+      "Splat/14.5.1": {
         "runtime": {
           "lib/net6.0/Splat.dll": {
-            "assemblyVersion": "14.4.0.0",
-            "fileVersion": "14.4.1.53869"
+            "assemblyVersion": "14.5.0.0",
+            "fileVersion": "14.5.1.49054"
           }
         }
       },
@@ -1448,12 +1462,12 @@
       "path": "colortextblock.avalonia/11.0.0-a3",
       "hashPath": "colortextblock.avalonia.11.0.0-a3.nupkg.sha512"
     },
-    "DynamicData/7.9.5": {
+    "DynamicData/7.12.8": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-xFwVha7o3qUtVYxco5p+7Urcztc/m1gmaEUxOG0i7LNe+vfCfyb0ECAsT2FLm3zOPHb0g8s9qVu5LfPKfRNVng==",
-      "path": "dynamicdata/7.9.5",
-      "hashPath": "dynamicdata.7.9.5.nupkg.sha512"
+      "sha512": "sha512-MIOpDgdFF7GgbuIfu2o70KJxV9dqtTyTMFrdwupdjQ7I0MIkpvbmvdcrsM66T8rCFL0FGye7BmURFYgaDTw7/w==",
+      "path": "dynamicdata/7.12.8",
+      "hashPath": "dynamicdata.7.12.8.nupkg.sha512"
     },
     "ExCSS/4.1.4": {
       "type": "package",
@@ -1468,6 +1482,13 @@
       "sha512": "sha512-nSudK8LeKSu7T/N/6NVZNjUniMYagfzVo8yT2XwZ9BOVbWYQH3EQ8oviuztJ7AfO8PlRDsYIWboZuzIg94hhzQ==",
       "path": "fizzler/1.2.1",
       "hashPath": "fizzler.1.2.1.nupkg.sha512"
+    },
+    "Fody/6.6.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-vLZS+oa+ndUHYPlx/8n9bBTT3dHkCF0riml4paKq4D663+cZd47x1uagQo32D/gKFZ/sfmV1oqKaLmH0elxq4A==",
+      "path": "fody/6.6.4",
+      "hashPath": "fody.6.6.4.nupkg.sha512"
     },
     "HarfBuzzSharp/2.8.2.1-preview.108": {
       "type": "package",
@@ -1686,12 +1707,19 @@
       "path": "opentk.windowing.graphicslibraryframework/5.0.0-pre.8",
       "hashPath": "opentk.windowing.graphicslibraryframework.5.0.0-pre.8.nupkg.sha512"
     },
-    "ReactiveUI/18.3.1": {
+    "ReactiveUI/18.4.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-0tclGtjrRPfA2gbjiM7O3DeNmo6/TpDn7CMN6jgzDrbgrnysM7oEzjGEeXbtXaOxH6kEf6RiMKWobZoSgbBXhQ==",
-      "path": "reactiveui/18.3.1",
-      "hashPath": "reactiveui.18.3.1.nupkg.sha512"
+      "sha512": "sha512-uMFeRHeLc7IQ9rzl0Z6GIh4Zq3NN6DP3o8oHklslE5ZdrQncCJBNgaTR7D2yiaefbiMwduggGHphqDqfuIzz2A==",
+      "path": "reactiveui/18.4.1",
+      "hashPath": "reactiveui.18.4.1.nupkg.sha512"
+    },
+    "ReactiveUI.Fody/18.4.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-su/CVNAzHjpkBV4X5JRPiTWN3/s5vpvLs3fw1udn1hmGG8aEeb6gYhlGdRlnk2WRRlJttUWQxFWfHimJSnMDGg==",
+      "path": "reactiveui.fody/18.4.1",
+      "hashPath": "reactiveui.fody.18.4.1.nupkg.sha512"
     },
     "ShimSkiaSharp/0.6.0-preview4": {
       "type": "package",
@@ -1742,12 +1770,12 @@
       "path": "skiasharp.nativeassets.win32/2.88.1",
       "hashPath": "skiasharp.nativeassets.win32.2.88.1.nupkg.sha512"
     },
-    "Splat/14.4.1": {
+    "Splat/14.5.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-Z1Mncnzm9pNIaIbZ/EWH6x5ESnKsmAvu8HP4StBRw+yhz0lzE7LCbt22TNTPaFrYLYbYCbGQIc/61yuSnpLidg==",
-      "path": "splat/14.4.1",
-      "hashPath": "splat.14.4.1.nupkg.sha512"
+      "sha512": "sha512-2Xfgp26sWX6SHn2qpWK3W9EFgml6JZ32WPs/CzfYWBp1JTz2PUAso1HY2EdXV/GpkoQOvAkK6nGmlS/AsPz4Gw==",
+      "path": "splat/14.5.1",
+      "hashPath": "splat.14.5.1.nupkg.sha512"
     },
     "Svg.Custom/0.6.0-preview4": {
       "type": "package",

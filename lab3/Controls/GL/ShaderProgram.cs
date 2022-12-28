@@ -234,12 +234,10 @@ static class ShadersSources
 
     out vec2 texCoord;
 
-    out vec4 oPosition;
-
     void main()
     {
         texCoord = iTexCoord;
-        oPosition = uScale * vec4(iPosition.x, iPosition.y, 0, 1.0);
+        gl_Position = uScale * vec4(iPosition.x, iPosition.y, 0, 1.0);
     }
     ";
 }

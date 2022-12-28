@@ -13,10 +13,6 @@ public class ImgBitmap
         Pixels = pixels;
     }
 
-    public ImgBitmap()
-    {
-    }
-
     public int Width { get; }
 
     public int Height { get; }
@@ -24,5 +20,5 @@ public class ImgBitmap
     public byte[] Pixels { get; }
 
     public AdjustedBitmap Adjust(int boundsWidth, int boundsHeight) =>
-        new AdjustedBitmap(this, boundsWidth, boundsHeight);
+        new (this, boundsWidth, boundsHeight);
 }

@@ -26,6 +26,7 @@ public class ImageManager : IDisposable
 
     private Image<Rgba32> _image;
 
+    
     private string[] _picturesInFolder;
 
     public ImageManager()
