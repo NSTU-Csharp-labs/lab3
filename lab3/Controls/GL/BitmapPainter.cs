@@ -47,8 +47,8 @@ public class BitmapPainter : IDisposable
         // OpenTK.Graphics.OpenGL.GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
 
         _shaderProgram = new ShaderProgramCompiler()
-            .BindAttribLocation("aPosition", out var positionLocation)
-            .BindAttribLocation("aTexCoord", out var texCoordLocation)
+            .BindAttribLocation("iPosition", out var positionLocation)
+            .BindAttribLocation("iTexCoord", out var texCoordLocation)
             .Compile();
 
         _vertexBuffer = new VertexBuffer.Builder(_vertices, 4)

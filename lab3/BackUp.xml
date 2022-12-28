@@ -2,11 +2,19 @@
 <MainWindowViewModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <PictureManager>
         <CurrentRotationMode>None</CurrentRotationMode>
-        <CurrentPicture>/home/xpomin/Pictures/Wallpapers/Turquoise Marble Effect (1920x1080).jpeg</CurrentPicture>
+        <CurrentPicture>/home/danilka108/Pictures/Screenshots/Screenshot from 2022-12-26 10-06-59.png</CurrentPicture>
         <PicturesInFolder>
-            <string>/home/xpomin/Pictures/Wallpapers/Turquoise Marble Effect (1920x1080).jpeg</string>
-            <string>/home/xpomin/Pictures/Wallpapers/72bd9dbd3034011564879c098516af5f.jpg</string>
-            <string>/home/xpomin/Pictures/Wallpapers/_.jpeg</string>
+            <string>/home/danilka108/Pictures/Screenshots/Screenshot from 2022-12-26 10-06-59.png</string>
+            <string>/home/danilka108/Pictures/Screenshots/Screenshot from 2022-12-26 10-08-18.png</string>
+            <string>/home/danilka108/Pictures/Screenshots/Screenshot from 2022-12-26 10-07-46.png</string>
+            <string>/home/danilka108/Pictures/Screenshots/Screenshot from 2022-12-26 10-06-31.png</string>
+            <string>/home/danilka108/Pictures/Screenshots/Screenshot from 2022-12-26 10-07-11.png</string>
+            <string>/home/danilka108/Pictures/Screenshots/Screenshot from 2022-12-26 10-03-39.png</string>
+            <string>/home/danilka108/Pictures/Screenshots/Screenshot from 2022-12-26 13-11-31.png</string>
+            <string>/home/danilka108/Pictures/Screenshots/Screenshot from 2022-12-26 10-03-27.png</string>
+            <string>/home/danilka108/Pictures/Screenshots/Screenshot from 2022-12-26 10-03-53.png</string>
+            <string>/home/danilka108/Pictures/Screenshots/Screenshot from 2022-12-26 10-04-35.png</string>
+            <string>/home/danilka108/Pictures/Screenshots/Screenshot from 2022-12-26 10-01-47.png</string>
         </PicturesInFolder>
     </PictureManager>
     <IsCheckedB>false</IsCheckedB>

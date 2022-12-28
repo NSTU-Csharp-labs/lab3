@@ -149,7 +149,7 @@ static class ShadersSources
     public const string Fragment = @"
     #version 330 core
 
-    varying vec2 vTexCoord;
+    in vec2 texCoord;
     uniform sampler2D uTexture;
     
     uniform bool uBlackAndWhite;
@@ -157,6 +157,8 @@ static class ShadersSources
     uniform bool uBlue;
     uniform bool uGreen;
     uniform float uCornerRadius;
+
+    out vec4 oColor;
 
     vec4 EnableEffects(vec4 color);
     vec4 Green(vec4 color);
@@ -166,7 +168,7 @@ static class ShadersSources
 
     void main()
     {
-        vec4 color = texture(uTexture, vTexCoord); 
+        vec4 color = texture(uTexture, texCoord); 
         if (uBlackAndWhite) {
             color = EnableEffects(color);
         } 
@@ -182,15 +184,15 @@ static class ShadersSources
 
         /*color = RoundCorners(color);*/
 
-        gl_FragColor = color;   
+        oColor = color;   
     }
 
     vec4 RoundCorners(vec4 color)
     {
-        float distTL = length(vTexCoord - vec2(0.0, 0.0));
-        float distTR = length(vTexCoord - vec2(1.0, 0.0));
-        float distBL = length(vTexCoord - vec2(0.0, 1.0));
-        float distBR = length(vTexCoord - vec2(1.0, 1.0));
+        float distTL = length(texCoord - vec2(0.0, 0.0));
+        float distTR = length(texCoord - vec2(1.0, 0.0));
+        float distBL = length(texCoord - vec2(0.0, 1.0));
+        float distBR = length(texCoord - vec2(1.0, 1.0));
 
         if (!(distTL < uCornerRadius || distTR < uCornerRadius ||
             distBL < uCornerRadius || distBR < uCornerRadius))
@@ -226,16 +228,18 @@ static class ShadersSources
     public const string Vertex = @"
     #version 330 core
 
-    attribute vec2 aPosition;
-    attribute vec2 aTexCoord;
+    in vec2 iPosition;
+    in vec2 iTexCoord;
     uniform mat4 uScale;
 
-    varying vec2 vTexCoord;
+    out vec2 texCoord;
+
+    out vec4 oPosition;
 
     void main()
     {
-        vTexCoord = aTexCoord;
-        gl_Position = uScale * vec4(aPosition.x, aPosition.y, 0, 1.0);
+        texCoord = iTexCoord;
+        oPosition = uScale * vec4(iPosition.x, iPosition.y, 0, 1.0);
     }
     ";
 }
