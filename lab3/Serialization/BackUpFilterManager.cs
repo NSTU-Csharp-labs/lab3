@@ -8,7 +8,7 @@ using lab3.Controls.MainWindow;
 
 namespace lab3.Serialization;
 
-public class BackUpFilterManager : IImageManagerSerializer
+public class BackUpFilterManager : IBackUpFilterManager
 {
     private readonly string _pathToFile;
     private readonly XmlSerializer _serializer;
@@ -16,10 +16,10 @@ public class BackUpFilterManager : IImageManagerSerializer
     public BackUpFilterManager(string pathToFile)
     {
         _pathToFile = pathToFile;
-        _serializer = new XmlSerializer(typeof(ImageManager));
+        _serializer = new XmlSerializer(typeof(FilterManager));
     }
 
-    public async Task BackUp(ImageManager manager)
+    public async Task BackUp(FilterManager manager)
     {
         await File.WriteAllTextAsync(_pathToFile, "", CancellationToken.None);
 
@@ -44,23 +44,23 @@ public class BackUpFilterManager : IImageManagerSerializer
     }
 
 
-    public ImageManager LoadBackUp()
+    public FilterManager LoadBackUp()
     {
-        ImageManager? manager = null;
+        FilterManager? manager = null;
 
         var s = GenerateStreamFromString(File.ReadAllText(_pathToFile));
         try
         {
-            manager = (ImageManager)_serializer.Deserialize(s)!;
+            manager = (FilterManager)_serializer.Deserialize(s)!;
         }
         catch (Exception e)
         {
-            manager = new ImageManager();
+            manager = new FilterManager();
         }
         finally
         {
-            if (manager is null) manager = new ImageManager();
-            else manager.SetPicture();
+            // переделать блин !!
+            if (manager is null) manager = new FilterManager();
             s.Close();
         }
 

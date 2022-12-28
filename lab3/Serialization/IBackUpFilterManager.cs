@@ -5,6 +5,6 @@ namespace lab3.Serialization;
 
 public interface IBackUpFilterManager
 {
-    public Task BackUp(ImageManager manager);
-    public ImageManager LoadBackUp();
+    public Task BackUp(FilterManager manager);
+    public FilterManager LoadBackUp();
 }

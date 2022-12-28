@@ -44,6 +44,8 @@ public class ShaderProgramCompiler
     public ShaderProgram Compile()
     {
         var vertexShader = CompileShader(ShaderType.VertexShader, ShadersSources.Vertex);
+        var t = ShadersSources.BuildFragment(_filters);
+        
         var fragmentShader = CompileShader(ShaderType.FragmentShader, ShadersSources.BuildFragment(_filters));
         var program = OpenTK.Graphics.OpenGL.GL.CreateProgram();
 
@@ -162,17 +164,16 @@ static class ShadersSources
     #version 330 core
     
     in vec2 texCoord;
+    uniform sampler2D uTexture;
 
     out vec4 oColor;
 
-    {filters.Select(f => $"{f.SourceCode}\n")}
+    {string.Join("\n", filters.Select(f => $"{f.SourceCode}\n"))}
 
     void main()
     {{
         vec4 color = texture(uTexture, texCoord); 
-
-        {filters.Select(f => $"color = {f.Name}(color);\n")} 
-        
+        {string.Join("\n", filters.Select(f => $"color = {f.Name}(color);\n"))} 
         oColor = color;   
     }}
     ";
@@ -183,77 +184,13 @@ static class ShadersSources
     
     in vec2 texCoord;
     uniform sampler2D uTexture;
-    
-    uniform bool uBlackAndWhite;
-    uniform bool uRed;
-    uniform bool uBlue;
-    uniform bool uGreen;
-    uniform float uCornerRadius;
 
     out vec4 oColor;
-
-    vec4 EnableEffects(vec4 color);
-    vec4 Green(vec4 color);
-    vec4 Red(vec4 color);
-    vec4 Blue(vec4 color);
-    vec4 RoundCorners(vec4 color);
 
     void main()
     {
         vec4 color = texture(uTexture, texCoord); 
-        if (uBlackAndWhite) {
-            color = EnableEffects(color);
-        } 
-        if (uRed) {
-            color = Red(color);
-        }
-        if (uGreen) {
-            color = Green(color);
-        } 
-        if (uBlue) {
-            color = Blue(color);
-        }
-
-        /*color = RoundCorners(color);*/
-
         oColor = color;   
-    }
-
-    vec4 RoundCorners(vec4 color)
-    {
-        float distTL = length(texCoord - vec2(0.0, 0.0));
-        float distTR = length(texCoord - vec2(1.0, 0.0));
-        float distBL = length(texCoord - vec2(0.0, 1.0));
-        float distBR = length(texCoord - vec2(1.0, 1.0));
-
-        if (!(distTL < uCornerRadius || distTR < uCornerRadius ||
-            distBL < uCornerRadius || distBR < uCornerRadius))
-        {
-            return vec4(0.0, 0.0, 0.0, 0.0);
-        }
-
-        return color; 
-    }
-
-    vec4 EnableEffects(vec4 color)
-    {
-        float grey = 0.21 * color.r + 0.71 * color.g + 0.07 * color.b;
-        return vec4(grey , grey, grey, 1.0);
-    }
-
-    vec4 Red(vec4 color)
-    {
-        return vec4(color.r * 1.1, color.g * 0.4, color.b * 0.4, 1.0);
-    }
-
-    vec4 Green(vec4 color)
-    {
-        return vec4(color.r * 0.4, color.g * 1.1, color.b * 0.4, 1.0);
-    }
-    
-    vec4 Blue(vec4 color)
-    {
-        return vec4(color.r * 0.4, color.g * 0.4, color.b * 1.05, 1.0);
     }
     ";
 

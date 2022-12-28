@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using DynamicData;
 using lab3.Controls.GL;
+using lab3.Serialization;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.DTO;
 using SixLabors.ImageSharp;
@@ -18,29 +19,46 @@ namespace lab3.Controls.MainWindow;
 [Serializable]
 public class ImageManager : IDisposable
 {
-    private readonly List<string> _imageExtentions;
+    private readonly IEnumerable<string> _imageExtensions;
 
-    private Subject<ImgBitmap> _bitmap;
+    private BehaviorSubject<ImgBitmap> _bitmap;
 
     private string _currentPicture;
 
     private Image<Rgba32> _image;
-    public FiltersManager FiltersManager { get; }
+    [XmlIgnore] public FilterManager FilterManager { get; }
+    
     private string[] _picturesInFolder;
+    
+    [XmlIgnore] public IObservable<ImgBitmap> BitmapChanged => _bitmap.AsObservable();
+    public RotateMode CurrentRotationMode { get; set; }
+
+    private IImageManagerSerializer _serializer;
 
     public ImageManager()
     {
-        _bitmap = new Subject<ImgBitmap>();
-        FiltersManager = new FiltersManager();
-        _imageExtentions = new List<string> { ".JPG", ".JPEG", ".PNG" };
+        _serializer = new BackUpImageManagerSerializer("../../../ImageManagerBackUp.xml");
+        
+        _bitmap = new BehaviorSubject<ImgBitmap>(new ImgBitmap());
+        
+        FilterManager = new FilterManager();
+
+        FilterManager = FilterManager.Deseralize();
+        
+        _imageExtensions = new[] { ".JPG", ".JPEG", ".PNG" };
+        
         CurrentRotationMode = RotateMode.None;
+
         PicturesInFolder = new[] { "../../../Assets/texture.jpg" };
+        
+        var t = _serializer.LoadBackUp();
+
+        PicturesInFolder = t.PicturesInFolder;
+        CurrentRotationMode = t.CurrentRotationMode;
+        CurrentPicture = t.CurrentPicture;
+        
         SetPicture();
     }
-
-    [XmlIgnore] public IObservable<ImgBitmap> BitmapChanged => _bitmap.AsObservable();
-    public RotateMode CurrentRotationMode { get; set; }
-    
     
     public string CurrentPicture
     {
@@ -103,6 +121,7 @@ public class ImageManager : IDisposable
             _image = await Image.LoadAsync<Rgba32>(CurrentPicture);
             _image.Mutate(context => context.Rotate(CurrentRotationMode));
             SetPixels();
+            
         }
         catch
         {
@@ -125,6 +144,8 @@ public class ImageManager : IDisposable
         var pixels = new byte[_image.Width * 4 * _image.Height];
         _image.CopyPixelDataTo(pixels);
         _bitmap.OnNext(new ImgBitmap(_image.Width, _image.Height, pixels));
+        
+        _serializer.BackUp(this);
     }
 
     public void SwipeLeft()
@@ -170,7 +191,7 @@ public class ImageManager : IDisposable
 
     private bool ValidatePictureName(string name)
     {
-        return _imageExtentions.Any(extention => name.ToUpper().EndsWith(extention));
+        return _imageExtensions.Any(extention => name.ToUpper().EndsWith(extention));
     }
 
 

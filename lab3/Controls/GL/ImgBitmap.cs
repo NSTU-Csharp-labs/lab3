@@ -6,6 +6,11 @@ namespace lab3.Controls.GL;
 
 public class ImgBitmap
 {
+    public ImgBitmap()
+    {
+        Width = Height = 0;
+        Pixels = Array.Empty<byte>();
+    }
     public ImgBitmap(int width, int height, byte[] pixels)
     {
         Width = width;

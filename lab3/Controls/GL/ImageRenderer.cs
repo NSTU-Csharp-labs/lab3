@@ -54,7 +54,8 @@ public class ImageRenderer : OpenGlControlBase
     {
         try
         {
-            new BitmapPainter(Filters).Paint(Img.Adjust((int)Bounds.Width, (int)Bounds.Height));
+            if (Img is not null)
+                new BitmapPainter(Filters).Paint(Img.Adjust((int)Bounds.Width, (int)Bounds.Height));
         }
         catch (OpenGlException ex)
         {
