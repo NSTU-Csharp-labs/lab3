@@ -11,10 +11,10 @@ build_property.InvariantGlobalization =
 build_property.PlatformNeutralAssembly = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = lab3
-build_property.ProjectDir = /home/xpomin/RiderProjects/lab3/lab3/
+build_property.ProjectDir = /home/danilka108/RiderProjects/lab3/lab3/
 
-[/home/xpomin/RiderProjects/lab3/lab3/App.axaml]
+[/home/danilka108/RiderProjects/lab3/lab3/App.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
-[/home/xpomin/RiderProjects/lab3/lab3/Controls/MainWindow/MainWindow.axaml]
+[/home/danilka108/RiderProjects/lab3/lab3/Controls/MainWindow/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

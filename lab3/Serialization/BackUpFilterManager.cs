@@ -16,10 +16,10 @@ public class BackUpFilterManager : IBackUpFilterManager
     public BackUpFilterManager(string pathToFile)
     {
         _pathToFile = pathToFile;
-        _serializer = new XmlSerializer(typeof(FilterManager));
+        _serializer = new XmlSerializer(typeof(FilterManagerState));
     }
 
-    public async Task BackUp(FilterManager manager)
+    public async Task BackUp(FilterManagerState state)
     {
         await File.WriteAllTextAsync(_pathToFile, "", CancellationToken.None);
 
@@ -38,33 +38,33 @@ public class BackUpFilterManager : IBackUpFilterManager
             Indent = true,
             IndentChars = "    "
         });
-        _serializer.Serialize(writer, manager);
+        _serializer.Serialize(writer, state);
         writer.Close();
         fs.Close();
     }
 
 
-    public FilterManager LoadBackUp()
+    public FilterManagerState LoadBackUp()
     {
-        FilterManager? manager = null;
+        FilterManagerState? state = null;
 
         var s = GenerateStreamFromString(File.ReadAllText(_pathToFile));
         try
         {
-            manager = (FilterManager)_serializer.Deserialize(s)!;
+            state = (FilterManagerState)_serializer.Deserialize(s)!;
         }
         catch (Exception e)
         {
-            manager = new FilterManager();
+            state = new FilterManagerState();
         }
         finally
         {
             // переделать блин !!
-            if (manager is null) manager = new FilterManager();
+            if (state is null) state = new FilterManagerState();
             s.Close();
         }
 
-        return manager;
+        return state;
     }
 
     private static Stream GenerateStreamFromString(string s)

@@ -16,6 +16,24 @@ using SixLabors.ImageSharp.Processing;
 
 namespace lab3.Controls.MainWindow;
 
+public class ImageManagerState
+{
+    public RotateMode RotateMode;
+
+    public string CurrentPicture;
+
+    public string[] PicturesInFolder;
+    
+    public ImageManagerState() {}
+
+    public ImageManagerState(ImageManager manager)
+    {
+        RotateMode = manager.CurrentRotationMode;
+        CurrentPicture = manager.CurrentPicture;
+        PicturesInFolder = manager.PicturesInFolder;
+    }
+}
+
 [Serializable]
 public class ImageManager : IDisposable
 {
@@ -27,39 +45,49 @@ public class ImageManager : IDisposable
 
     private Image<Rgba32> _image;
     [XmlIgnore] public FilterManager FilterManager { get; }
-    
+
     private string[] _picturesInFolder;
-    
+
     [XmlIgnore] public IObservable<ImgBitmap> BitmapChanged => _bitmap.AsObservable();
     public RotateMode CurrentRotationMode { get; set; }
 
     private IImageManagerSerializer _serializer;
 
-    public ImageManager()
+    public static ImageManager Deserialize()
+    {
+        try
+        {
+            var serializer = new BackUpImageManagerSerializer("../../../ImageManagerBackUp.xml");
+            var manager = new ImageManager(serializer.LoadBackUp());
+            return manager;
+        }
+        catch (Exception)
+        {
+            return new ImageManager(new ImageManagerState());
+        }
+    }
+
+    private ImageManager(ImageManagerState state)
     {
         _serializer = new BackUpImageManagerSerializer("../../../ImageManagerBackUp.xml");
-        
+
         _bitmap = new BehaviorSubject<ImgBitmap>(new ImgBitmap());
-        
-        FilterManager = new FilterManager();
 
         FilterManager = FilterManager.Deseralize();
-        
+
+        FilterManager = FilterManager.Deseralize();
+
         _imageExtensions = new[] { ".JPG", ".JPEG", ".PNG" };
-        
+
         CurrentRotationMode = RotateMode.None;
 
         PicturesInFolder = new[] { "../../../Assets/texture.jpg" };
-        
-        var t = _serializer.LoadBackUp();
 
-        PicturesInFolder = t.PicturesInFolder;
-        CurrentRotationMode = t.CurrentRotationMode;
-        CurrentPicture = t.CurrentPicture;
-        
-        SetPicture();
+        PicturesInFolder = state.PicturesInFolder;
+        CurrentRotationMode = state.RotateMode;
+        CurrentPicture = state.CurrentPicture;
     }
-    
+
     public string CurrentPicture
     {
         get => _currentPicture;
@@ -76,7 +104,7 @@ public class ImageManager : IDisposable
             catch (Exception)
             {
                 // Сообщение об ошибке надо сделать
-                ResetPictures("../../../Assets/CurrentPicture.png");
+                // ResetPictures("../../../Assets/CurrentPicture.png");
             }
         }
     }
@@ -90,21 +118,23 @@ public class ImageManager : IDisposable
 
             if (value is null)
             {
-                ResetPictures("../../../Assets/PicturesInFolder.png");
+                // ResetPictures("../../../Assets/PicturesInFolder.png");
                 return;
             }
 
             _picturesInFolder = value.Where(ValidatePictureName).ToArray();
 
             if (PicturesInFolder is not null && PicturesInFolder.Length > 0)
+            {
                 CurrentPicture = PicturesInFolder[0];
-            else
-                ResetPictures("../../../Assets/PicturesInFolder.png");
-            SetPicture();
+                SetPicture();
+            }                
+            // else
+                // ResetPictures("../../../Assets/PicturesInFolder.png");
+            // SetPicture();
         }
     }
 
-  
 
     public void Dispose()
     {
@@ -113,55 +143,54 @@ public class ImageManager : IDisposable
     }
 
 
-    public async void SetPicture()
+    public void SetPicture()
     {
         _image?.Dispose();
         try
         {
-            _image = await Image.LoadAsync<Rgba32>(CurrentPicture);
+            _image = Image.Load<Rgba32>(CurrentPicture);
             _image.Mutate(context => context.Rotate(CurrentRotationMode));
             SetPixels();
-            
         }
         catch
         {
-            ResetPictures("../../../Assets/SetPicture.png");
-            await ShowErrorMessageBox("Необработанная ошибка. Обратитесь, пожалуйста, в поддержку");
+            // ResetPictures("../../../Assets/SetPicture.png");
+            ShowErrorMessageBox("Необработанная ошибка. Обратитесь, пожалуйста, в поддержку");
         }
     }
 
-    
 
-    public void ResetPictures(string pathToErrorImage)
-    {
-        CurrentRotationMode = RotateMode.None;
-        PicturesInFolder = new[] { pathToErrorImage };
-        SetPicture();
-    }
+    // public void ResetPictures(string pathToErrorImage)
+    // {
+    //     CurrentRotationMode = RotateMode.None;
+    //     PicturesInFolder = new[] { pathToErrorImage };
+    //     SetPicture();
+    // }
 
     private void SetPixels()
     {
         var pixels = new byte[_image.Width * 4 * _image.Height];
         _image.CopyPixelDataTo(pixels);
         _bitmap.OnNext(new ImgBitmap(_image.Width, _image.Height, pixels));
-        
-        _serializer.BackUp(this);
+
+        _serializer.BackUp(new ImageManagerState(this));
     }
 
-    public void SwipeLeft()
+    public async Task SwipeLeft()
     {
         CurrentRotationMode = RotateMode.None;
 
         if (PicturesInFolder is not null)
         {
             var newIndex = PicturesInFolder.IndexOf(CurrentPicture) - 1;
-            CurrentPicture = PicturesInFolder[newIndex > -1 ? newIndex : PicturesInFolder.Length - 1];
+            CurrentPicture =
+                PicturesInFolder[newIndex > -1 ? newIndex : PicturesInFolder.Length - 1];
         }
 
         SetPicture();
     }
 
-    public void SwipeRight()
+    public async Task SwipeRight()
     {
         CurrentRotationMode = RotateMode.None;
 

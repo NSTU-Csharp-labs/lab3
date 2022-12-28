@@ -469,3 +469,6 @@
 /home/darling/RiderProjects/lab33/lab3/obj/Debug/net6.0/ref/lab3.dll
 /home/darling/RiderProjects/lab33/lab3/obj/Debug/net6.0/lab3.pdb
 /home/darling/RiderProjects/lab33/lab3/obj/Debug/net6.0/lab3.genruntimeconfig.cache
+/home/danilka108/RiderProjects/lab3/lab3/bin/Debug/net6.0/ReactiveUI.Fody.Helpers.dll
+/home/danilka108/RiderProjects/lab3/lab3/obj/Debug/net6.0/lab3.csproj.Fody.CopyLocal.cache
+/home/danilka108/RiderProjects/lab3/lab3/obj/Debug/net6.0/lab3.csproj.Fody.RuntimeCopyLocal.cache

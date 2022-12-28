@@ -5,6 +5,6 @@ namespace lab3.Serialization;
 
 public interface IImageManagerSerializer
 {
-    public Task BackUp(ImageManager manager);
-    public ImageManager LoadBackUp();
+    public Task BackUp(ImageManagerState state);
+    public ImageManagerState LoadBackUp();
 }

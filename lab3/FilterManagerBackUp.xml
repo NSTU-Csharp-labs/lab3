@@ -1,2 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<FilterManager xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" />
+<FilterManagerState xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <SelectedFilters>
+        <Filter>
+            <Name>Green</Name>
+            <Title>Зеленый фильтр</Title>
+            <SourceCode>
+            vec4 Green(vec4 color)
+            {
+                return vec4(color.r * 0.4, color.g * 1.1, color.b * 0.4, 1.0);
+            }
+        </SourceCode>
+        </Filter>
+        <Filter>
+            <Name>Blue</Name>
+            <Title>Синий фильтр</Title>
+            <SourceCode>
+            vec4 Blue(vec4 color)
+            {
+                return vec4(color.r * 0.4, color.g * 0.4, color.b * 1.05, 1.0);
+            }
+        </SourceCode>
+        </Filter>
+    </SelectedFilters>
+</FilterManagerState>

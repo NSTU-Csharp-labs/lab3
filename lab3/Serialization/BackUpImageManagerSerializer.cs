@@ -16,10 +16,10 @@ public class BackUpImageManagerSerializer : IImageManagerSerializer
     public BackUpImageManagerSerializer(string pathToFile)
     {
         _pathToFile = pathToFile;
-        _serializer = new XmlSerializer(typeof(ImageManager));
+        _serializer = new XmlSerializer(typeof(ImageManagerState));
     }
 
-    public async Task BackUp(ImageManager manager)
+    public async Task BackUp(ImageManagerState state)
     {
         await File.WriteAllTextAsync(_pathToFile, "", CancellationToken.None);
 
@@ -32,39 +32,37 @@ public class BackUpImageManagerSerializer : IImageManagerSerializer
             FileOptions.Asynchronous
         );
 
-
         var writer = XmlWriter.Create(fs, new XmlWriterSettings
         {
             Indent = true,
             IndentChars = "    "
         });
-        _serializer.Serialize(writer, manager);
+        _serializer.Serialize(writer, state);
         writer.Close();
         fs.Close();
     }
 
 
-    public ImageManager LoadBackUp()
+    public ImageManagerState LoadBackUp()
     {
-        ImageManager? manager = null;
+        ImageManagerState? state = null;
 
         var s = GenerateStreamFromString(File.ReadAllText(_pathToFile));
         try
         {
-            manager = (ImageManager)_serializer.Deserialize(s)!;
+            state = (ImageManagerState)_serializer.Deserialize(s)!;
         }
         catch (Exception e)
         {
-            manager = new ImageManager();
+            state = new ImageManagerState();
         }
         finally
         {
-            if (manager is null) manager = new ImageManager();
-            else manager.SetPicture();
+            if (state is null) state = new ImageManagerState();
             s.Close();
         }
 
-        return manager;
+        return state;
     }
 
     private static Stream GenerateStreamFromString(string s)
