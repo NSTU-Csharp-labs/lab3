@@ -2,7 +2,7 @@
 <MainWindowViewModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <PictureManager>
         <CurrentRotationMode>None</CurrentRotationMode>
-        <CurrentPicture>/home/xpomin/Pictures/Wallpapers/Turquoise Marble Effect (1920x1080).jpeg</CurrentPicture>
+        <CurrentPicture>/home/xpomin/Pictures/Wallpapers/72bd9dbd3034011564879c098516af5f.jpg</CurrentPicture>
         <PicturesInFolder>
             <string>/home/xpomin/Pictures/Wallpapers/Turquoise Marble Effect (1920x1080).jpeg</string>
             <string>/home/xpomin/Pictures/Wallpapers/72bd9dbd3034011564879c098516af5f.jpg</string>
