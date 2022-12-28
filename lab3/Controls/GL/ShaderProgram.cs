@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Avalonia.OpenGL;
 using OpenTK.Graphics;
@@ -15,8 +16,11 @@ public class ShaderProgramCompiler
 
     private readonly List<(uint, string)> _attributeBindings;
 
+    private List<Filter> _filters;
+
     public ShaderProgramCompiler()
     {
+        _filters = new List<Filter>();
         _lastAttributeIndex = 0;
         _attributeBindings = new List<(uint, string)>();
     }
@@ -31,10 +35,16 @@ public class ShaderProgramCompiler
         return this;
     }
 
+    public ShaderProgramCompiler AddFilters(IEnumerable<Filter> filters)
+    {
+        _filters.AddRange(filters);
+        return this;
+    }
+
     public ShaderProgram Compile()
     {
         var vertexShader = CompileShader(ShaderType.VertexShader, ShadersSources.Vertex);
-        var fragmentShader = CompileShader(ShaderType.FragmentShader, ShadersSources.Fragment);
+        var fragmentShader = CompileShader(ShaderType.FragmentShader, ShadersSources.BuildFragment(_filters));
         var program = OpenTK.Graphics.OpenGL.GL.CreateProgram();
 
         foreach (var (location, name) in _attributeBindings)
@@ -146,9 +156,31 @@ public static class Matrix4x4Extensions
 
 static class ShadersSources
 {
+    public static string BuildFragment(IEnumerable<Filter> filters)
+    {
+        return $@"
+    #version 330 core
+    
+    in vec2 texCoord;
+
+    out vec4 oColor;
+
+    {filters.Select(f => $"{f.SourceCode}\n")}
+
+    void main()
+    {{
+        vec4 color = texture(uTexture, texCoord); 
+
+        {filters.Select(f => $"color = {f.Name}(color);\n")} 
+        
+        oColor = color;   
+    }}
+    ";
+    } 
+    
     public const string Fragment = @"
     #version 330 core
-
+    
     in vec2 texCoord;
     uniform sampler2D uTexture;
     

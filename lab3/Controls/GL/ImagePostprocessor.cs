@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Avalonia;
 using Avalonia.OpenGL;
 using OpenTK.Graphics;
@@ -8,40 +9,13 @@ namespace lab3.Controls.GL;
 public class ImagePostprocessor : IDisposable
 {
     private readonly IGlContext _context;
+    private IEnumerable<Filter> _filters;
 
-    private bool _useBlackAndWhiteFilter;
-    private bool _useRedFilter;
-    private bool _useGreenFilter;
-    private bool _useBlueFilter;
-
-    public ImagePostprocessor()
+    public ImagePostprocessor(IEnumerable<Filter> filters)
     {
         var feature = AvaloniaLocator.Current.GetService<IPlatformOpenGlInterface>();
+        _filters = filters;
         _context = feature.CreateSharedContext();
-    }
-
-    public ImagePostprocessor UseBlackAndWhiteFilter()
-    {
-        _useBlackAndWhiteFilter = true;
-        return this;
-    }
-
-    public ImagePostprocessor UseRedFilter()
-    {
-        _useRedFilter = true;
-        return this;
-    }
-    
-    public ImagePostprocessor UseGreenFilter()
-    {
-        _useGreenFilter = true;
-        return this;
-    }
-    
-    public ImagePostprocessor UseBlueFilter()
-    {
-        _useBlueFilter = true;
-        return this;
     }
 
     public ImgBitmap Apply(ImgBitmap bitmap)
@@ -76,12 +50,7 @@ public class ImagePostprocessor : IDisposable
 
     private void DrawToFramebuffer(ImgBitmap bitmap)
     {
-        using var painter = new BitmapPainter(isPostprocessing: true);
-
-        painter.UseBlackAndWhiteFilter = _useBlackAndWhiteFilter;
-        painter.UseRedFilter = _useRedFilter;
-        painter.UseGreenFilter = _useGreenFilter;
-        painter.UseBlueFilter = _useBlueFilter;
+        using var painter = new BitmapPainter(_filters ,isPostprocessing: true);
 
         painter.Paint(bitmap.Adjust(bitmap.Width, bitmap.Height));
     }

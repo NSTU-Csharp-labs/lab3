@@ -25,13 +25,13 @@ public class ImageManager : IDisposable
     private string _currentPicture;
 
     private Image<Rgba32> _image;
-
-    
+    public FiltersManager FiltersManager { get; }
     private string[] _picturesInFolder;
 
     public ImageManager()
     {
         _bitmap = new Subject<ImgBitmap>();
+        FiltersManager = new FiltersManager();
         _imageExtentions = new List<string> { ".JPG", ".JPEG", ".PNG" };
         CurrentRotationMode = RotateMode.None;
         PicturesInFolder = new[] { "../../../Assets/texture.jpg" };
@@ -40,6 +40,7 @@ public class ImageManager : IDisposable
 
     [XmlIgnore] public IObservable<ImgBitmap> BitmapChanged => _bitmap.AsObservable();
     public RotateMode CurrentRotationMode { get; set; }
+    
     
     public string CurrentPicture
     {
@@ -106,10 +107,11 @@ public class ImageManager : IDisposable
         catch
         {
             ResetPictures("../../../Assets/SetPicture.png");
-            await ShowErrorMessageBox("Необработанная ошибка, обратитесь, пожалуйста в поддержку");
+            await ShowErrorMessageBox("Необработанная ошибка. Обратитесь, пожалуйста, в поддержку");
         }
     }
 
+    
 
     public void ResetPictures(string pathToErrorImage)
     {

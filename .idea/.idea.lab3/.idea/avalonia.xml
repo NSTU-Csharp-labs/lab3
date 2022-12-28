@@ -4,6 +4,8 @@
     <option name="projectPerEditor">
       <map>
         <entry key="lab3/App.axaml" value="lab3/lab3.csproj" />
+        <entry key="lab3/Controls/MainWindow/Actions.axaml" value="lab3/lab3.csproj" />
+        <entry key="lab3/Controls/MainWindow/Filters.axaml" value="lab3/lab3.csproj" />
         <entry key="lab3/Controls/MainWindow/MainWindow.axaml" value="lab3/lab3.csproj" />
       </map>
     </option>

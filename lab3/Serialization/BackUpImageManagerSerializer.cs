@@ -1,26 +1,25 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using lab3.Controls.MainWindow;
 
-namespace lab3;
+namespace lab3.Serialization;
 
-public class BackUpSerializer : IBackUpSerializer
+public class BackUpImageManagerSerializer : IImageManagerSerializer
 {
     private readonly string _pathToFile;
     private readonly XmlSerializer _serializer;
 
-    public BackUpSerializer(string pathToFile)
+    public BackUpImageManagerSerializer(string pathToFile)
     {
         _pathToFile = pathToFile;
-        _serializer = new XmlSerializer(typeof(MainWindowViewModel));
+        _serializer = new XmlSerializer(typeof(ImageManager));
     }
 
-    public async Task BackUp(MainWindowViewModel viewModel)
+    public async Task BackUp(ImageManager manager)
     {
         await File.WriteAllTextAsync(_pathToFile, "", CancellationToken.None);
 
@@ -39,43 +38,33 @@ public class BackUpSerializer : IBackUpSerializer
             Indent = true,
             IndentChars = "    "
         });
-        _serializer.Serialize(writer, viewModel);
+        _serializer.Serialize(writer, manager);
         writer.Close();
         fs.Close();
     }
 
 
-    public MainWindowViewModel LoadBackUp()
+    public ImageManager LoadBackUp()
     {
-        MainWindowViewModel? viewModel = null;
+        ImageManager? manager = null;
 
         var s = GenerateStreamFromString(File.ReadAllText(_pathToFile));
         try
         {
-            viewModel = (MainWindowViewModel)_serializer.Deserialize(s)!;
+            manager = (ImageManager)_serializer.Deserialize(s)!;
         }
         catch (Exception e)
         {
-            viewModel = new MainWindowViewModel();
+            manager = new ImageManager();
         }
         finally
         {
-            if (viewModel is null) viewModel = new MainWindowViewModel();
-            else viewModel.PictureManager.SetPicture();
+            if (manager is null) manager = new ImageManager();
+            else manager.SetPicture();
             s.Close();
         }
 
-        return viewModel;
-    }
-
-    public Task<string> WriteAsync(MainWindowViewModel viewModel)
-    {
-        using var stringWriter = new StringWriter();
-        using var xmlWriter = XmlWriter.Create(stringWriter);
-        var serializer =
-            new DataContractSerializer(typeof(MainWindowViewModel));
-        serializer.WriteObject(xmlWriter, viewModel);
-        return Task.FromResult(stringWriter.ToString());
+        return manager;
     }
 
     private static Stream GenerateStreamFromString(string s)
