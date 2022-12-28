@@ -5484,19 +5484,19 @@
     ]
   },
   "packageFolders": {
-    "/home/xpomin/.nuget/packages/": {}
+    "/home/danilka108/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/xpomin/RiderProjects/lab3/lab3/lab3.csproj",
+      "projectUniqueName": "/home/danilka108/RiderProjects/lab3/lab3/lab3.csproj",
       "projectName": "lab3",
-      "projectPath": "/home/xpomin/RiderProjects/lab3/lab3/lab3.csproj",
-      "packagesPath": "/home/xpomin/.nuget/packages/",
-      "outputPath": "/home/xpomin/RiderProjects/lab3/lab3/obj/",
+      "projectPath": "/home/danilka108/RiderProjects/lab3/lab3/lab3.csproj",
+      "packagesPath": "/home/danilka108/.nuget/packages/",
+      "outputPath": "/home/danilka108/RiderProjects/lab3/lab3/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/xpomin/.nuget/NuGet/NuGet.Config"
+        "/home/danilka108/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
