@@ -62,7 +62,7 @@ public class ImageManager : IDisposable
 
         CurrentRotationMode = RotateMode.None;
 
-        PicturesInFolder = new[] { "../../../Assets/texture.jpg" };
+        PicturesInFolder = new[] { "../../../Assets/START.png" };
 
         PicturesInFolder = state.PicturesInFolder;
         CurrentRotationMode = state.RotateMode;
