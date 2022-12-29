@@ -111,6 +111,7 @@ public class ImageManager : IDisposable
             if (pictures is not null && pictures.Length > 0)
             {
                 _picturesInFolder = pictures;
+                FilterManager.DisableAllFilters();
                 CurrentPicture = PicturesInFolder[0];
                 SetPicture();
             }
