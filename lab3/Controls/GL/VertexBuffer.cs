@@ -16,20 +16,17 @@ public class VertexBuffer : IDisposable
         _vertexBufferObject = vertexBufferObject;
     }
 
-    public IDisposable Use()
-    {
-        OpenTK.Graphics.OpenGL.GL.BindVertexArray(_vertexArrayObject);
-
-        return new DisposableUsing(() =>
-        {
-            OpenTK.Graphics.OpenGL.GL.BindVertexArray(VertexArrayHandle.Zero);
-        });
-    }
-
     public void Dispose()
     {
         OpenTK.Graphics.OpenGL.GL.DeleteVertexArray(_vertexArrayObject);
         OpenTK.Graphics.OpenGL.GL.DeleteBuffer(_vertexBufferObject);
+    }
+
+    public IDisposable Use()
+    {
+        OpenTK.Graphics.OpenGL.GL.BindVertexArray(_vertexArrayObject);
+
+        return new DisposableUsing(() => { OpenTK.Graphics.OpenGL.GL.BindVertexArray(VertexArrayHandle.Zero); });
     }
 
     private record struct AttributeBinding(uint Location, int Size, int StartPosition);

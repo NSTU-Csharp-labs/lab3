@@ -8,9 +8,9 @@ namespace lab3.Controls.GL;
 public class FrameBuffer
 {
     private readonly FramebufferHandle _frameBuffer;
+    private readonly int _height;
     private readonly Texture _texColorBuffer;
     private readonly int _width;
-    private readonly int _height;
 
     public FrameBuffer(int width, int height)
     {
@@ -40,13 +40,13 @@ public class FrameBuffer
             InternalFormat.Depth24Stencil8,
             _width,
             _height
-            );
+        );
         OpenTK.Graphics.OpenGL.GL.FramebufferRenderbuffer(
             FramebufferTarget.Framebuffer,
             FramebufferAttachment.DepthStencilAttachment,
             RenderbufferTarget.Renderbuffer,
             renderbuffer
-            );
+        );
 
         OpenGlUtils.CheckError();
 
@@ -82,8 +82,6 @@ public class FrameBuffer
             FramebufferTarget.Framebuffer);
 
         if (status != FramebufferStatus.FramebufferComplete && status != 0)
-        {
             throw new OpenGlException($"Error. Failed to create frame buffer. {status}");
-        }
     }
 }

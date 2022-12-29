@@ -22,13 +22,13 @@ public struct AdjustedBitmap
 
     public int Width => _bitmap.Width;
     public int Height => _bitmap.Height;
-    
+
     public int BoundsHeight { get; }
     public int BoundsWidth { get; }
 
     public float AdjustedWidth { get; private set; }
     public float AdjustedHeight { get; private set; }
-    
+
     public byte[] Pixels => _bitmap.Pixels;
 
     private void AdjustWithWidthPriority()
@@ -37,10 +37,7 @@ public struct AdjustedBitmap
 
         AdjustWidth();
 
-        if (AdjustedHeight > BoundsHeight)
-        {
-            AdjustHeight();
-        }
+        if (AdjustedHeight > BoundsHeight) AdjustHeight();
     }
 
     private void AdjustWithHeightPriority()
@@ -49,10 +46,7 @@ public struct AdjustedBitmap
 
         AdjustHeight();
 
-        if (AdjustedWidth > BoundsWidth)
-        {
-            AdjustWidth();
-        }
+        if (AdjustedWidth > BoundsWidth) AdjustWidth();
     }
 
     private void AdjustWidth()

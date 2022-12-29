@@ -6,7 +6,13 @@ public class DisposableUsing : IDisposable
 {
     private readonly Action _action;
 
-    public DisposableUsing(Action action) => _action = action;
+    public DisposableUsing(Action action)
+    {
+        _action = action;
+    }
 
-    public void Dispose() => _action.Invoke();
+    public void Dispose()
+    {
+        _action.Invoke();
+    }
 }

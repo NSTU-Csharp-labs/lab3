@@ -6,17 +6,15 @@ using Avalonia.OpenGL;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using Svg;
 
 namespace lab3.Controls.GL;
 
 public class ShaderProgramCompiler
 {
-    private uint _lastAttributeIndex;
-
     private readonly List<(uint, string)> _attributeBindings;
 
-    private List<Filter> _filters;
+    private readonly List<Filter> _filters;
+    private uint _lastAttributeIndex;
 
     public ShaderProgramCompiler()
     {
@@ -28,7 +26,7 @@ public class ShaderProgramCompiler
     public ShaderProgramCompiler BindAttribLocation(string name, out uint index)
     {
         index = _lastAttributeIndex;
-        
+
         _attributeBindings.Add((_lastAttributeIndex, name));
         _lastAttributeIndex += 1;
 
@@ -45,7 +43,7 @@ public class ShaderProgramCompiler
     {
         var vertexShader = CompileShader(ShaderType.VertexShader, ShadersSources.Vertex);
         var t = ShadersSources.BuildFragment(_filters);
-        
+
         var fragmentShader = CompileShader(ShaderType.FragmentShader, ShadersSources.BuildFragment(_filters));
         var program = OpenTK.Graphics.OpenGL.GL.CreateProgram();
 
@@ -89,9 +87,9 @@ public class ShaderProgramCompiler
 
 public class ShaderProgram : IDisposable
 {
+    private readonly ShaderHandle _fragmentShader;
     private readonly ProgramHandle _program;
     private readonly ShaderHandle _vertexShader;
-    private readonly ShaderHandle _fragmentShader;
 
     public ShaderProgram(ProgramHandle program, ShaderHandle vertexShader,
         ShaderHandle fragmentShader)
@@ -101,13 +99,17 @@ public class ShaderProgram : IDisposable
         _fragmentShader = fragmentShader;
     }
 
+    public void Dispose()
+    {
+        OpenTK.Graphics.OpenGL.GL.DeleteProgram(_program);
+        OpenTK.Graphics.OpenGL.GL.DeleteShader(_vertexShader);
+        OpenTK.Graphics.OpenGL.GL.DeleteShader(_fragmentShader);
+    }
+
     public IDisposable Use()
     {
         OpenTK.Graphics.OpenGL.GL.UseProgram(_program);
-        return new DisposableUsing(() =>
-        {
-            OpenTK.Graphics.OpenGL.GL.UseProgram(ProgramHandle.Zero);
-        });
+        return new DisposableUsing(() => { OpenTK.Graphics.OpenGL.GL.UseProgram(ProgramHandle.Zero); });
     }
 
     public void SetUniformMatrix4X4(string name, Matrix4x4 matrix)
@@ -134,13 +136,6 @@ public class ShaderProgram : IDisposable
 
         OpenGlUtils.CheckError();
     }
-
-    public void Dispose()
-    {
-        OpenTK.Graphics.OpenGL.GL.DeleteProgram(_program);
-        OpenTK.Graphics.OpenGL.GL.DeleteShader(_vertexShader);
-        OpenTK.Graphics.OpenGL.GL.DeleteShader(_fragmentShader);
-    }
 }
 
 public static class Matrix4x4Extensions
@@ -156,29 +151,8 @@ public static class Matrix4x4Extensions
     }
 }
 
-static class ShadersSources
+internal static class ShadersSources
 {
-    public static string BuildFragment(IEnumerable<Filter> filters)
-    {
-        return $@"
-    #version 330 core
-    
-    in vec2 texCoord;
-    uniform sampler2D uTexture;
-
-    out vec4 oColor;
-
-    {string.Join("\n", filters.Select(f => $"{f.SourceCode}\n"))}
-
-    void main()
-    {{
-        vec4 color = texture(uTexture, texCoord); 
-        {string.Join("\n", filters.Select(f => $"color = {f.Name}(color);\n"))} 
-        oColor = color;   
-    }}
-    ";
-    } 
-    
     public const string Fragment = @"
     #version 330 core
     
@@ -209,4 +183,25 @@ static class ShadersSources
         gl_Position = uScale * vec4(iPosition.x, iPosition.y, 0, 1.0);
     }
     ";
+
+    public static string BuildFragment(IEnumerable<Filter> filters)
+    {
+        return $@"
+    #version 330 core
+    
+    in vec2 texCoord;
+    uniform sampler2D uTexture;
+
+    out vec4 oColor;
+
+    {string.Join("\n", filters.Select(f => $"{f.SourceCode}\n"))}
+
+    void main()
+    {{
+        vec4 color = texture(uTexture, texCoord); 
+        {string.Join("\n", filters.Select(f => $"color = {f.Name}(color);\n"))} 
+        oColor = color;   
+    }}
+    ";
+    }
 }

@@ -9,7 +9,7 @@ namespace lab3.Controls.GL;
 public class ImagePostprocessor : IDisposable
 {
     private readonly IGlContext _context;
-    private IEnumerable<Filter> _filters;
+    private readonly IEnumerable<Filter> _filters;
 
     public ImagePostprocessor(IEnumerable<Filter> filters)
     {
@@ -18,19 +18,24 @@ public class ImagePostprocessor : IDisposable
         _context = feature.CreateSharedContext();
     }
 
+    public void Dispose()
+    {
+        _context.Dispose();
+    }
+
     public ImgBitmap Apply(ImgBitmap bitmap)
     {
         using (_context.MakeCurrent())
         {
             GLLoader.LoadBindings(new AvaloniaBindingsContext(_context.GlInterface));
             SkipAvaloniaOpenGlError();
-            
+
             var frameBuffer = new FrameBuffer(bitmap.Width, bitmap.Height);
             using (frameBuffer.Use())
             {
                 DrawToFramebuffer(bitmap);
                 var bitmapWithPostprocessing = frameBuffer.ReadBitmap();
-                
+
                 return bitmapWithPostprocessing;
             }
         }
@@ -50,13 +55,8 @@ public class ImagePostprocessor : IDisposable
 
     private void DrawToFramebuffer(ImgBitmap bitmap)
     {
-        using var painter = new BitmapPainter(_filters ,isPostprocessing: true);
+        using var painter = new BitmapPainter(_filters, true);
 
         painter.Paint(bitmap.Adjust(bitmap.Width, bitmap.Height));
-    }
-
-    public void Dispose()
-    {
-        _context.Dispose();
     }
 }

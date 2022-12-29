@@ -9,6 +9,12 @@ namespace lab3.Controls.GL;
 
 public class ImageRenderer : OpenGlControlBase
 {
+    public static readonly StyledProperty<IEnumerable<Filter>> FiltersProperty =
+        AvaloniaProperty.Register<ImageRenderer, IEnumerable<Filter>>(nameof(Filters));
+
+    public static readonly StyledProperty<ImgBitmap> ImgProperty =
+        AvaloniaProperty.Register<ImageRenderer, ImgBitmap>(nameof(Img));
+
     public ImageRenderer()
     {
         AffectsRender<ImageRenderer>(
@@ -23,23 +29,17 @@ public class ImageRenderer : OpenGlControlBase
         set => SetValue(ImgProperty, value);
     }
 
-    public static readonly StyledProperty<IEnumerable<Filter>> FiltersProperty =
-        AvaloniaProperty.Register<ImageRenderer, IEnumerable<Filter>>(nameof(Filters));
-
     public IEnumerable<Filter> Filters
     {
         get => GetValue(FiltersProperty);
         set => SetValue(FiltersProperty, value);
     }
 
-    public static readonly StyledProperty<ImgBitmap> ImgProperty =
-        AvaloniaProperty.Register<ImageRenderer, ImgBitmap>(nameof(Img));
-
 
     protected override void OnOpenGlInit(GlInterface GL, int fb)
     {
         GLLoader.LoadBindings(new AvaloniaBindingsContext(GL));
-        
+
         try
         {
             OpenGlUtils.CheckError();

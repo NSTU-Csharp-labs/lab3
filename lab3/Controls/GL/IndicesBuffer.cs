@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Globalization;
-using Avalonia.OpenGL;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
-using static Avalonia.OpenGL.GlConsts;
 
 namespace lab3.Controls.GL;
 
@@ -18,6 +15,11 @@ public class IndicesBuffer : IDisposable
         _indicesBufferObject = OpenTK.Graphics.OpenGL.GL.GenBuffer();
 
         Fill();
+    }
+
+    public void Dispose()
+    {
+        OpenTK.Graphics.OpenGL.GL.DeleteBuffer(_indicesBufferObject);
     }
 
     private void Fill()
@@ -47,10 +49,5 @@ public class IndicesBuffer : IDisposable
             OpenTK.Graphics.OpenGL.GL.BindBuffer(BufferTargetARB.ElementArrayBuffer,
                 BufferHandle.Zero);
         });
-    }
-
-    public void Dispose()
-    {
-        OpenTK.Graphics.OpenGL.GL.DeleteBuffer(_indicesBufferObject);
     }
 }

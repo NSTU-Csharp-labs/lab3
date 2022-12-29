@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Xml.Serialization;
-using Avalonia;
 
 namespace lab3.Controls.GL;
 
@@ -11,6 +9,7 @@ public class ImgBitmap
         Width = Height = 0;
         Pixels = Array.Empty<byte>();
     }
+
     public ImgBitmap(int width, int height, byte[] pixels)
     {
         Width = width;
@@ -24,6 +23,8 @@ public class ImgBitmap
 
     public byte[] Pixels { get; }
 
-    public AdjustedBitmap Adjust(int boundsWidth, int boundsHeight) =>
-        new (this, boundsWidth, boundsHeight);
+    public AdjustedBitmap Adjust(int boundsWidth, int boundsHeight)
+    {
+        return new(this, boundsWidth, boundsHeight);
+    }
 }

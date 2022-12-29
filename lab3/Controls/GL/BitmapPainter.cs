@@ -7,16 +7,18 @@ namespace lab3.Controls.GL;
 
 public class BitmapPainter : IDisposable
 {
-    private readonly ShaderProgram _shaderProgram;
-    private readonly VertexBuffer _vertexBuffer;
-    private readonly IndicesBuffer _indicesBuffer;
-    private readonly Texture _texture;
-
     private readonly ushort[] _indices =
     {
         0, 1, 3,
         1, 2, 3
     };
+
+    private readonly IndicesBuffer _indicesBuffer;
+
+    private readonly bool _isPostprocessing;
+    private readonly ShaderProgram _shaderProgram;
+    private readonly Texture _texture;
+    private readonly VertexBuffer _vertexBuffer;
 
     // @formatter:off
     private readonly float[] _vertices =
@@ -30,12 +32,10 @@ public class BitmapPainter : IDisposable
     };
     // @formatter:on
 
-    private readonly bool _isPostprocessing;
-
-    public BitmapPainter( IEnumerable<Filter> filters, bool isPostprocessing = false)
+    public BitmapPainter(IEnumerable<Filter> filters, bool isPostprocessing = false)
     {
         _isPostprocessing = isPostprocessing;
-        
+
         OpenTK.Graphics.OpenGL.GL.ClearColor(0, 0, 0, 0);
         // OpenTK.Graphics.OpenGL.GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
 
@@ -53,6 +53,14 @@ public class BitmapPainter : IDisposable
         _vertexBuffer.Use();
         _indicesBuffer = new IndicesBuffer(_indices);
         _texture = new Texture();
+    }
+
+    public void Dispose()
+    {
+        _shaderProgram.Dispose();
+        _vertexBuffer.Dispose();
+        _indicesBuffer.Dispose();
+        _texture.Dispose();
     }
 
     public void Paint(AdjustedBitmap bitmap)
@@ -77,14 +85,6 @@ public class BitmapPainter : IDisposable
 
             OpenGlUtils.CheckError();
         }
-    }
-
-    public void Dispose()
-    {
-        _shaderProgram.Dispose();
-        _vertexBuffer.Dispose();
-        _indicesBuffer.Dispose();
-        _texture.Dispose();
     }
 
     private void SetScaleMatrix(AdjustedBitmap bitmap)
